@@ -1,4 +1,6 @@
 <x-dashboard>
+    <div class="p-4 sm:ml-64">
+
     <div class="container mx-auto p-1">
         <div class="pb-2 mb-3">
 
@@ -87,12 +89,12 @@
                                 </li>
                                 <li class="flex items-center py-3">
                                     <span>Last Purchase Amount</span>
-                                    <span class="ml-auto"> LKR {{ $appointments->where('status', true)->sortByDesc('created_at')->first()?->total }}</span>
+                                    <span class="ml-auto"> ₱ {{ $appointments->where('status', true)->sortByDesc('created_at')->first()?->total }}</span>
                                 </li>
 
                                 <li class="flex items-center py-3">
                                     <span>Total Purchases</span>
-                                    <span class="ml-auto"> LKR {{ $appointments->where('status', true)?->sum('total') }}</span>
+                                    <span class="ml-auto"> ₱ {{ $appointments->where('status', true)?->sum('total') }}</span>
                                 </li>
                                 <li class="flex items-center py-3">
                                     <span>Last Cancellation</span>
@@ -106,12 +108,6 @@
                         class="block w-full text-blue-800 text-sm font-semibold rounded-lg hover:bg-gray-100 focus:outline-none focus:shadow-outline focus:bg-gray-100 hover:shadow-xs p-3 my-4">Show
                         Full Information</button>
             </div>
-
-        </div>
-        <div class="w-full">
-
-            <livewire:manage-appointments :user-id="$user->id" :select-filter="'upcoming'" />
-
 
         </div>
     </div>

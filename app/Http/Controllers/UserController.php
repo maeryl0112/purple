@@ -16,20 +16,42 @@ class UserController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {
-        $request->validate([
-            'search' => 'nullable|string|max:255',
-        ]);
+{
+    $request->validate([
+        'search' => 'nullable|string|max:255',
+        'role' => 'nullable|string|in:employee,customer,admin', // Validate role filter
+    ]);
 
-        $search = $request['search'];
+    $search = $request->input('search');
+    $role = $request->input('role');
 
-        $users = User::where('name', 'LIKE', "%{$search}%")
-            ->orWhere('email', 'LIKE', "%{$search}%")
-            ->orWhere('phone_number', 'LIKE', "%{$search}%")
-            ->paginate(10);
+    $query = User::query();
 
-        return view('dashboard.manage-users.index', compact('users'), ['search' => $search]);
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'LIKE', "%{$search}%")
+              ->orWhere('email', 'LIKE', "%{$search}%")
+              ->orWhere('phone_number', 'LIKE', "%{$search}%");
+        });
     }
+
+    if ($role) {
+        $roleId = match ($role) {
+            'employee' => UserRolesEnum::Employee,
+            'customer' => UserRolesEnum::Customer,
+            'admin' => UserRolesEnum::Admin,
+            default => null,
+        };
+
+        if ($roleId !== null) {
+            $query->where('role_id', $roleId);
+        }
+    }
+
+    $users = $query->paginate(10);
+
+    return view('dashboard.manage-users.index', compact('users', 'search', 'role'));
+}
 
     /**
      * Show the form for creating a new resource.
@@ -46,7 +68,7 @@ class UserController extends Controller
     {
 
         // Redirect if not admin
-        if (auth()->user()->role->name != 'Admin') {
+        if (auth()->user()->role->name != 'Admin' || auth()->user()->role->name != 'Employee') {
             return redirect()->route('dashboard')->with('error', 'You are not authorized to perform this action.');
         }
 
@@ -71,8 +93,10 @@ class UserController extends Controller
 
         if ($role == 'employee') {
             $role_id = UserRolesEnum::Employee;
-        } else {
+        } elseif ($role == 'customer'){
             $role_id = UserRolesEnum::Customer;
+        } else {
+            $role_id = UserRolesEnum::Admin;
         }
 
         try {

@@ -11,9 +11,11 @@ class ManageAppointments extends Component
 {
 
     private $appointments;
-
+    public $showPaymentModal = false;
+    public $paymentType = false;
+    public $appointmentId;
+    public $errorMessage;
     public $search;
-
     protected $queryString = [
         'search' => ['except' => ''],
     ];
@@ -28,13 +30,23 @@ class ManageAppointments extends Component
     private $timeNow;
 
     public $selectFilter = 'upcoming'; // can be 'upcoming' , 'previous' , 'cancelled'
-
+    public $paymentFilter = null;
     private $userId;
 
-    protected $rules = [
-//        "appointment.name" => "required|string|max:255",
 
-    ];
+    public function openPaymentModal($id)
+    {
+        $this->showPaymentModal = true;
+        $this->appointmentId = $id;
+        $this->paymentType = null;
+        $this->errorMessage = null;
+    }
+    public function closePaymentModal()
+    {
+        $this->reset(['showPaymentModal', 'paymentType', 'appointmentId', 'errorMessage']);
+    }
+
+
 
     public function mount($userId = null, $selectFilter = 'upcoming') {
 
@@ -50,18 +62,16 @@ class ManageAppointments extends Component
 
     public function render()
     {
-        $query = Appointment::with('timeSlot', 'user', 'service', 'location');
+        $query = Appointment::with( 'user', 'service');
         if ($this->search) {
             $query->where(function ($subQuery) {
                 $subQuery
                     ->where('date', 'like', '%' . $this->search . '%')
                     ->orWhere('appointment_code', 'like', '%' . $this->search . '%')
-                    ->orWhere('start_time', 'like', '%' . $this->search . '%')
-                    ->orWhere('end_time', 'like', '%' . $this->search . '%')
+                    ->orWhere('time', 'like', '%' . $this->search . '%')
+                    ->orWhere('first_name', 'like', '%' . $this->search . '%')
                     ->orWhere('status', 'like', '%' . $this->search . '%')
-                    ->orWhere('service_id', 'like', '%' . $this->search . '%')
-                    ->orWhere('time_slot_id', 'like', '%' . $this->search . '%')
-                    ->orWhere('location_id', 'like', '%' . $this->search . '%');
+                    ->orWhere('service_id', 'like', '%' . $this->search . '%');
             });
 
             $query->orWhereHas('user', function ($userQuery) {
@@ -75,14 +85,11 @@ class ManageAppointments extends Component
                     ->orWhere('description', 'like', '%' . $this->search . '%')
                     ->orWhere('category_id', 'like', '%' . $this->search . '%');
             });
-
-            $query->orWhereHas('location', function ($locationQuery) {
-                $locationQuery->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhere('address', 'like', '%' . $this->search . '%')
-                    ->orWhere('telephone_number', 'like', '%' . $this->search . '%');
-            });
         }
 
+        if ($this->paymentFilter) {
+            $query->where('payment', $this->paymentFilter); // Filter by payment type
+        }
 
         if ($this->userId) {
 
@@ -97,13 +104,14 @@ class ManageAppointments extends Component
 
         } else if ($this->selectFilter === 'cancelled') {
             $query->where('status', 0);
+        } else if ($this->selectFilter === 'completed') {
+            $query->where('status',2);
         }
 
 
-        $this->appointments = $query
-            ->orderBy('date')
-            ->orderBy('start_time')
-            ->paginate(10);
+
+        // Get the appointments
+        $this->appointments = $query->orderBy('date')->paginate(20);
 //        dd($this->appointments);
 
         return view('livewire.manage-appointments', [
@@ -112,32 +120,11 @@ class ManageAppointments extends Component
     }
 
 
-
-
-//    public function confirmAppointmentEdit(Appointment $appointment) {
-//        $this->appointment = $appointment;
-//        $this->confirmingAppointmentAdd= true;
-//    }
     public function confirmAppointmentCancellation() {
         $this->confirmingAppointmentCancellation = true;
     }
 
-//    public function saveAppointment() {
-//        $this->validate();
-//
-//        if (isset($this->appointment->id)) {
-//            $this->appointment->save();
-//        } else {
-//            Appointment::create(
-//                [
-//                    'name' => $this->appointment['name'],
-//                ]
-//            );
-//        }
-//
-//        $this->confirmingAppointmentAdd = false;
-//        $this->appointment = null;
-//    }
+
 
     public function cancelAppointment(Appointment $appointment)
     {
@@ -155,8 +142,36 @@ class ManageAppointments extends Component
         }
     }
 
-//    public function confirmAppointmentAdd() {
-//        $this->confirmingAppointmentAdd = true;
-//    }
+    public function markAsRead($notificationId)
+    {
+        $notification = auth()->user()->notifications()->find($notificationId);
+        if ($notification) {
+            $notification->markAsRead();
+            $this->emit('notificationRead'); // Emit an event to update the notification count
+        }
+    }
+
+    public function completeAppointment()
+{
+    if (!$this->paymentType) {
+        $this->errorMessage = 'Please select a payment method.';
+        return;
+    }
+
+    $appointment = Appointment::find($this->appointmentId);
+
+    if ($appointment) {
+        $appointment->status = 2;
+        $appointment->payment = $this->paymentType;
+        $appointment->save();
+
+        $this->reset(['showPaymentModal', 'paymentType', 'appointmentId', 'errorMessage']);
+
+        session()->flash('message', 'Appointment marked as completed.');
+    } else {
+        session()->flash('error', 'Appointment not found.');
+    }
+}
+
 
 }

@@ -15,7 +15,7 @@ class AppointmentConfirmationNotification extends Notification implements Should
     use Queueable;
 
     public function __construct(
-        public Appointment $appointment,
+        public Appointment $appointment
     )
     {
     }
@@ -28,20 +28,24 @@ class AppointmentConfirmationNotification extends Notification implements Should
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject( 'Appointment Confirmation - Salon Bliss 🎉' . $this->appointment->service->name)
-            ->from('noreply@salonbliss.com')
+            ->subject( 'Appointment Confirmation - Purple Look Hair Salon and Spa 🎉' . $this->appointment->service->name)
+            ->from('noreply@purplelooksalonandspa.com')
             ->greeting('Hello ' . $notifiable->name . '!')
             ->line('Your appointment for ' . $this->appointment->service->name . ' has been confirmed!')
-            // invoice
-            ->line('Your payment of LKR ' . $this->appointment->total . ' has been processed.')
+            ->line('Your total is ' . $this->appointment->total . '.')
             ->line('🧾 Appointment Code: ' . $this->appointment->appointment_code)
             ->line('📅 Date: ' . $this->appointment->date)
-            ->line('⏰ Time: ' . $this->appointment->start_time . ' - ' . $this->appointment->end_time)
-            ->line('📍 Location: ' . $this->appointment->location->name)
-            ->line('📍 Address: ' . $this->appointment->location->address)
-            ->line('📞 Contact: ' . $this->appointment->location->telephone_number)
-            ->action('View Your Appointment',  route('dashboard').'?search='. $this->appointment->appointment_code )
-            ->line('Thank you for using Salon Bliss! We hope to see you again soon.');
+            ->line('⏰ Time: ' . $this->appointment->time)
+            ->line('📞 Staff Assigned: ' . $this->appointment->employee->first_name)
+
+            ->action(
+                'View Your Appointment',
+                route('customerview', ['customer' => $this->appointment->user->id]) . '?search=' . $this->appointment->appointment_code
+            )
+            ->line('Thank you for choosing Purple Look Hair Salon and Spa! We look forward to see you soon.')
+            ->line('*Strictly no late, 10 minutes grace period.')
+            ->line('If you have any questions about your appointment.')
+            ->line('Please contact 09******** or email purplelookhairsalonandspa@gmail.com');
 
     }
 

@@ -1,13 +1,9 @@
 <x-dashboard>
-
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Manage Users') }}
-        </h2>
-    </x-slot>
-    <div class="ml-5">
+    <div class="p-4 sm:ml-64">
+        <div class="p-4 border-2 border-gray-200  mt-1">
+        <div class="flex justify-between mx-7">
       <x-button>
-        <a href="{{ route('users.create') }}">Add User</a>
+        <a href="{{ route('manageusers.create') }}">Add User</a>
       </x-button>
     </div>
     <div x-data="{showModal:false}">
@@ -22,9 +18,33 @@
                         </svg>
                     </div>
                     <input type="search" value="{{$search}}" id="default-search" name="search" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Search Users...">
-                    <button type="submit" class="text-white absolute right-2.5 bottom-2.5 bg-pink-600 hover:bg-pink-700 focus:ring-4 focus:outline-none focus:ring-pink-300 font-medium rounded-lg text-sm px-4 py-2">Search</button>
+                    <button type="submit" class="text-white absolute right-2.5 bottom-2.5 bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-4 py-2">Search</button>
                 </div>
             </form>
+
+            <form class="w-1/3 float-right m-4" method="GET" action="{{ route('manageusers') }}">
+                <div class="flex items-center gap-4">
+                    <!-- Role Filter Dropdown -->
+                    <select
+                        name="role"
+                        class="border rounded px-4 py-2"
+                    >
+                        <option value="">All Roles</option>
+                        <option value="employee" {{ request('role') == 'employee' ? 'selected' : '' }}>Employee</option>
+                        <option value="customer" {{ request('role') == 'customer' ? 'selected' : '' }}>Customer</option>
+                        <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                    </select>
+
+                    <!-- Submit Button -->
+                    <button
+                        type="submit"
+                        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    >
+                        Filter
+                    </button>
+                </div>
+            </form>
+
 
 
             <table class="w-full border-collapse bg-white text-left text-sm text-gray-500 overflow-x-scroll min-w-screen">

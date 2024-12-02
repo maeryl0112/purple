@@ -4,24 +4,22 @@ namespace App\Http\Livewire;
 
 use App\Models\Category;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class ManageCategories extends Component
 {
+    use WithFileUploads;
 
     private $categories;
-
+    public $image;
     public $search;
 
     protected $queryString = [
         'search' => ['except' => ''],
     ];
-
     public $category;
 
     public $confirmingCategoryAdd;
-
-    public $confirmCategoryDeletion  = false;
-    public $confirmingCategoryDeletion = false;
 
     protected $rules = [
         "category.name" => "required|string|max:255",
@@ -41,32 +39,38 @@ class ManageCategories extends Component
         $this->category = $category;
         $this->confirmingCategoryAdd= true;
     }
-    public function confirmCategoryDeletion() {
-        $this->confirmingCategoryDeletion = true;
-    }
 
-    public function saveCategory() {
-        $this->validate();
+    public function saveCategory()
+    {
+        $this->validate([
+            'category.name' => 'required|string|max:255',
+            'image' => 'nullable|image|max:2048', // Validate the image
+        ]);
+
+        $imagePath = null;
+
+        if ($this->image) {
+            $imagePath = $this->image->store('categories', 'public'); // Save image to 'storage/app/public/categories'
+        }
 
         if (isset($this->category->id)) {
-            $this->category->save();
-            } else {
-            Category::create(
-                [
-                    'name' => $this->category['name'],
-                ]
-            );
+            $this->category->update([
+                'name' => $this->category['name'],
+                'image' => $imagePath ?: $this->category->image,
+            ]);
+        } else {
+            Category::create([
+                'name' => $this->category['name'],
+                'image' => $imagePath,
+            ]);
         }
 
         $this->confirmingCategoryAdd = false;
         $this->category = null;
+        $this->image = null; // Reset the image input
     }
 
-    public function deleteCategory(Category $categoryId) {
-        $this->category = $categoryId;
-        $this->category->delete();
-        $this->confirmingCategoryDeletion = false;
-    }
+
 
     public function confirmCategoryAdd() {
         $this->confirmingCategoryAdd = true;
