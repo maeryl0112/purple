@@ -11,26 +11,15 @@ use Illuminate\Database\Eloquent\Builder;
 class Service extends Model
 {
 
-//    protected $hidden = [
-//        'id',
-//        'category_id',
-//        'is_hidden',
-//        'created_at',
-//        'updated_at',
-//    ];
+
+
     protected $fillable = [
-//        'uuid',
         'name',
         'slug',
         'description',
         'image',
         'price',
-        'notes',
         'allergens',
-        'benefits',
-        'aftercare_tips',
-        'cautions',
-//        'duration_minutes',
         'category_id',
         'is_hidden',
         'employee_id',

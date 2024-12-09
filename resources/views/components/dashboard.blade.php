@@ -1,6 +1,6 @@
 <x-app-layout>
 
-  <div class="py-12">
+  <div class="py-4">
 
 
 
@@ -57,13 +57,13 @@
 
 
 
-                    
+
 
 
 
                         <li>
                             <a href="{{ route('manageappointments') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-100 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-purple-500 pr-6
-                         {{ request()->routeIs('manageappointments') ? 'bg-purple-200 border-purple-500 text-gray-900 font-semibold': '' }}
+                         {{ request()->routeIs('manageappointments') ? 'bg-purple-300 border-purple-500 text-gray-900 font-semibold': '' }}
                         ">
                           <span class="inline-flex justify-center items-center ml-4">
                             <svg fill="currentColor" class="w-5 h-5" viewBox="0 0 24 24" data-name="Layer 1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"><title/><path d="M18,5V3a1,1,0,0,0-2,0V5H8V3A1,1,0,0,0,6,3V5H2V21H22V5Zm2,14H4V7H20Zm-7-9H11v2h2Zm4,0H15v2h2ZM9,14H7v2H9Zm4,0H11v2h2Z"/></svg>
@@ -75,7 +75,7 @@
 
                           <li>
                             <a href="{{route('manageservices')}}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-100 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-purple-500 pr-6
-                           {{ request()->routeIs('manageservices') ? 'bg-purple-200 border-purple-500 text-gray-900 font-semibold' : '' }}
+                           {{ request()->routeIs('manageservices') ? 'bg-purple-300 border-purple-500 text-gray-900 font-semibold' : '' }}
                             ">
                               <span class="inline-flex justify-center items-center ml-4">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
@@ -86,7 +86,7 @@
 
                           <li>
                             <a href="{{ route('managecategories') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-purple-500 pr-6
-                    {{ request()->routeIs('managecategories') ? 'bg-purple-200 border-purple-500 text-gray-900 font-semibold' : '' }}
+                    {{ request()->routeIs('managecategories') ? 'bg-purple-300 border-purple-500 text-gray-900 font-semibold' : '' }}
                     ">
                       <span class="inline-flex justify-center items-center ml-4">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
@@ -99,7 +99,7 @@
 
                             <li>
                                 <a href="{{ route('manageemployees') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-purple-500 pr-6
-                       {{ request()->routeIs('manageemployees') ? 'bg-purple-200 border-purple-500 text-gray-900 font-semibold' : '' }}
+                       {{ request()->routeIs('manageemployees') ? 'bg-purple-300 border-purple-500 text-gray-900 font-semibold' : '' }}
                         ">
                           <span class="inline-flex justify-center items-center ml-4">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"> <path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Zm6-10.125a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm1.294 6.336a6.721 6.721 0 0 1-3.17.789 6.721 6.721 0 0 1-3.168-.789 3.376 3.376 0 0 1 6.338 0Z"> </path></svg>
@@ -111,7 +111,7 @@
 
                             <li>
                                 <a href="{{route('managejobcategories')}}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-purple-500 pr-6
-                                {{ request()->routeIs('managejobcategories') ? 'bg-purple-200 border-purple-500 text-gray-900 font-semibold' : '' }}
+                                {{ request()->routeIs('managejobcategories') ? 'bg-purple-300 border-purple-500 text-gray-900 font-semibold' : '' }}
                                 ">
                                   <span class="inline-flex justify-center items-center ml-4">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
@@ -132,7 +132,7 @@
 
                           <li>
                             <a href="{{ route('manageequipments') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-purple-500 pr-6
-                            {{ request()->routeIs('manageequipments') ? 'bg-purple-200 border-purple-500 text-gray-900 font-semibold' : '' }}
+                            {{ request()->routeIs('manageequipments') ? 'bg-purple-300 border-purple-500 text-gray-900 font-semibold' : '' }}
                             ">
 
                             <span class="inline-flex justify-center items-center ml-4">
@@ -146,7 +146,7 @@
 
                           <li>
                             <a href="{{ route('managesupplies') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-purple-500 pr-6
-                           {{ request()->routeIs('managesupplies') ? 'bg-purple-200 border-purple-500 text-gray-900 font-semibold' : '' }}
+                           {{ request()->routeIs('managesupplies') ? 'bg-purple-300 border-purple-500 text-gray-900 font-semibold' : '' }}
                             ">
 
                             <span class="inline-flex justify-center items-center ml-4">
@@ -161,7 +161,7 @@
 
                           <li>
                             <a href="{{ route('manageonlinesuppliers') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-purple-500 pr-6
-                           {{ request()->routeIs('manageonlinesuppliers') ? 'bg-purple-200 border-purple-500 text-gray-900 font-semibold' : '' }}
+                           {{ request()->routeIs('manageonlinesuppliers') ? 'bg-purple-300 border-purple-500 text-gray-900 font-semibold' : '' }}
                             ">
 
                             <span class="inline-flex justify-center items-center ml-4">
@@ -210,9 +210,26 @@
                             </ul>
                          </li>
 
+                         <li class="px-5">
+                            <div class="flex flex-row items-center h-8">
+                              <div class="text-sm font-light tracking-wide text-gray-500">QR SETTING</div>
+                            </div>
+                          </li>
 
 
+                          <li>
+                            <a href="{{ route('managepayments') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-purple-500 pr-6
+                           {{ request()->routeIs('managepayments') ? 'bg-purple-300 border-purple-500 text-gray-900 font-semibold' : '' }}
+                            ">
 
+                            <span class="inline-flex justify-center items-center ml-4">
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m7.848 8.25 1.536.887M7.848 8.25a3 3 0 1 1-5.196-3 3 3 0 0 1 5.196 3Zm1.536.887a2.165 2.165 0 0 1 1.083 1.839c.005.351.054.695.14 1.024M9.384 9.137l2.077 1.199M7.848 15.75l1.536-.887m-1.536.887a3 3 0 1 1-5.196 3 3 3 0 0 1 5.196-3Zm1.536-.887a2.165 2.165 0 0 0 1.083-1.838c.005-.352.054-.695.14-1.025m-1.223 2.863 2.077-1.199m0-3.328a4.323 4.323 0 0 1 2.068-1.379l5.325-1.628a4.5 4.5 0 0 1 2.48-.044l.803.215-7.794 4.5m-2.882-1.664A4.33 4.33 0 0 0 10.607 12m3.736 0 7.794 4.5-.802.215a4.5 4.5 0 0 1-2.48-.043l-5.326-1.629a4.324 4.324 0 0 1-2.068-1.379M14.343 12l-2.882 1.664" />
+                              </svg>
+                            </span>
+                            <span class="ml-2 text-sm tracking-wide truncate">Manage GCash QR</span>
+                            </a>
+                          </li>
 
 
                             @else

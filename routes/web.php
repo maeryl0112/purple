@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\SalesReportController;
-use App\Models\Appointment;
+use App\Models\Payment;
+use App\Services\TwilioService;
+
 
 
 
@@ -47,6 +49,9 @@ Route::prefix('dashboard')->group(function () {
     Route::get('/', [App\Http\Controllers\DashboardHomeController::class, 'index'])->name('dashboard');
 });
 
+
+
+
 Route::get('/services/{slug}', [App\Http\Controllers\DisplayService::class, 'show'])->name('view-service');
 
 
@@ -56,18 +61,8 @@ Route::get('/services/{slug}', [App\Http\Controllers\DisplayService::class, 'sho
         ])->group(function () {
 
             Route::prefix('manage')->group( function () {
-                Route::resource('users', UserController::class)->names([
-                    'index' => 'manageusers',         // GET /users (index)
-                    'store' => 'manageusers.store',   // POST /users (store)
-                    'create' => 'manageusers.create', // GET /users/create (create)
-                    'edit' => 'manageusers.edit',     // GET /users/{id}/edit (edit)
-                    'update' => 'manageusers.update', // PUT /users/{id} (update)
-                    'destroy' => 'manageusers.destroy'// DELETE /users/{id} (destroy)
-                ]);
-                Route::put('users/{id}/suspend', [UserSuspensionController::class, 'suspend'])->name('manageusers.suspend');
-                Route::put('users/{id}/activate', [UserSuspensionController::class, 'activate'])->name('manageusers.activate');
 
-                Route::get('/dashboard/manage/contact', [DisplayContact::class, 'contact'])->name('managecontact');
+
 
 
                 Route::get('employees', function () {
@@ -94,15 +89,6 @@ Route::get('/services/{slug}', [App\Http\Controllers\DisplayService::class, 'sho
         Route::middleware([
             'validateRole:Admin,Employee'
         ])->group(function () {
-
-            Route::get('/appointments/calendar', function () {
-                $appointments = Appointment::where('date', '>=', now()) // Only upcoming appointments
-                    ->get(['id', 'title', 'date']); // Adjust fields as per your schema
-
-                return response()->json($appointments);
-            });
-
-
 
             Route::post('/notifications/mark-as-read/{id}', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
 
@@ -140,6 +126,17 @@ Route::get('/services/{slug}', [App\Http\Controllers\DisplayService::class, 'sho
 
 
             Route::prefix('manage')->group( function () {
+                Route::resource('users', UserController::class)->names([
+                    'index' => 'manageusers',         // GET /users (index)
+                    'store' => 'manageusers.store',   // POST /users (store)
+                    'create' => 'manageusers.create', // GET /users/create (create)
+                    'edit' => 'manageusers.edit',     // GET /users/{id}/edit (edit)
+                    'update' => 'manageusers.update', // PUT /users/{id} (update)
+                    'destroy' => 'manageusers.destroy'// DELETE /users/{id} (destroy)
+                ]);
+                Route::put('users/{id}/suspend', [UserSuspensionController::class, 'suspend'])->name('manageusers.suspend');
+                Route::put('users/{id}/activate', [UserSuspensionController::class, 'activate'])->name('manageusers.activate');
+
                 Route::get('services', function () {
                     return view('dashboard.manage-services.index');
                 })->name('manageservices');
@@ -187,6 +184,10 @@ Route::get('/services/{slug}', [App\Http\Controllers\DisplayService::class, 'sho
                 Route::get('sales-report', function(){
                     return view('dashboard.sales-report.index');
                 })->name('salesreport');
+
+                Route::get('payments', function(){
+                    return view('dashboard.manage-payments.index');
+                })->name('managepayments');
             });
 
         });
@@ -201,7 +202,17 @@ Route::get('/services/{slug}', [App\Http\Controllers\DisplayService::class, 'sho
                 Route::delete('/item/{cart_service_id}', [App\Http\Controllers\CartController::class, 'removeItem'])->name('cart.remove-item');
                 Route::delete('/{id}', [App\Http\Controllers\CartController::class, 'destroy'])->name('cart.destroy');
                 Route::post('/checkout', [App\Http\Controllers\CartController::class, 'checkout'])->name('cart.checkout');
+                Route::get('/get-qr-code', function () {
+                    $payment = DB::table('payments')->latest('created_at')->first();
+
+                    if ($payment) {
+                        return response()->json(['qrImage' => asset('storage/' . $payment->image)]);
+                    }
+
+                    return response()->json(['qrImage' => null], 404);
+                })->name('get.qr.code');
             });
+
 
         });
     });

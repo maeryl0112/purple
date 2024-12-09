@@ -7,25 +7,21 @@ use Livewire\Component;
 
 class ManageJobCategories extends Component
 {
-
     private $job_categories;
-
     public $search;
-
     protected $queryString = [
         'search' => ['except' => ''],
     ];
 
     public $job_category;
-
     public $confirmingJobCategoryAdd;
-
     public $confirmJobCategoryDeletion  = false;
     public $confirmingJobCategoryDeletion = false;
 
     protected $rules = [
         "job_category.name" => "required|string|max:255",
     ];
+
     public function render()
     {
         $this->job_categories = JobCategory::when($this->search, function ($query) {
@@ -37,39 +33,45 @@ class ManageJobCategories extends Component
         ]);
     }
 
-    public function confirmJobCategoryEdit(JobCategory $job_category) {
+    public function confirmJobCategoryEdit(JobCategory $job_category)
+    {
         $this->job_category = $job_category;
-        $this->confirmingJobCategoryAdd= true;
+        $this->confirmingJobCategoryAdd = true;
     }
-    public function confirmJobCategoryDeletion() {
+
+    public function confirmJobCategoryDeletion()
+    {
         $this->confirmingJobCategoryDeletion = true;
     }
 
-    public function saveJobCategory() {
+    public function saveJobCategory()
+    {
         $this->validate();
 
         if (isset($this->job_category->id)) {
             $this->job_category->save();
-            } else {
-            JobCategory::create(
-                [
-                    'name' => $this->job_category['name'],
-                ]
-            );
+            $this->dispatchBrowserEvent('job-category-saved', ['message' => 'Job category updated successfully!']);
+        } else {
+            JobCategory::create([
+                'name' => $this->job_category['name'],
+            ]);
+            $this->dispatchBrowserEvent('job-category-saved', ['message' => 'Job category added successfully!']);
         }
 
         $this->confirmingJobCategoryAdd = false;
-        $this->category = null;
+        $this->job_category = null;
     }
 
-    public function deleteJobCategory(JobCategory $job_categoryId) {
+    public function deleteJobCategory(JobCategory $job_categoryId)
+    {
         $this->job_category = $job_categoryId;
         $this->job_category->delete();
+        $this->dispatchBrowserEvent('job-category-saved', ['message' => 'Job category deleted successfully!']);
         $this->confirmingJobCategoryDeletion = false;
     }
 
-    public function confirmJobCategoryAdd() {
+    public function confirmJobCategoryAdd()
+    {
         $this->confirmingJobCategoryAdd = true;
     }
-
 }

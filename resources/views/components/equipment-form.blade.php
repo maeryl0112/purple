@@ -44,7 +44,7 @@
         <select wire:model="newEquipment.employee_id" id="employee_id" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             <option disabled selected value="">Select Employee</option>
             @foreach ($employees as $employee)
-                <option value="{{ $employee->id }}">{{ $employee->first_name}}</option>
+                <option value="{{ $employee->id }}">{{ $employee->first_name}} - {{ $employee->jobCategory?->name }}</option>
             @endforeach
             @error('newEquipment.employee_id') <span class="text-red-500">{{ $message }}</span>@enderror
         </select>

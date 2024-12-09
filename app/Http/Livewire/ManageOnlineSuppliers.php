@@ -22,7 +22,7 @@ class ManageOnlineSuppliers extends Component
 
     protected $rules = [
         "online_supplier.name" => "required|string|max:255",
-        "online_supplier.link" => "required|string|max:255",
+        "online_supplier.link" => "nullable|string|max:255",
         "online_supplier.contact" => "required|string|max:255",
         "online_supplier.address" => "required|string|max:255",
     ];

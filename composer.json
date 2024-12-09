@@ -17,7 +17,8 @@
         "laravel/tinker": "^2.8",
         "livewire/livewire": "^2.11",
         "propaganistas/laravel-phone": "^5.3",
-        "rappasoft/laravel-livewire-tables": "^2.14"
+        "rappasoft/laravel-livewire-tables": "^2.14",
+        "twilio/sdk": "^8.3"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.9",

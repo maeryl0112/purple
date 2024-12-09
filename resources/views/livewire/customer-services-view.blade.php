@@ -34,7 +34,7 @@
       <hr class="my-4 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
       <div class="mb-6 grid gap-8 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
         @foreach ($services as $service)
-            @if($service->is_hidden == false)
+            @if($service->status == true)
                 <x-service-card :service="$service"/>
             @endif
         @endforeach

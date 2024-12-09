@@ -99,48 +99,41 @@ class AddingServiceToCart extends Component
 
     // Add the service to the cart
     public function addToCart()
-    {
-        Log::info('Attempting to add to cart', [
-            'service_id' => $this->service->id,
-            'selected_date' => $this->selectedDate,
-            'selected_time' => $this->selectedTime,
-            'selected_employee' => $this->selectedEmployee,
-        ]);
+{
+    Log::info('Attempting to add to cart', [
+        'service_id' => $this->service->id,
+        'selected_date' => $this->selectedDate,
+        'selected_time' => $this->selectedTime,
+        'selected_employee' => $this->selectedEmployee,
+    ]);
 
+    try {
         // Check if the service is hidden
         if ($this->service->is_hidden) {
-            Log::warning('Service is hidden', ['service_id' => $this->service->id]);
-            return redirect()->back();
+            throw new \Exception('Service is hidden.');
         }
 
-        // Validate user login
+        // Ensure the user is logged in
         if (!auth()->check()) {
-            Log::warning('User not logged in');
             return redirect()->route('login');
         }
 
         // Validate employee assignment
         $employee = Employee::find($this->selectedEmployee);
         if (!$employee || !$this->service->employees->contains($employee)) {
-            Log::error('Employee validation failed', ['employee_id' => $this->selectedEmployee]);
-            session()->flash('error', 'The selected employee is not assigned to this service.');
-            return redirect()->route('service.book', ['service' => $this->service->id]);
+            throw new \Exception('Invalid employee assignment.');
         }
 
-        // Retrieve or create cart
+        // Get or create cart
         $cart = auth()->user()->cart()->where('is_paid', false)->firstOrCreate([]);
 
-        // Check for duplicate cart item
-        $cartItemExists = $cart->services()
+        // Check for duplicate
+        if ($cart->services()
             ->where('date', $this->selectedDate)
             ->where('time', $this->selectedTime)
             ->where('employee_id', $this->selectedEmployee)
-            ->exists();
-
-        if ($cartItemExists) {
-            Log::warning('Duplicate cart item detected');
-            session()->flash('error', 'You already have a service in your cart with the same time slot and employee.');
-            return redirect()->route('cart');
+            ->exists()) {
+            throw new \Exception('Duplicate cart item detected.');
         }
 
         // Add service to cart
@@ -158,7 +151,22 @@ class AddingServiceToCart extends Component
 
         Log::info('Service added to cart successfully', ['cart_id' => $cart->id]);
 
-        session()->flash('success', 'Service added to the cart successfully!');
-        return redirect()->route('cart');
+        // Trigger SweetAlert and redirect
+        $this->dispatchBrowserEvent('swal:alert', [
+            'title' => 'Success!',
+            'text' => 'Service added to the cart successfully!',
+            'icon' => 'success',
+            'redirect_url' => route('cart'), // Pass the redirection URL
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Error adding to cart', ['error' => $e->getMessage()]);
+
+        $this->dispatchBrowserEvent('swal:alert', [
+            'title' => 'Error!',
+            'text' => $e->getMessage(),
+            'icon' => 'error',
+        ]);
     }
+}
 }

@@ -23,10 +23,9 @@ class ManageAppointments extends Component
     public $appointment;
 
     public $confirmingAppointmentAdd;
-
-    public $confirmAppointmentCancellation  = false;
+    public $appointmentIdToCancel;
     public $confirmingAppointmentCancellation = false;
-
+    public $cancellationReason;
     private $timeNow;
 
     public $selectFilter = 'upcoming'; // can be 'upcoming' , 'previous' , 'cancelled'
@@ -120,25 +119,36 @@ class ManageAppointments extends Component
     }
 
 
-    public function confirmAppointmentCancellation() {
+    public function setAppointmentIdToCancel($id)
+    {
+        $this->appointmentIdToCancel = $id;
         $this->confirmingAppointmentCancellation = true;
     }
-
-
-
-    public function cancelAppointment(Appointment $appointment)
+    public function cancelAppointment()
     {
-        $this->appointment = $appointment;
+        $this->validate([
+            'cancellationReason' => 'required|string|max:255',
+        ]);
 
+        // Retrieve the appointment using the ID
+        $appointment = Appointment::find($this->appointmentIdToCancel);
 
-        if (auth()->user()->id == $this->appointment->user->id
-            || auth()->user()->role->name == (UserRolesEnum::Employee->name || UserRolesEnum::Admin->name)) {
+        // Check if appointment exists and belongs to the authenticated user
+        if (!$appointment || auth()->user()->id !== $appointment->user_id) {
+            session()->flash('error', 'Unauthorized or Appointment not found.');
+            return;
+        }
 
-            $this->appointment->status = 0;
-//        $this->appointment->cancelled_by = auth()->user()->id;
-            // TODO add reason
-            $this->appointment->save();
-            $this->confirmingAppointmentCancellation = false;
+        // Update appointment status and cancellation reason
+        $appointment->status = 0; // Assuming 0 means canceled
+        $appointment->cancellation_reason = $this->cancellationReason;
+
+        if ($appointment->save()) {
+            // Successfully canceled, reset component state
+            $this->reset(['confirmingAppointmentCancellation', 'cancellationReason', 'appointmentIdToCancel']);
+            session()->flash('message', 'Appointment canceled successfully with reason: ' . $this->cancellationReason);
+        } else {
+            session()->flash('error', 'An error occurred while canceling the appointment.');
         }
     }
 
@@ -152,26 +162,21 @@ class ManageAppointments extends Component
     }
 
     public function completeAppointment()
-{
-    if (!$this->paymentType) {
-        $this->errorMessage = 'Please select a payment method.';
-        return;
+    {
+
+        $appointment = Appointment::find($this->appointmentId);
+
+        if ($appointment) {
+            $appointment->status = 2;
+            $appointment->save();
+
+            $this->reset(['showPaymentModal', 'appointmentId', 'errorMessage']);
+
+            session()->flash('message', 'Appointment marked as completed.');
+        } else {
+            session()->flash('error', 'Appointment not found.');
+        }
     }
-
-    $appointment = Appointment::find($this->appointmentId);
-
-    if ($appointment) {
-        $appointment->status = 2;
-        $appointment->payment = $this->paymentType;
-        $appointment->save();
-
-        $this->reset(['showPaymentModal', 'paymentType', 'appointmentId', 'errorMessage']);
-
-        session()->flash('message', 'Appointment marked as completed.');
-    } else {
-        session()->flash('error', 'Appointment not found.');
-    }
-}
 
 
 }

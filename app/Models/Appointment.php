@@ -6,6 +6,8 @@ use App\Enums\UserRolesEnum;
 use App\Jobs\SendAppointmentConfirmationMailJob;
 use App\Jobs\SendNewServicePromoMailJob;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+
 
 class Appointment extends Model
 {
@@ -23,6 +25,7 @@ class Appointment extends Model
         'notes',
         'first_name',
         'payment',
+        'last_four_digits',
 
     ];
 
@@ -58,11 +61,10 @@ class Appointment extends Model
         parent::boot();
 
         static::creating(function ($appointment) {
-            // a readable unique code for the appointment, including the id in the code
-            $appointment->appointment_code = 'APP-'.  ($appointment->count() + 1) ;
-
+            // Generate a unique code with a prefix 'APP-' and 5 random digits
+            $randomDigits = str_pad(rand(0, 99999), 5, '0', STR_PAD_LEFT);
+            $appointment->appointment_code = 'APP-' . $randomDigits;
         });
     }
-
 
 }

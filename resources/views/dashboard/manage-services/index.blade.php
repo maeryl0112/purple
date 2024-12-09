@@ -2,8 +2,8 @@
 
 
 
-    
+
    <livewire:manage-services />
 
-
+  
 </x-dashboard>

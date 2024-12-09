@@ -63,21 +63,21 @@
                 <thead class="bg-gray-50">
                 <tr>
                     <th scope="col" class="pl-6 py-4 font-bold text-gray-900">Code</th>
-                    <th scope="col" class="px-4 py-4 font-bold text-gray-900">Service</th>
-                    <th scope="col" class="px-4 py-4 font-bold text-gray-900">Date</th>
-                    <th scope="col" class="px-4 py-4 font-bold text-gray-900">Time</th>
-                    <th scope="col" class="px-4 py-4 font-bold text-gray-900">Staff Assigned</th>
+                    <th scope="col" class="px-6 py-4 font-bold text-gray-900">Service</th>
+                    <th scope="col" class="px-6 py-4 font-bold text-gray-900">Date</th>
+                    <th scope="col" class="px-6 py-4 font-bold text-gray-900">Time</th>
+                    <th scope="col" class="px-6 py-4 font-bold text-gray-900">Staff Assigned</th>
 
                     @if (auth()->user()->role->name  == 'Admin' || auth()->user()->role->name  == 'Employee')
 
-                    <th scope="col" class="px-4 py-4 font-bold text-gray-900">Customer</th>
-                        <th scope="col" class="px-4 py-4 font-bold text-gray-900">Contact No</th>
+                    <th scope="col" class="px-6 py-4 font-bold text-gray-900">Customer</th>
+                        <th scope="col" class="px-6 py-4 font-bold text-gray-900">Contact No</th>
                     @endif
-                    <th scope="col" class="px-4 py-4 font-bold text-gray-900">Payment</th>
+                    <th scope="col" class="px-6 py-4 font-bold text-gray-900">Payment</th>
                     @if ($selectFilter == 'cancelled')
-                    <th scope="col" class="px-4 py-4 font-bold text-gray-900">Reason</th>
+                    <th scope="col" class="px-6 py-4 font-bold text-gray-900">Reason</th>
                     @endif
-                    <th scope="col" class="px-4 py-4 font-bold text-gray-900">Action</th>
+                    <th scope="col" class="px-6 py-4 font-bold text-gray-900">Action</th>
 
 
                 </tr>
@@ -101,7 +101,9 @@
                         @if (auth()->user()->role->name == 'Admin' || auth()->user()->role->name == 'Employee')
                             <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->user->name}}</td>
                             <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->user->phone_number}}</td>
-                            <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->payment }}</td>
+                            <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->payment }} @if ($appointment->payment === 'online' && $appointment->last_four_digits)
+                                <p>Proof of Payment: Last Four Digits - {{ $appointment->last_four_digits }}</p>
+                            @endif</td>
                             @if ($selectFilter == 'cancelled')
                             <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->cancellation_reason}}</td>
                             @endif
@@ -113,7 +115,7 @@
 
                                 @if ($selectFilter == 'upcoming')
 
-                                <x-button wire:click="openPaymentModal({{ $appointment->id }} )" class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 shadow-lg shadow-purple-500/50 dark:shadow-lg dark:shadow-purple-800/80 rounded-lg text-xs px-4 py-2 inline-flex items-center me-1 mb-2">
+                                <button wire:click="openPaymentModal({{ $appointment->id }} )" class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 shadow-lg shadow-purple-500/50 dark:shadow-lg dark:shadow-purple-800/80 rounded-lg text-xs px-4 py-2 inline-flex items-center me-1 mb-2">
                                     <svg class="w-5 h-5 text dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.5 11.5 11 14l4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
                                       </svg>
@@ -121,11 +123,22 @@
 
                                     Completed
 
-                                </x-button>
+                                </button>
 
-                                    <x-danger-button wire:click="confirmAppointmentCancellation({{ $appointment->id }})" wire:loading.attr="disabled">
-                                        {{ __('Cancel') }}
-                                    </x-danger-button>
+                               {{--@php
+                                                $appointmentTime = Carbon\Carbon::parse($appointment->date . ' ' . $appointment->time);
+                                                $timeDifference = $appointmentTime->diffInHours(now());
+                                            @endphp
+
+                                            @if ($timeDifference > 12) <!-- Adjust to 24 if needed -->
+                                                <x-danger-button wire:click="setAppointmentIdToCancel({{ $appointment->id }})" wire:loading.attr="disabled">
+                                                    {{ __('Cancel') }}
+                                                </x-danger-button>
+                                            @else
+                                                <button disabled class="text-gray-500 bg-gray-300 rounded-md px-4 py-2 cursor-not-allowed">
+                                                    {{ __('Cannot Cancel') }}
+                                                </button>
+                                            @endif --}}
 
                                 @endif
 
@@ -148,20 +161,7 @@
             </x-slot>
 
             <x-slot name="content">
-                <h2 class="text-lg font-semibold mb-4">Select Payment Method</h2>
-                <div>
-                    <label class="inline-flex items-center mb-2">
-                        <input type="radio" wire:model="paymentType" value="Cash" class="form-radio">
-                        <span class="ml-2">Cash</span>
-                    </label>
-                    <label class="inline-flex items-center">
-                        <input type="radio" wire:model="paymentType" value="Online" class="form-radio">
-                        <span class="ml-2">Online</span>
-                    </label>
-                </div>
-                @if($errorMessage)
-                    <p class="text-red-500 text-sm mt-2">{{ $errorMessage }}</p>
-                @endif
+                <h2 class="text-lg font-semibold mb-4">Are you sure you want to mark this as complete?</h2>
             </x-slot>
 
             <x-slot name="footer">
@@ -178,29 +178,41 @@
             </x-slot>
         </x-dialog-modal>
 
-            <x-dialog-modal wire:model="confirmingAppointmentCancellation">
-                <x-slot name="title">
-                    {{ __('Cancel Appointment') }}
-                </x-slot>
+        <x-dialog-modal wire:model="confirmingAppointmentCancellation">
+            <x-slot name="title">
+                Cancel Appointment
+            </x-slot>
 
-                <x-slot name="content">
-                    {{ __('Are you sure you want to cancel the appointment?') }}
+            <x-slot name="content">
+                <p>Are you sure you want to cancel this appointment?</p>
 
-                </x-slot>
+                <!-- Reason selection dropdown -->
+                <div class="mt-4">
+                    <label for="cancellationReason" class="block text-sm font-medium text-gray-700">Reason for cancellation</label>
+                    <select id="cancellationReason" wire:model="cancellationReason" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <option value="">Select a reason</option>
+                        <option value="Not needed anymore">Not needed anymore</option>
+                        <option value="Scheduling conflict">Scheduling conflict</option>
+                        <option value="Found a better provider">Found a better provider</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    @error('cancellationReason') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                </div>
+            </x-slot>
 
-                <x-slot name="footer">
-                    <div class="flex gap-3">
-                        <x-secondary-button wire:click="$set('confirmingAppointmentCancellation', false)" wire:loading.attr="disabled">
-                            {{ __('Back') }}
-                        </x-secondary-button>
+            <x-slot name="footer">
+                <div class="flex gap-3">
+                    <x-secondary-button wire:click="$set('confirmingAppointmentCancellation', false)" wire:loading.attr="disabled">
+                        Back
+                    </x-secondary-button>
 
-                        <x-danger-button wire:click="cancelAppointment({{ $confirmingAppointmentCancellation }})" wire:loading.attr="disabled">
-                            {{ __('Cancel') }}
-                        </x-danger-button>
-                    </div>
+                    <x-danger-button wire:click="cancelAppointment" wire:loading.attr="disabled">
+                        Confirm Cancellation
+                    </x-danger-button>
+                </div>
+            </x-slot>
+        </x-dialog-modal>
 
-                </x-slot>
-            </x-dialog-modal>
 
         </div>
     </div>

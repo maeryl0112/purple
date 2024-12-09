@@ -1,32 +1,24 @@
 <x-app-layout>
+
     <div class="bg-gray-100 py-8" x-data="{ showCheckoutConfirmation: false }">
         <div class="container mx-auto px-4 md:w-11/12">
             <h1 class="text-2xl font-bold mb-4 text-salonPurple">CART</h1>
             <hr class="my-4 border-gray-400 sm:mx-auto dark:border-gray-700 lg:my-8" />
-            <div class="mt-4">
-                @if (session()->has('success'))
-                    <div class="px-4 py-2 text-white bg-green-500 rounded-md">
-                        {{ session('success') }}
-                    </div>
-                @endif
-            </div>
+
 
             @if(session('unavailable_employees'))
-
-
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                    <strong class="font-bold">Oops!</strong>
-                    <span class="block sm:inline">The following employee slots are no longer available. Please remove them from your cart to continue.</span>
-                    <ul class="mt-2 list-disc list-inside text-sm text-red-600">
-                        @foreach(session('unavailable_employees') as $unavailable_employee)
-                            <li>{{ $unavailable_employee['date'] }}:
-                                {{ date('g:i a', strtotime($unavailable_employee['start_time'])) }} -
-                                {{ date('g:i a', strtotime($unavailable_employee['end_time'])) }} :
-                                {{ $unavailable_employee['first_name'] }}
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    Swal.fire({
+                        title: 'Unavailable Slots',
+                        html: `@foreach(session('unavailable_employees') as $unavailable_employee)
+                            <li>{{ $unavailable_employee['date'] }}: {{ $unavailable_employee['time'] }} - {{ $unavailable_employee['first_name'] }}</li>
+                        @endforeach`,
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            </script>
             @endif
 
             <div class="flex flex-col md:flex-row gap-4">
@@ -100,32 +92,103 @@
         </div>
 
         <!-- Checkout Confirmation Modal -->
-        <div x-show="showCheckoutConfirmation" x-cloak class="fixed inset-0 overflow-y-auto z-50 flex items-center justify-center">
-            <div class="fixed inset-0 transition-opacity -z-10" aria-hidden="true">
-                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
-            <div class="bg-white rounded-lg p-4 max-w-md mx-auto" @click.outside="showCheckoutConfirmation = false">
+        <div x-data="{ paymentMethod: '', qrImage: '' }" x-show="showCheckoutConfirmation" x-cloak>
+            <div class="bg-white rounded-lg p-4 max-w-md mx-auto">
                 <h2 class="text-xl font-semibold text-salonPurple">Confirm Appointment</h2>
                 <hr class="my-2 border-gray-400">
                 <p>Are you sure you want to confirm your appointment?</p>
-                <br>
-                <p>You can also pay on GCash.</p>
-                <p>Just scan the QR Code below.</p>
-                <img src="{{asset('images/qr.jpg')}}" class="h-40 w-40">
-                <p class="text-red-500">*Make sure to come on time.</p>
-                <p class="text-red-500">*Please be advised that coming late, will automatically cancelled.</p>
-                <div class="mt-4 flex justify-end space-x-4">
-                    <button @click="showCheckoutConfirmation = false" class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none">
-                        Cancel
-                    </button>
-                    <form action="{{ route('cart.checkout') }}" method="post">
-                        @csrf
-                        <button class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700 focus:outline-none">
+                <p>Select your payment option:</p>
+                <form action="{{ route('cart.checkout') }}" method="post">
+                    @csrf
+                    <div class="mt-2">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="payment_method" value="cash" class="form-radio text-purple-600" x-model="paymentMethod" required>
+                            <span class="ml-2">Cash</span>
+                        </label>
+                    </div>
+                    <div class="mt-2">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="payment_method" value="online" class="form-radio text-purple-600" x-model="paymentMethod" required @change="fetchQrCode">
+                            <span class="ml-2">Online</span>
+                        </label>
+                    </div>
+
+                    <!-- Display QR Code -->
+                    <div class="mt-4" x-show="paymentMethod === 'online'" x-cloak>
+                        <template x-if="qrImage">
+                            <div class="mt-4">
+                                <p>Scan the QR Code to complete the payment:</p>
+                                <img :src="qrImage" alt="QR Code" class="h-40 w-40">
+                            </div>
+                        </template>
+                        <p x-show="!qrImage" class="text-gray-500">Loading QR Code...</p>
+                        <div class="mt-4">
+                            <label for="lastFourDigits" class="block text-sm font-medium text-gray-700">
+                                Enter the last four digits of your payment:
+                            </label>
+                            <input
+                                type="text"
+                                id="lastFourDigits"
+                                name="last_four_digits"
+                                x-model="lastFourDigits"
+                                maxlength="4"
+                                pattern="\d{4}"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                placeholder="1234"
+                                required
+                            />
+                        </div>
+                        <p class="text-red-500 mt-2">*Make sure to come on time.</p>
+                        <p class="text-red-500">*Please be advised that coming late will result in automatic cancellation.</p>
+                    </div>
+
+                    <div class="mt-4 flex justify-end space-x-4">
+                        <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50" @click="showCheckoutConfirmation = false">Cancel</button>
+                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700" :disabled="!paymentMethod">
                             Confirm
                         </button>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
+
+        <script>
+            function fetchQrCode() {
+            fetch('{{ route('get.qr.code') }}')
+                .then(response => response.json())
+                .then(data => {
+                    this.qrImage = data.qrImage;
+                })
+                .catch(error => {
+                    console.error('Error fetching QR code:', error);
+                });
+        }
+            </script>
+
+    @if(session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            $.ajax({
+                url: '/checkout',
+                type: 'POST',
+                data: { /* Your form data */ },
+                success: function(response) {
+                    // Trigger SweetAlert with the message from the response
+                    Swal.fire({
+                        title: 'Success!',
+                        text: response.success, // This should be your response.success message
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        // Redirect or reload the page after confirmation
+                        window.location.href = '/dashboard';  // Adjust the URL as needed
+                    });
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+    </script>
+@endif
 </x-app-layout>

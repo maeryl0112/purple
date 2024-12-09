@@ -55,7 +55,7 @@
 
         <!-- Employee Selection -->
         <div class="mt-5">
-            <h4 class="text-lg font-semibold text-gray-900">Select Employee</h4>
+            <h4 class="text-lg font-semibold text-gray-900">Select Staff</h4>
             <fieldset class="mt-2">
                 <legend class="sr-only">Select an Employee</legend>
                 <div class="grid grid-cols-3 gap-4" x-data="{ selectedEmployee : @entangle('selectedEmployee').defer }">
@@ -75,8 +75,9 @@
                                            aria-labelledby="employee-choice-{{ $employee->id }}-label">
                                     <span id="employee-choice-{{ $employee->id }}-label">
                                         {{ $employee->first_name }}
+                                        <br>
                                         <span>
-                                            {{ $employee->job_category?->name }}
+                                            {{ $employee->jobCategory?->name }}
                                             </span>
                                     </span>
                                     <span class="pointer-events-none absolute -inset-px rounded-md" aria-hidden="true"></span>
@@ -89,8 +90,9 @@
                                            aria-labelledby="employee-choice-{{ $employee->id }}-label">
                                     <span id="employee-choice-{{ $employee->id }}-label">
                                         {{ $employee->first_name }}
+                                        <br>
                                         <span>
-                                        {{ $employee->job_category?->name }}
+                                        {{ $employee->jobCategory?->name }}
                                         </span>
                                     </span>
                                     <span aria-hidden="true"
@@ -104,22 +106,33 @@
                             @endif
                         </div>
                     @endforeach
-                    
+
                 </div>
             </fieldset>
-        </div>
-
-        <!-- Message -->
-        <div class="py-5">
-            <label for="message" class="block mb-2 font-sm font-bold text-gray-900 dark:text-white">Your message: <span class="font-m text-gray-500">Optional</span></label>
-            <textarea id="message" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write your notes here..."></textarea>
         </div>
 
         <!-- Submit Button -->
         <button type="submit"
                 class="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-purple-600 px-8 py-3 text-base font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 :disabled="!selectedTimeSlot || !selectedEmployee">
-            Add to cart
+            Confirm
         </button>
     </form>
+
+    <script>
+        document.addEventListener('swal:alert', function (event) {
+            const { title, text, icon, redirect_url } = event.detail;
+
+            Swal.fire({
+                title: title || 'Alert',
+                text: text || '',
+                icon: icon || 'info',
+            }).then((result) => {
+                if (redirect_url) {
+                    window.location.href = redirect_url; // Redirect after closing the alert
+                }
+            });
+        });
+    </script>
+
 </section>

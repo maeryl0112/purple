@@ -24,6 +24,7 @@ class ManageCategories extends Component
     protected $rules = [
         "category.name" => "required|string|max:255",
     ];
+
     public function render()
     {
         $this->categories = Category::when($this->search, function ($query) {
@@ -35,9 +36,10 @@ class ManageCategories extends Component
         ]);
     }
 
-    public function confirmCategoryEdit(Category $category) {
+    public function confirmCategoryEdit(Category $category)
+    {
         $this->category = $category;
-        $this->confirmingCategoryAdd= true;
+        $this->confirmingCategoryAdd = true;
     }
 
     public function saveCategory()
@@ -58,11 +60,15 @@ class ManageCategories extends Component
                 'name' => $this->category['name'],
                 'image' => $imagePath ?: $this->category->image,
             ]);
+
+            $this->dispatchBrowserEvent('category-saved', ['message' => 'Category updated successfully!']);
         } else {
             Category::create([
                 'name' => $this->category['name'],
                 'image' => $imagePath,
             ]);
+
+            $this->dispatchBrowserEvent('category-saved', ['message' => 'Category added successfully!']);
         }
 
         $this->confirmingCategoryAdd = false;
@@ -70,10 +76,8 @@ class ManageCategories extends Component
         $this->image = null; // Reset the image input
     }
 
-
-
-    public function confirmCategoryAdd() {
+    public function confirmCategoryAdd()
+    {
         $this->confirmingCategoryAdd = true;
     }
-
 }

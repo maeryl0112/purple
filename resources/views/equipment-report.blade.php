@@ -4,44 +4,110 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
-
     <title>Equipment Report</title>
     <style>
-        /* Add styles for the PDF layout */
-        body { font-family: Arial, sans-serif; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; }
-        th { background-color: #f2f2f2; }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            margin: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .logo h1 {
+            font-family: cursive;
+            font-weight: 900;
+            color: #62a;
+            font-style: italic;
+            margin: 0;
+        }
+        .report-info p {
+            margin: 5px 0;
+        }
+        .report-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table th, table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+        table th {
+            background-color: #f2f2f2;
+        }
+        tfoot td {
+            font-weight: bold;
+            background-color: #f2f2f2;
+        }
+        .logo p {
+            font-size: smaller;
+            color: #62a;
+        }
+        @media print {
+            body {
+                margin: 0;
+                font-size: 12px;
+            }
+            .header, .report-info {
+                margin: 0;
+                display: block;
+            }
+        }
     </style>
 </head>
+
 <body>
-    <h1>Equipment Report</h1>
+    <div class="header">
+        <div class="logo">
+            <img src="{{ $image }}" width="300px" alt="Purple Look Salon and Spa Logo">
+            <p>Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite <br> purplelookhairsalonandspa@gmail.com <br> 09********</p>
+        </div>
+        <div class="report-info">
+            <p><strong>Prepared By:</strong> {{ $preparedBy }}</p>
+            <p><strong>Report Date & Time:</strong> {{ $currentDateTime }}</p>
+        </div>
+    </div>
+    <h1 class="report-title">Equipment Report</h1>
     <table>
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Brand Name</th>
-                <th>Quantity</th>
-                <th>Staff Assigned</th>
-                <th>Last Maintenance</th>
-                <th>Next Maintenance</th>
+                <th scope="col">Name</th>
+                <th scope="col">Category</th>
+                <th scope="col">Brand Name</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Staff Assigned</th>
+                <th scope="col">Last Maintenance</th>
+                <th scope="col">Next Maintenance</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($equipments as $equipment)
-                <tr>
-                    <td>{{ $equipment->name }}</td>
-                    <td>{{ $equipment->category->name ?? 'N/A' }}</td>
-                    <td>{{ $equipment->brand_name }}</td>
-                    <td>{{ $equipment->quantity }}</td>
-                    <td>{{ $equipment->employee->first_name }}</td>
-                    <td>{{ $equipment->last_maintenance }}</td>
-                    <td>{{ $equipment->next_maintenance }}</td>
-                </tr>
-            @endforeach
+        <tr>
+            <td>{{ $equipment->name }}</td>
+            <td>{{ $equipment->category->name ?? 'N/A' }}</td>
+            <td>{{ $equipment->brand_name }}</td>
+            <td>{{ $equipment->quantity }}</td>
+            <td>{{ $equipment->employee->first_name ?? 'N/A' }}</td>
+            <td>{{ $equipment->last_maintenance ? \Carbon\Carbon::parse($equipment->last_maintenance)->format('Y-m-d') : 'N/A' }}</td>
+            <td>{{ $equipment->next_maintenance ? \Carbon\Carbon::parse($equipment->next_maintenance)->format('Y-m-d') : 'N/A' }}</td>
+        </tr>
+    @endforeach
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7">Total Equipment: {{ $equipments->count() }}</td>
+            </tr>
+        </tfoot>
     </table>
 </body>
 </html>

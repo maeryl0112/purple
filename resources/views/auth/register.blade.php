@@ -22,10 +22,16 @@
                 <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
             </div>
 
-            <div class="mt-4">
+           <div class="mt-4">
                 <x-label for="phone_number" value="{{ __('Phone Number') }}" />
-                <span class="text-xs">eg: 09123456789</span>
-                <x-input id="phone_number" class="block mt-1 w-full" type="text" name="phone_number" :value="old('phone_number')" required autocomplete="phone_number" />
+                <input
+                    id="phone_number"
+                    name="phone_number"
+                    type="tel"
+                    class="block mt-1 w-full border-gray-300 rounded-md shadow-sm"
+                    required
+                    autocomplete="off"
+                />
             </div>
 
             <div class="mt-4">
@@ -65,5 +71,28 @@
                 </x-button>
             </div>
         </form>
+
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const phoneInputField = document.querySelector("#phone_number");
+                const iti = window.intlTelInput(phoneInputField, {
+                    initialCountry: "ph", // Set your default country
+                    separateDialCode: true, // Displays the country code separately
+                    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.min.js", // Utility script
+                });
+
+                // Optional: Set the full number in a hidden input for the backend
+                const phoneInputHidden = document.createElement("input");
+                phoneInputHidden.type = "hidden";
+                phoneInputHidden.name = "phone_number";
+                phoneInputField.form.appendChild(phoneInputHidden);
+
+                // Update the hidden input value on blur
+                phoneInputField.addEventListener("blur", function () {
+                    phoneInputHidden.value = iti.getNumber(); // Gets the full number including country code
+                });
+            });
+        </script>
     </x-authentication-card>
 </x-guest-layout>

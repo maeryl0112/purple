@@ -1,5 +1,4 @@
 <div class="p-4 sm:ml-64">
-    <div class="p-4 border-2 border-gray-200  mt-2">
         <div class="flex justify-between mx-7">
         <h2 class="text-2xl font-bold text-salonPurple">JOB CATEGORIES</h2>
 
@@ -8,13 +7,18 @@
         </x-button>
     </div>
 
-    <div class="mt-4">
-        @if (session()->has('message'))
-            <div class="px-4 py-2 text-white bg-green-500 rounded-md">
-                {{ session('message') }}
-            </div>
-        @endif
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        window.addEventListener('job-category-saved', event => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: event.detail.message,
+                showConfirmButton: false,
+                timer: 2000
+            });
+        });
+    </script>
 
     <div class="overflow-auto rounded-lg border border-gray-200 shadow-md m-5">
 
@@ -35,8 +39,8 @@
             <thead class="bg-gray-50">
                 <tr>
                     <th scope="col" class="pl-6 py-4 font-medium text-gray-900">Id</th>
-                    <th scope="col" class="px-4 py-4 font-medium text-gray-900">Name</th>
-                    <th scope="col" class="px-4 py-4 font-medium text-gray-900">Actions</th>
+                    <th scope="col" class="px-6 py-4 font-medium text-gray-900">Name</th>
+                    <th scope="col" class="px-6 py-4 font-medium text-gray-900">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -44,13 +48,10 @@
                     <tr class="hover:bg-gray-50">
                         <td class="pl-6 py-4">{{ $job_category->id }}</td>
                         <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $job_category->name }}</td>
-                        <td>
-                            <div class="flex gap-1 mt-5">
+                        <td class="px-6 py-4 gap-2">
                                 <x-button wire:click="confirmJobCategoryEdit({{ $job_category->id }})" wire:loading.attr="enabled">
                                     {{ __('Edit') }}
                                 </x-button>
-
-                            </div>
                         </td>
                     </tr>
                 @endforeach

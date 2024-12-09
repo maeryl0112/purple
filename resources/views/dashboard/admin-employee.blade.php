@@ -4,6 +4,8 @@
 @endphp
 <x-dashboard>
 
+
+
     <div class="fixed top-5 right-4 z-50 space-y-4">
         @foreach ($nearExpirationSupplies as $supply)
             <div x-data="{ show: true }" x-show="show" x-transition
@@ -69,8 +71,33 @@
     @endforeach
     </div>
 
-<div class="p-4 sm:ml-64">
+    <script>
+        function updateDateTime() {
+            const now = new Date();
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+            };
+            document.getElementById('dateTime').innerText = now.toLocaleString('en-US', options);
+        }
+
+        setInterval(updateDateTime, 1000); // Update every second
+        updateDateTime(); // Initialize immediately
+    </script>
+
+<div class="p-2 sm:ml-64">
+    <div class="flex justify-between mx-7">
+        <h2 class="text-2xl font-bold text-salonPurple">DASHBOARD</h2>
+
+        <div id="dateTime" class="px-5 py-2 text-salonPurple text-m"></div>
+    </div>
     <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
+
        <div class="grid grid-cols-3 gap-4 mb-4">
         <div class="bg-salonPurple  shadow-lg rounded-md flex items-center justify-between p-3 border-b-4 border-purple-400  text-white font-medium group">
             <div class="flex justify-center items-center w-14 h-14 bg-white rounded-full transition-all duration-300 transform group-hover:rotate-12">
@@ -356,96 +383,6 @@
         </div>
     </div>
     </div>
-    <div class="max-w-sm w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
-        <div class="flex justify-between items-start w-full">
-            <div class="flex-col items-center">
-              <div class="flex items-center mb-1">
-                  <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white me-1">Top 3 Grossing Service this Year</h5>
-
-            </div>
-          </div>
-        </div>
-
-        <!-- Pie Chart -->
-        <div class="py-6" id="pie-chart"></div>
-
-        <!-- Display Top 3 Grossing Services -->
-        <div class="py-6">
-            <h6 class="text-lg font-semibold">Top Grossing Services for {{ $selectedYear }}</h6>
-            <ul>
-                @foreach ($topGrossingServices as $service)
-                    <li>{{ $service->service_name }} - ₱{{ number_format($service->total_earnings, 2) }}</li>
-                @endforeach
-            </ul>
-
-    <script>
-        const getChartOptions = () => {
-            return {
-                series: @json($topGrossingServices->pluck('total_earnings')),
-                labels: @json($topGrossingServices->pluck('service_name')),
-                chart: {
-                    height: 420,
-                    width: "100%",
-                    type: "pie",
-                },
-                stroke: {
-                    colors: ["white"],
-                },
-                plotOptions: {
-                    pie: {
-                        labels: {
-                            show: true,
-                        },
-                        size: "100%",
-                        dataLabels: {
-                            offset: -25
-                        }
-                    },
-                },
-                dataLabels: {
-                    enabled: true,
-                    style: {
-                        fontFamily: "Inter, sans-serif",
-                    },
-                },
-                legend: {
-                    position: "bottom",
-                    fontFamily: "Inter, sans-serif",
-                },
-                yaxis: {
-                    labels: {
-                        formatter: function (value) {
-                            return   "₱" + value
-                        },
-                    },
-                },
-                xaxis: {
-                    labels: {
-                        formatter: function (value) {
-                            return "₱" + value
-                        },
-                        axisTicks: {
-                            show: false,
-                        },
-                        axisBorder: {
-                            show: false,
-                        },
-                    },
-                },
-            }
-        }
-
-        if (document.getElementById("pie-chart") && typeof ApexCharts !== 'undefined') {
-            const chart = new ApexCharts(document.getElementById("pie-chart"), getChartOptions());
-            chart.render();
-        }
-    </script>
-</div>
-
-
-
-
-  </div>
     </div>
  </div>
 

@@ -44,7 +44,7 @@
                     @if(!$employee->is_hidden)
                     <div class="text-center text-gray-500 dark:text-gray-400">
                             <!-- Employee Avatar -->
-                            <img class="mx-auto mb-4 w-36 h-36 rounded-full" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/neil-sims.png" alt="Neil Avatar">
+                            <img class="mx-auto mb-4 w-36 h-36 rounded-full" src="{{ asset('storage/' . $employee->image) }}" alt="Employee Avatar">
 
                             <!-- Employee Name -->
                             <h3 class="mb-1 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">

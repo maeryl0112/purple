@@ -9,13 +9,7 @@
 
 
     </div>
-    <div class="mt-4">
-        @if (session()->has('message'))
-            <div class="px-4 py-2 text-white bg-green-500 rounded-md">
-                {{ session('message') }}
-            </div>
-        @endif
-    </div>
+
 
 
     <div class="overflow-auto rounded-lg border border-gray-200 shadow-md m-5">
@@ -40,7 +34,7 @@
             </div>
 
             <div class="py-2.5 me-2">
-            <select id="categoryFilter" wire:model="categoryFilter" class="border text-gray-900  border-gray-300 rounded-lg">
+            <select id="categoryFilter" wire:model="categoryFilter" class="border text-gray-900 px-5 pt-2.5 me-2 border-gray-300 rounded-lg">
                 <option selected>All Category</option>
                 @foreach ($categories as $category)
                 <option value="{{$category->id}}">{{$category->name}}</option>
@@ -48,13 +42,13 @@
               </select>
 
 
-             <select class="border text-gray-900  border-gray-300 rounded-lg" wire:model="selectFilter" >
+             <select class="border text-gray-900 px-5 pt-2.5 me-2 border-gray-300 rounded-lg" wire:model="selectFilter" >
                 <option value="all">All</option>
                 <option value="expired">Expired</option>
                 <option value="lowquantity">Low Quantity</option>
           </select>
 
-            <select wire:model="statusFilter" class="border text-gray-900  border-gray-300 rounded-lg">
+            <select wire:model="statusFilter" class="border text-gray-900 px-5 pt-2.5 me-2 border-gray-300 rounded-lg">
                 <option value="active">Active</option>
                 <option value="archived">Archived</option>
             </select>
@@ -133,9 +127,9 @@
 
                 <td>{{ $supply->status ? 'Active' : 'Archived' }}</td>
 
-                <td>
-                    <div class="my-4 gap-0 ">
-                        <button wire:click="viewSupplies({{ $supply->id }})" class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 shadow-lg shadow-purple-500/50 dark:shadow-lg dark:shadow-purple-800/80 rounded-lg text-xs px-4 py-2 inline-flex items-center me-1 mb-2">
+                <td class="px-6 py-4 gap-2">
+
+                        <button wire:click="viewSupplies({{ $supply->id }})" class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 rounded-lg text-xs w-24 px-6 py-2 inline-flex items-center me-1 mb-2">
                             <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
@@ -144,7 +138,7 @@
                         </button>
 
 
-                        <button wire:click="showEditSuppliesModal({{ $supply->id }})" wire:loading.attr="disabled" class="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 shadow-lg shadow-green-500/50 dark:shadow-lg dark:shadow-green-800/80  rounded-lg text-xs px-4 py-2 inline-flex items-center me-1 mb-2">
+                        <button wire:click="showEditSuppliesModal({{ $supply->id }})" wire:loading.attr="disabled" class="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 dark:shadow-lg dark:shadow-green-800/80  rounded-lg text-xs w-24 px-6 py-2 inline-flex items-center me-1 mb-2">
                             <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                               </svg>
@@ -152,15 +146,16 @@
                         </button>
 
                         @if($supply->status == 1)  <!-- Active employee -->
-                        <button wire:click="archiveSupplies({{ $supply->id }})" class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80  rounded-lg text-xs px-4 py-2 inline-flex items-center me-1 mb-2">
+                        <button wire:click="archiveSupplies({{ $supply->id }})" class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 rounded-lg text-xs px-4 py-2 inline-flex items-center me-1 mb-2">
                             <svg class="w-4 h-4 me-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0-3-3m3 3 3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
                               </svg>
 
                             Archive
                         </button>
-                    @else  <!-- Archived employee -->
-                        <button wire:click="unarchiveSupplies({{ $supply->id }})" class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80  rounded-lg text-xs px-4 py-2 inline-flex items-center me-1 mb-2">
+                    @endif  <!-- Archived employee -->
+                    @if($supply->status == 0)
+                        <button wire:click="unarchiveSupplies({{ $supply->id }})" class="text-white bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
                             <svg class="w-4 h-4 me-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m6 4.125 2.25 2.25m0 0 2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
                               </svg>
@@ -168,7 +163,6 @@
                             Unarchive
                         </button>
                     @endif
-                    </div>
                 </td>
             </tr>
             @endforeach
@@ -256,6 +250,18 @@
             </x-slot>
         </x-dialog-modal>
 
+        @if (session()->has('message'))
+        <script>
+            window.addEventListener('suppliesAddedOrUpdated', event => {
+                Swal.fire({
+                    title: 'Success!',
+                    text: "{{ session('message') }}",
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            });
+        </script>
+    @endif
 
         <script>
             window.addEventListener('downloadFile', event => {
@@ -266,6 +272,50 @@
             });
         </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+     Livewire.on('confirmArchive', (supplyId) => {
+         Swal.fire({
+             title: 'Are you sure?',
+             text: "This Supply will be archived!",
+             icon: 'warning',
+             showCancelButton: true,
+             confirmButtonColor: '#3085d6',
+             cancelButtonColor: '#d33',
+             confirmButtonText: 'Yes, archive it!'
+         }).then((result) => {
+             if (result.isConfirmed) {
+                 Livewire.emit('confirmArchiveSupplies', supplyId);
+                 Swal.fire(
+                     'Archived!',
+                     'The Supply has been archived.',
+                     'success'
+                 );
+             }
+         });
+     });
 
+     Livewire.on('confirmUnarchive', (supplyId) => {
+         Swal.fire({
+             title: 'Are you sure?',
+             text: "This Supply will be unarchived!",
+             icon: 'info',
+             showCancelButton: true,
+             confirmButtonColor: '#3085d6',
+             cancelButtonColor: '#d33',
+             confirmButtonText: 'Yes, unarchive it!'
+         }).then((result) => {
+             if (result.isConfirmed) {
+                 Livewire.emit('confirmUnarchiveSupplies', supplyId);
+                 Swal.fire(
+                     'Unarchived!',
+                     'The Supply has been unarchived.',
+                     'success'
+                 );
+             }
+         });
+     });
+ });
+ </script>
     </div>
 </div>

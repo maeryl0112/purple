@@ -20,6 +20,7 @@ class ManageEmployees extends Component
     public $showEditEmployeeModal = false; // For Edit Modal
     public $selectedEmployeeId = null; // Tracks the employee being edited
     public $workingDays = [];
+    public $jobCategoryFilter = '';
     public $statusFilter = 'active'; // For filtering active and archived employees
     public $allDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     public $newEmployee = [];
@@ -56,25 +57,37 @@ class ManageEmployees extends Component
         $this->showEditEmployeeModal = true;
     }
 
+    protected $listeners = [
+        'confirmArchiveEmployee' => 'confirmArchiveEmployee',
+        'confirmUnarchiveEmployee' => 'confirmUnarchiveEmployee',
+    ];
 
     public function archiveEmployee($employeeId)
-{
-    $employee = Employee::findOrFail($employeeId);
-    $employee->status = 0;  // Set to archived
-    $employee->save();
+    {
+        $this->emit('confirmArchive',$employeeId);
+    }
 
-    session()->flash('message', 'Employee archived successfully!');
-}
+    public function confirmArchiveEmployee($employeeId)
+    {
+        $employee = Employee::findOrFail($employeeId);
+        $employee->status = 0;
+        $employee->save();
 
-// Unarchive employee
-public function unarchiveEmployee($employeeId)
-{
-    $employee = Employee::findOrFail($employeeId);
-    $employee->status = 1;  // Set to active
-    $employee->save();
+        $this->emit('employeeArchied');
+    }
+    public function unarchiveEmployee($employeeId)
+    {
+       $this->emit('confirmUnarchive', $employeeId);
+    }
 
-    session()->flash('message', 'Employee unarchived successfully!');
-}
+    public function confirmUnarchiveEmployee($employeeId)
+    {
+        $employee = Employee::findOrFail($employeeId);
+        $employee->status = 1;
+        $employee->save();
+
+        $this->emit('employeeUnarchived');
+    }
 
     public function resetNewEmployee()
     {
@@ -134,6 +147,8 @@ public function unarchiveEmployee($employeeId)
     $this->reset('newEmployee', 'image', 'workingDays');
     $this->showAddEmployeeModal = false;
     $this->showEditEmployeeModal = false;
+
+    $this->dispatchBrowserEvent('employeeAddedOrUpdated');
 }
 
     public function viewEmployee($employeeId)
@@ -146,21 +161,32 @@ public function unarchiveEmployee($employeeId)
     }
 
     public function render()
-{
-    $job_categories = \App\Models\JobCategory::all();
+    {
+        $job_categories = \App\Models\JobCategory::all();
 
-    $employees = Employee::when($this->statusFilter == 'active', function($query) {
-                    return $query->where('status', 1);
-                })
-                ->when($this->statusFilter == 'archived', function($query) {
-                    return $query->where('status', 0);
-                })
-                ->orderBy('created_at')
-                ->paginate(10);
+        $employees = Employee::when($this->statusFilter == 'active', function($query) {
+                        return $query->where('status', 1);
+                    })
+                    ->when($this->statusFilter == 'archived', function($query) {
+                        return $query->where('status', 0);
+                    })
+                    ->when($this->jobCategoryFilter, function ($query) {
+                        $query->where('job_category_id', $this->jobCategoryFilter); // Filter by category
+                    })
+                    ->when($this->search, function ($query) {
+                        $query->where(function ($query) {
+                            $query->where('first_name', 'like', '%' . $this->search . '%')
+                                ->orWhere('last_name', 'like', '%' . $this->search . '%')
+                                ->orWhere('phone_number', 'like', '%' . $this->search . '%')
+                                ->orWhere('email', 'like', '%' . $this->search . '%');
+                        });
+                    })
+                    ->orderBy($this->sortField ?? 'created_at', $this->sortDirection ?? 'desc')
+                    ->paginate(10);
 
-    return view('livewire.manage-employees', [
-        'employees' => $employees,
-        'job_categories' => $job_categories,
-    ]);
-}
+        return view('livewire.manage-employees', [
+            'employees' => $employees,
+            'job_categories' => $job_categories,
+        ]);
+    }
 }

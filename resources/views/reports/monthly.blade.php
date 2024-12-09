@@ -5,65 +5,71 @@
             <p><strong>Grand Total Sales:</strong> ₱{{ number_format($grandTotal, 2) }}</p>
         </div>
 
-        <!-- Buttons to download reports -->
+        <!-- Month Filter -->
         <div class="py-4 ml-5">
-            <a href="{{ route('monthly.report.pdf') }}" class="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">
-                Download This Month's Sales Report PDF
-            </a>
+            <form action="{{ route('monthly.report') }}" method="GET" id="month-filter-form">
+                <label for="month" class="mr-2">Select Month:</label>
+                <input
+                    type="month"
+                    id="month"
+                    name="month"
+                    value="{{ $selectedMonth }}"
+                    class="border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                    onchange="document.getElementById('month-filter-form').submit();"
+                >
+            </form>
         </div>
 
-        <div class="py-2 ml-5">
-            <a href="{{ route('all.monthly.report.pdf') }}" class="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">
-                Download All Monthly Sales Report PDF
-            </a>
-        </div>
-
-        <!-- Table displaying the monthly report -->
+        <!-- Data Table -->
         <div class="overflow-auto rounded-lg border border-gray-200 shadow-md m-5">
             <table class="w-full border-collapse bg-white text-center text-lg text-gray-950 overflow-x-scroll min-w-screen">
                 <thead class="bg-gray-100">
                     <tr>
-                        <th class="px-4 py-2">Month</th>
-                        <th class="px-4 py-2">Total Sales</th>
-                        <th class="px-4 py-2">Appointment Count</th>
-                        <th class="px-4 py-2">Services Count</th>
-                        <th class="px-4 py-2">Services</th>
-                        <th class="px-4 py-2">Prices</th>
-                        <th class="px-4 py-2">Employees</th>
-                        <th class="px-4 py-2">Customers</th>
+                        <th>Month</th>
+                        <th>Total Sales</th>
+                        <th>Appointment Count</th>
+                        <th>Services</th>
+                        <th>Prices</th>
+                        <th>Employees</th>
+                        <th>Customers</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($reports as $report)
+                    @forelse ($reports as $report)
                         <tr>
-                            <td class="px-4 py-2">{{ $report->month_name }} {{ $report->year }}</td>
-                            <td class="px-4 py-2">₱{{ number_format($report->total_sales, 2) }}</td>
-                            <td class="px-4 py-2">{{ $report->appointment_count }}</td>
-                            <td class="px-4 py-2">{{ count(explode(',', $report->services)) }}</td> <!-- Service Count -->
-                            <td class="px-4 py-2">
+                            <td>{{ $report->month_name }} {{ $report->year }}</td>
+                            <td>₱{{ number_format($report->total_sales, 2) }}</td>
+                            <td>{{ $report->appointment_count }}</td>
+                            <td>
                                 @foreach (explode(',', $report->services) as $service)
                                     <p>{{ $service }}</p>
                                 @endforeach
                             </td>
-                            <td class="px-4 py-2">
+                            <td>
                                 @foreach (explode(',', $report->prices) as $price)
                                     <p>₱{{ number_format($price, 2) }}</p>
                                 @endforeach
                             </td>
-                            <td class="px-4 py-2">
+                            <td>
                                 @foreach (explode(',', $report->employees) as $employee)
                                     <p>{{ $employee }}</p>
                                 @endforeach
                             </td>
-                            <td class="px-4 py-2">
+                            <td>
                                 @foreach (explode(',', $report->customers) as $customer)
                                     <p>{{ $customer }}</p>
                                 @endforeach
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="7">No sales data found for the selected month.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
+        <a href="{{route('monthly.report.pdf')}}" type="button" class="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 mx-5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">Download This Month's Sales Report</a>
+
     </div>
 </x-dashboard>

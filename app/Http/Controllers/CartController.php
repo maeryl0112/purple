@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Jobs\SendAppointmentConfirmationMailJob;
 use App\Notifications\NewAppointmentNotification;
-use App\Models\Role;
+use Illuminate\Support\Facades\Notification;
+use App\Models\Payment;
 use App\Models\User;
 use App\Models\Appointment;
+use App\Services\TwilioService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
+use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
@@ -47,23 +50,25 @@ class CartController extends Controller
         return redirect()->back();
     }
 
-    public function checkout()
+
+    public function checkout(Request $request)
     {
-        // Get the cart of the user that is not paid
+        $request->validate([
+            'payment_method' => 'required|in:cash,online',
+            'last_four_digits' => 'required_if:payment_method,online|digits:4',
+        ]);
+
+        // Get the user's cart that is not paid
         $cart = auth()->user()->cart()->where('is_paid', false)->first();
 
-        // If the cart is not found, redirect back
         if (!$cart) {
-            return redirect()->back();
+            return redirect()->back()->withErrors(['error' => 'Cart not found.']);
         }
 
-        // Initialize flag to track employee availability
+        // Check for employee availability
         $is_employees_available = true;
-
-        // Collection to hold unavailable employees info
         $unavailable_employees = collect();
 
-        // Loop over each service in the cart
         foreach ($cart->services as $service) {
             $is_available = DB::table('appointments')
                 ->where('date', $service->pivot->date)
@@ -71,7 +76,6 @@ class CartController extends Controller
                 ->where('employee_id', $service->pivot->employee_id)
                 ->doesntExist();
 
-            // If the time slot is not available, store the info and update the availability flag
             if (!$is_available) {
                 $is_employees_available = false;
 
@@ -87,9 +91,14 @@ class CartController extends Controller
             }
         }
 
-        // If there are unavailable employees, return the error message
         if (!$is_employees_available) {
             return redirect()->back()->with('unavailable_employees', $unavailable_employees);
+        }
+
+        // Fetch the QR code image for online payments
+        $qrImage = null;
+        if ($request->payment_method === 'online') {
+            $qrImage = Payment::latest()->value('image');
         }
 
         // Create appointments for the available services
@@ -103,6 +112,8 @@ class CartController extends Controller
                 'first_name' => $service->pivot->first_name,
                 'employee_id' => $service->pivot->employee_id,
                 'total' => $service->pivot->price,
+                'payment' => $request->payment_method,
+                'last_four_digits' => $request->payment_method === 'online' ? $request->last_four_digits : null,
             ]);
         }
 
@@ -110,7 +121,7 @@ class CartController extends Controller
         $cart->is_paid = true;
         $cart->save();
 
-        // Send confirmation emails
+        // Dispatch confirmation emails
         $appointments = Appointment::where('cart_id', $cart->id)->get();
         $customer = auth()->user();
 
@@ -118,15 +129,22 @@ class CartController extends Controller
             SendAppointmentConfirmationMailJob::dispatch($customer, $appointment);
         }
 
-        // Notify the admins
+        // Notify admins
         $admins = User::whereHas('role', function ($query) {
             $query->where('name', 'Admin')->orWhere('name', 'Employee');
         })->get();
 
-        foreach ($admins as $admin) {
-            $admin->notify(new NewAppointmentNotification($appointment));
+        Notification::send($admins, new NewAppointmentNotification($appointments->first()));
+
+        // Redirect with QR code (for online payments)
+        if ($request->payment_method === 'online') {
+            return redirect()->route('dashboard')->with([
+                'success' => 'Your appointment has been booked successfully.',
+                'qrImage' => $qrImage,
+            ]);
         }
 
-        return redirect()->route('dashboard')->with('success', 'Your appointment has been booked successfully');
+        return redirect()->route('dashboard')->with('success', 'Your appointment has been booked successfully. SMS details sent!');
     }
+
 }

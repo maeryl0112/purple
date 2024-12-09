@@ -47,7 +47,11 @@
                         <td class="pl-6 py-4  max-w-0">{{ $online_supplier->id }}</td>
 
                         <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $online_supplier->name}}</td>
-                        <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $online_supplier->link}}</td>
+                        <td class="px-6 py-4 max-w-xs font-medium text-gray-700">
+                            <a href="{{ $online_supplier->link }}" target="_blank" rel="noopener noreferrer" class="text-blue-500 underline">
+                                {{ $online_supplier->link }}
+                            </a>
+                        </td>
                         <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $online_supplier->contact}}</td>
                         <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $online_supplier->address}}</td>
                         <td>
@@ -56,11 +60,6 @@
                                     {{ __('Edit') }}
                                 </x-button>
 
-
-
-                                <x-danger-button wire:click="confirmSupplierDeletion({{ $online_supplier->id }})" wire:loading.attr="disabled">
-                                    {{ __('Delete') }}
-                                </x-danger-button>
                             </div>
                         </td>
                     </tr>

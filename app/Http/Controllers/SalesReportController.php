@@ -10,39 +10,44 @@ use Carbon\Carbon;
 class SalesReportController extends Controller
 {
     //daily sales report
-    public function dailyReport()
+    public function dailyReport(Request $request)
     {
+        // Get the date from the request, default to today
+        $selectedDate = $request->input('date', now()->toDateString());
+
+        // Query data for the selected date
         $reports = Appointment::selectRaw('
-        date,
-        SUM(total) as total_sales,
-        COUNT(appointments.id) as appointment_count,
-        GROUP_CONCAT(DISTINCT CONCAT(services.name, ":", services.price, ":", employees.first_name, ":", users.name)) as services_with_details
-    ')
-    ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
-    ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
-    ->leftJoin('users', 'appointments.user_id', '=', 'users.id') // Join users/customers table
-    ->where('appointments.status', 2) // Assuming 2 means completed
-    ->groupBy('date')
-    ->get();
+                date,
+                SUM(total) as total_sales,
+                COUNT(appointments.id) as appointment_count,
+                GROUP_CONCAT(DISTINCT CONCAT(services.name, ":", services.price, ":", employees.first_name, ":", users.name)) as services_with_details
+            ')
+            ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
+            ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
+            ->leftJoin('users', 'appointments.user_id', '=', 'users.id') // Join users/customers table
+            ->where('appointments.status', 2) // Assuming 2 means completed
+            ->whereDate('date', $selectedDate) // Filter by the selected date
+            ->groupBy('date')
+            ->get();
 
-    // Process services with details into structured data
-    $reports->transform(function ($report) {
-        $services = explode(',', $report->services_with_details);
-        $report->services_with_details = collect($services)->map(function ($service) {
-            [$name, $price, $employee, $customer] = explode(':', $service);
-            return [
-                'name' => $name,
-                'price' => $price,
-                'employee' => $employee,
-                'customer' => $customer,
-            ];
+        // Process services with details into structured data
+        $reports->transform(function ($report) {
+            $services = explode(',', $report->services_with_details);
+            $report->services_with_details = collect($services)->map(function ($service) {
+                [$name, $price, $employee, $customer] = explode(':', $service);
+                return [
+                    'name' => $name,
+                    'price' => $price,
+                    'employee' => $employee,
+                    'customer' => $customer,
+                ];
+            });
+            return $report;
         });
-        return $report;
-    });
 
-    $grandTotal = $reports->sum('total_sales'); // Calculate grand total
-    return view('reports.daily', compact('reports', 'grandTotal'));
+        $grandTotal = $reports->sum('total_sales'); // Calculate grand total
 
+        return view('reports.daily', compact('reports', 'grandTotal', 'selectedDate'));
     }
 
     //specific day
@@ -132,8 +137,13 @@ class SalesReportController extends Controller
 }
 
     //weekly
-    public function weeklyReport()
+    public function weeklyReport(Request $request)
 {
+    // Get the selected week (format: YYYY-WW), default to the current week
+    $selectedWeek = $request->input('week', now()->format('Y-\WW'));
+    [$year, $week] = explode('-W', $selectedWeek);
+
+    // Query data for the selected week
     $reports = Appointment::selectRaw('
             YEARWEEK(`date`, 1) as week,
             MIN(`date`) as week_start,
@@ -145,16 +155,18 @@ class SalesReportController extends Controller
             GROUP_CONCAT(DISTINCT employees.first_name) as employees,
             GROUP_CONCAT(DISTINCT users.name) as customers
         ')
-        ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id') // Join with employees
-        ->leftJoin('services', 'appointments.service_id', '=', 'services.id') // Join with services
-        ->leftJoin('users', 'appointments.user_id', '=', 'users.id') // Join with customers (users)
+        ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
+        ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
+        ->leftJoin('users', 'appointments.user_id', '=', 'users.id')
         ->where('appointments.status', 2) // Assuming 2 means completed
+        ->whereRaw('YEAR(`date`) = ? AND WEEK(`date`, 1) = ?', [$year, $week]) // Filter by year and week
         ->groupBy('week')
         ->orderBy('week', 'DESC')
         ->get();
 
-    $grandTotal = $reports->sum('total_sales');
-    return view('reports.weekly', compact('reports', 'grandTotal'));
+    $grandTotal = $reports->sum('total_sales'); // Calculate grand total
+
+    return view('reports.weekly', compact('reports', 'grandTotal', 'selectedWeek'));
 }
     //specific week
     public function downloadAllWeeklyPDF()
@@ -227,12 +239,14 @@ class SalesReportController extends Controller
 }
 
 
-    public function monthlyReport()
-    {
-        $currentYear = now()->year; // Get the current year
+public function monthlyReport(Request $request)
+{
+    $currentYear = now()->year; // Default year is the current year
+    $selectedMonth = $request->input('month', now()->format('Y-m')); // Default to current month (format: YYYY-MM)
+    [$year, $month] = explode('-', $selectedMonth);
 
-        // Query to fetch monthly data with services, prices, employees, and customers
-        $reports = Appointment::selectRaw('
+    // Query to fetch monthly data with filters
+    $reports = Appointment::selectRaw('
                     YEAR(`date`) as year,
                     MONTH(`date`) as month,
                     SUM(`total`) as total_sales,
@@ -242,25 +256,26 @@ class SalesReportController extends Controller
                     GROUP_CONCAT(DISTINCT employees.first_name) as employees,
                     GROUP_CONCAT(DISTINCT users.name) as customers
                 ')
-                ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id') // Join with employees
+                ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
                 ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
-                ->leftJoin('users', 'appointments.user_id', '=', 'users.id') // Join with users/customers
+                ->leftJoin('users', 'appointments.user_id', '=', 'users.id')
                 ->where('appointments.status', 2) // Assuming 2 means completed
-                ->whereYear('appointments.date', $currentYear) // Filter by the current year
+                ->whereYear('appointments.date', $year) // Filter by selected year
+                ->whereMonth('appointments.date', $month) // Filter by selected month
                 ->groupBy('year', 'month')
-                ->orderBy('month', 'ASC') // Order by month to display from January to December
+                ->orderBy('month', 'ASC')
                 ->get();
 
-        // Convert numeric month to month name in words using Carbon
-        foreach ($reports as $report) {
-            $report->month_name = Carbon::createFromDate($report->year, $report->month, 1)->format('F');
-        }
-
-        // Calculate the grand total for the year
-        $grandTotal = $reports->sum('total_sales');
-
-        return view('reports.monthly', compact('reports', 'grandTotal'));
+    // Convert numeric month to month name in words using Carbon
+    foreach ($reports as $report) {
+        $report->month_name = Carbon::createFromDate($report->year, $report->month, 1)->format('F');
     }
+
+    // Calculate the grand total for the selected month
+    $grandTotal = $reports->sum('total_sales');
+
+    return view('reports.monthly', compact('reports', 'grandTotal', 'selectedMonth'));
+}
 
     public function downloadMonthlyPdf()
     {
@@ -351,59 +366,77 @@ class SalesReportController extends Controller
     }
 
 
-    public function quarterlyReport()
-{
-    $reports = Appointment::selectRaw('
-                QUARTER(appointments.date) as quarter,
+    public function quarterlyReport(Request $request)
+    {
+        $currentYear = now()->year;
+        $currentQuarter = ceil(now()->month / 3); // Determine the current quarter
+
+        $selectedYear = $request->input('year', $currentYear); // Default to current year
+        $selectedQuarter = $request->input('quarter', $currentQuarter); // Default to current quarter
+
+        $reports = Appointment::selectRaw('
+                    QUARTER(appointments.date) as quarter,
+                    YEAR(appointments.date) as year,
+                    CONCAT("Q", QUARTER(appointments.date), " ", YEAR(appointments.date)) as quarter_label,
+                    MIN(appointments.date) as quarter_start,
+                    MAX(appointments.date) as quarter_end,
+                    SUM(appointments.total) as total_sales,
+                    COUNT(appointments.id) as appointment_count,
+                    COUNT(DISTINCT services.id) as service_count,
+                    GROUP_CONCAT(DISTINCT services.name) as services,
+                    GROUP_CONCAT(DISTINCT services.price) as prices,
+                    GROUP_CONCAT(DISTINCT employees.first_name) as employees,
+                    GROUP_CONCAT(DISTINCT users.name) as customers
+                ')
+                ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id') // Join with employees
+                ->leftJoin('services', 'appointments.service_id', '=', 'services.id')   // Join with services
+                ->leftJoin('users', 'appointments.user_id', '=', 'users.id')  // Join with users/customers
+                ->where('appointments.status', 2) // Assuming 2 means completed
+                ->when($selectedYear, function ($query, $selectedYear) {
+                    return $query->whereYear('appointments.date', $selectedYear);
+                })
+                ->when($selectedQuarter, function ($query, $selectedQuarter) {
+                    return $query->whereRaw('QUARTER(appointments.date) = ?', [$selectedQuarter]);
+                })
+                ->groupBy('year', 'quarter', 'quarter_label') // Correct grouping
+                ->orderBy('year', 'DESC')
+                ->orderBy('quarter', 'DESC')
+                ->get();
+
+        return view('reports.quarterly', compact('reports', 'selectedYear', 'selectedQuarter'));
+    }
+
+
+    public function annualReport(Request $request)
+    {
+        // Get the selected year from the request or default to the current year
+        $selectedYear = $request->input('year', date('Y'));
+
+        // Fetch the reports filtered by the selected year
+        $reports = Appointment::selectRaw('
                 YEAR(appointments.date) as year,
-                CONCAT("Q", QUARTER(appointments.date), " ", YEAR(appointments.date)) as quarter_label,
-                MIN(appointments.date) as quarter_start,
-                MAX(appointments.date) as quarter_end,
+                MIN(appointments.date) as year_start,
+                MAX(appointments.date) as year_end,
                 SUM(appointments.total) as total_sales,
                 COUNT(appointments.id) as appointment_count,
-                COUNT(DISTINCT services.id) as service_count,
-                GROUP_CONCAT(DISTINCT services.name) as services,
-                GROUP_CONCAT(DISTINCT services.price) as prices,
-                GROUP_CONCAT(DISTINCT employees.first_name) as employees,
-                GROUP_CONCAT(DISTINCT users.name) as customers
+                COUNT(DISTINCT services.id) as services_count,
+                GROUP_CONCAT(DISTINCT services.name ORDER BY services.name ASC) as services,
+                GROUP_CONCAT(DISTINCT services.price ORDER BY services.price ASC) as prices,
+                GROUP_CONCAT(DISTINCT employees.first_name ORDER BY employees.first_name ASC) as employees,
+                GROUP_CONCAT(DISTINCT users.name ORDER BY users.name ASC) as customers
             ')
-            ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id') // Join with employees
-            ->leftJoin('services', 'appointments.service_id', '=', 'services.id')   // Join with services
-            ->leftJoin('users', 'appointments.user_id', '=', 'users.id')  // Join with users/customers
+            ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
+            ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
+            ->leftJoin('users', 'appointments.user_id', '=', 'users.id')
             ->where('appointments.status', 2) // Assuming 2 means completed
-            ->groupBy('year', 'quarter', 'quarter_label') // Correct grouping
+            ->whereYear('appointments.date', $selectedYear)
+            ->groupBy('year')
             ->orderBy('year', 'DESC')
-            ->orderBy('quarter', 'DESC')
             ->get();
 
-    return view('reports.quarterly', compact('reports'));
-}
+        return view('reports.annual', compact('reports', 'selectedYear'));
+    }
 
-
-public function annualReport()
-{
-    $reports = Appointment::selectRaw('
-            YEAR(`date`) as year,
-            MIN(`date`) as year_start,
-            MAX(`date`) as year_end,
-            SUM(`total`) as total_sales,
-            COUNT(appointments.id) as appointment_count,
-            COUNT(DISTINCT services.id) as services_count,
-            GROUP_CONCAT(DISTINCT services.name) as services,
-            GROUP_CONCAT(DISTINCT services.price) as prices,
-            GROUP_CONCAT(DISTINCT employees.first_name) as employees,
-            GROUP_CONCAT(DISTINCT users.name) as customers
-        ')
-        ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id') // Join with employees
-        ->leftJoin('services', 'appointments.service_id', '=', 'services.id')   // Join with services
-        ->leftJoin('users', 'appointments.user_id', '=', 'users.id')           // Join with customers
-        ->where('appointments.status', 2)  // Assuming 2 means completed
-        ->groupBy('year')
-        ->orderBy('year', 'DESC')
-        ->get();
-
-    return view('reports.annual', compact('reports'));
-}
 
 public function downloadQuarterlyPDF()
 {

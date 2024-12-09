@@ -36,22 +36,36 @@ class ManageEquipments extends Component
     public $employees;
     public $paginate = 10;
 
+    protected $listeners = [
+        'confirmArchiveEquipment' => 'confirmArchiveEquipment',
+        'confirmUnarchiveEquipment' => 'confirmUnarchiveEquipment',
+    ];
+
     public function archiveEquipment($equipmentId)
     {
-        $equipment = Equipment::findOrFail($equipmentId);
-        $equipment->status = 0; // Set to archived
-        $equipment->save();
-
-        session()->flash('message', 'Equipment archived successfully.');
+        $this->emit('confirmArchive',$equipmentId);
     }
 
-    public function unarchiveEquipment($equipmentId)
+    public function confirmArchiveEquipment($equipmentId)
     {
         $equipment = Equipment::findOrFail($equipmentId);
-        $equipment->status = 1; // Set to active
+        $equipment->status = 0;
         $equipment->save();
 
-        session()->flash('message', 'Equipment unarchived successfully.');
+        $this->emit('equipmentArchied');
+    }
+    public function unarchiveEquipment($equipmentId)
+    {
+       $this->emit('confirmUnarchive', $equipmentId);
+    }
+
+    public function confirmUnarchiveEquipment($equipmentId)
+    {
+        $equipment = Equipment::findOrFail($equipmentId);
+        $equipment->status = 1;
+        $equipment->save();
+
+        $this->emit('equipmentUnarchived');
     }
 
     public function resetFilters()
@@ -120,30 +134,37 @@ class ManageEquipments extends Component
 
     public function saveEquipment()
     {
-    $this->validate([
-        'newEquipment.name' => 'required|string|max:255',
-        'newEquipment.brand_name' => 'required|string|max:255',
-        'newEquipment.category_id' => 'required|exists:categories,id',
-        'newEquipment.employee_id' => 'required|integer|exists:employees,id',
-        'newEquipment.quantity' => 'required|integer|min:0',
-        'newEquipment.last_maintenance' => 'required|date',
-        'newEquipment.next_maintenance' => 'required|date|after:last_maintenance',
-        'newEquipment.purchased_date' => 'required|date',
-        'image' => 'nullable|image|max:2048',
-    ]);
+        $this->validate([
+            'newEquipment.name' => 'required|string|max:255',
+            'newEquipment.brand_name' => 'required|string|max:255',
+            'newEquipment.category_id' => 'required|exists:categories,id',
+            'newEquipment.employee_id' => 'required|integer|exists:employees,id',
+            'newEquipment.quantity' => 'required|integer|min:0',
+            'newEquipment.last_maintenance' => 'nullable|date',
+            'newEquipment.next_maintenance' => 'nullable|date|after:last_maintenance',
+            'newEquipment.purchased_date' => 'required|date',
+            'image' => 'nullable|image|max:2048',
+        ]);
 
-    if ($this->image) {
-        $path = $this->image->store('images', 'public');
-        $this->newEquipment['image'] = $path;
-    }
+        // Convert empty strings to NULL for nullable date fields
+        $this->newEquipment['last_maintenance'] = $this->newEquipment['last_maintenance'] ?: null;
+        $this->newEquipment['next_maintenance'] = $this->newEquipment['next_maintenance'] ?: null;
 
-    Equipment::updateOrCreate(
-        ['id' => $this->selectedEquipmentId],
-        $this->newEquipment
-    );
+        if ($this->image) {
+            $path = $this->image->store('images', 'public');
+            $this->newEquipment['image'] = $path;
+        }
 
-    session()->flash('message', $this->selectedEquipmentId ? 'Equipment updated successfully!' : 'Equipment added successfully!');
-    $this->closeModals();
+        Equipment::updateOrCreate(
+            ['id' => $this->selectedEquipmentId],
+            $this->newEquipment
+        );
+
+        session()->flash('message', $this->selectedEquipmentId ? 'Equipment updated successfully!' : 'Equipment added successfully!');
+
+        $this->closeModals();
+
+        $this->dispatchBrowserEvent('equipmentAddedOrUpdated');
     }
 
 
@@ -232,30 +253,35 @@ class ManageEquipments extends Component
     }
 }
 
-    public function exportToPdf()
-    {
-        $equipments = Equipment::with(['employee', 'category'])
-            ->when($this->categoryFilter, function ($query) {
-                $query->where('category_id', $this->categoryFilter);
-            })
-            ->when($this->search, function ($query) {
-                $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('brand_name', 'like', '%' . $this->search . '%');
-                });
-            })
-            ->get();
+public function exportToPdf()
+{
+    $equipments = Equipment::with(['employee', 'category'])
+        ->when($this->categoryFilter, function ($query) {
+            $query->where('category_id', $this->categoryFilter);
+        })
+        ->when($this->search, function ($query) {
+            $query->where(function ($q) {
+                $q->where('name', 'like', '%' . $this->search . '%')
+                  ->orWhere('brand_name', 'like', '%' . $this->search . '%');
+            });
+        })
+        ->get();
 
-        if ($equipments->isEmpty()) {
-            session()->flash('message', 'No equipment found for export.');
-            return;
-        }
-
-        $pdf = Pdf::loadView('equipment-report', ['equipments' => $equipments]);
-
-        $pdfPath = 'pdf/equipment-report-' . time() . '.pdf';
-        Storage::disk('public')->put($pdfPath, $pdf->output());
-
-        $this->dispatchBrowserEvent('downloadFile', ['url' => Storage::url($pdfPath)]);
+    if ($equipments->isEmpty()) {
+        session()->flash('message', 'No equipment found for export.');
+        return;
     }
+
+    $image = public_path('images/banner-purple.png');
+    $preparedBy = auth()->user()->name ?? 'System Admin';
+    $currentDateTime = now()->format('Y-m-d H:i:s');
+
+    $pdf = Pdf::loadView('equipment-report', compact('equipments', 'image', 'preparedBy', 'currentDateTime'));
+
+    $pdfPath = 'pdf/equipment-report-' . time() . '.pdf';
+    Storage::disk('public')->put($pdfPath, $pdf->output());
+
+    // Dispatch the download event
+    $this->dispatchBrowserEvent('downloadFile', ['url' => Storage::url($pdfPath)]);
+}
 }
