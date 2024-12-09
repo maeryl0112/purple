@@ -172,9 +172,9 @@ class ManageAppointments extends Component
 
             $this->reset(['showPaymentModal', 'appointmentId', 'errorMessage']);
 
-            session()->flash('message', 'Appointment marked as completed.');
+            $this->emit('appointmentCompleted');
         } else {
-            session()->flash('error', 'Appointment not found.');
+            $this->emit('appointmentError');
         }
     }
 

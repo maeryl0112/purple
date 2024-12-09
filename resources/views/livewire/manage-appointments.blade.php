@@ -213,7 +213,28 @@
             </x-slot>
         </x-dialog-modal>
 
+        <script>
+            document.addEventListener('livewire:load', function () {
+                Livewire.on('appointmentCompleted', function () {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Appointment marked as completed.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+                });
 
+                Livewire.on('appointmentError', function () {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Appointment not found.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            });
+        </script>
+        
         </div>
     </div>
 </div>
