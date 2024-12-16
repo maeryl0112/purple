@@ -14,18 +14,21 @@ class AppointmentConfirmationNotification extends Notification implements Should
 {
     use Queueable;
 
-    public function __construct(
-        public Appointment $appointment
-    )
+    public function __construct(public Appointment $appointment)
     {
-    }
 
-    public function via($notifiable): array
+    }
+    /**
+     * Get the notification's delivery channels.
+     *
+     * @return array<int, string>
+     */
+    public function via(object $notifiable): array
     {
         return ['mail'];
     }
 
-    public function toMail($notifiable): MailMessage
+    public function toMail($notifiable)
     {
         return (new MailMessage)
             ->subject( 'Appointment Confirmation - Purple Look Hair Salon and Spa 🎉' . $this->appointment->service->name)
@@ -40,7 +43,7 @@ class AppointmentConfirmationNotification extends Notification implements Should
 
             ->action(
                 'View Your Appointment',
-                route('customerview', ['customer' => $this->appointment->user->id]) . '?search=' . $this->appointment->appointment_code
+                route('dashboard', ['customer' => $this->appointment->user->id]) . '?search=' . $this->appointment->appointment_code
             )
             ->line('Thank you for choosing Purple Look Hair Salon and Spa! We look forward to see you soon.')
             ->line('*Strictly no late, 10 minutes grace period.')
@@ -49,8 +52,15 @@ class AppointmentConfirmationNotification extends Notification implements Should
 
     }
 
-    public function toArray($notifiable): array
+    /**
+     * Get the array representation of the notification.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(object $notifiable): array
     {
-        return [];
+        return [
+
+        ];
     }
 }

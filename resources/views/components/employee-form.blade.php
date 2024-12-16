@@ -25,7 +25,7 @@
 
     <div>
         <label for="job_category_id" class="block text-sm font-medium text-gray-700">Job Category</label>
-        <select id="job_category_id" wire:model.defer="newEmployee.job_category_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+        <select id="job_category_id" wire:model.defer="newEmployee.job_category_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 ">
             <option value="">Select a category</option>
             @foreach ($job_categories as $job_category)
                 <option value="{{ $job_category->id }}">{{ $job_category->name }}</option>
@@ -44,7 +44,7 @@
     <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-3">
         <div>
             <label for="birthday" class="block text-sm font-medium text-gray-700">Birthday:</label>
-            <input type="date" id="birthday" wire:model="newEmployee.birthday"  class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></input>
+            <input type="date" id="birthday" wire:model="newEmployee.birthday"  class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"></input>
             @error('newEmployee.birthday') <span class="text-red-500">{{ $message }}</span>@enderror
 
         </div>
@@ -66,7 +66,7 @@
             @foreach($allDays as $day)
                 <div>
                     <input type="checkbox" id="day-{{ $day }}" value="{{ $day }}"
-                        wire:model="workingDays">
+                        wire:model="workingDays" class="rounded text-purple-500 focus:ring-purple-500 focus:border-purple-500">
                     <label for="day-{{ $day }}">{{ $day }}</label>
                 </div>
             @endforeach
@@ -77,7 +77,7 @@
 
         <div>
             <label for="image">Image</label>
-            <input type="file" wire:model="image" id="image">
+            <input type="file" wire:model="image" id="image" class="rounded-lg">
             @if ($image)
                 <p>Preview:</p>
                 <img src="{{ $image->temporaryUrl() }}" alt="Image Preview" style="max-width: 100px;">
@@ -85,12 +85,6 @@
                 <p>Current Image:</p>
                 <img src="{{ asset('storage/' . $newEmployee['image']) }}" alt="Employee Image" style="max-width: 100px;">
             @endif
-        </div>
-
-        <div>
-            <label for="is_hidden" class="block text-sm font-medium text-gray-700">Is Hidden</label>
-            <input type="checkbox" wire:model="newEmployee.is_hidden" id="is_hidden">
-            @error('newEmployee.is_hidden') <span class="text-red-500">{{ $message }}</span>@enderror
         </div>
     </div>
 

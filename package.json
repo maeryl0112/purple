@@ -18,7 +18,8 @@
         "vite": "^4.0.0"
     },
     "dependencies": {
+        "aos": "^2.3.4",
         "flowbite": "^2.5.2",
-        "sweetalert2": "^11.14.5"
+        "sweetalert2": "^11.6.13"
     }
 }

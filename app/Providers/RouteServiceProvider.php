@@ -42,13 +42,5 @@ class RouteServiceProvider extends ServiceProvider
         });
     }
 
-    public static function getHomePath()
-    {
-        $path = (Auth::check() && (Auth::user()->role->name === 'Admin' || Auth::user()->role->name === 'Employee'))
-                ? self::DASHBOARD
-                : self::HOME;
 
-        logger()->info('Home path:', ['path' => $path, 'type' => gettype($path)]);
-        return $path;
-    }
 }

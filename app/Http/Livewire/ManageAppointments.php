@@ -32,6 +32,49 @@ class ManageAppointments extends Component
     public $paymentFilter = null;
     private $userId;
 
+    public $showRescheduleModal = false;
+    public $newDate;
+    public $newTime;
+
+    public function openRescheduleModal($appointmentId)
+{
+    $this->appointmentId = $appointmentId;
+    $this->showRescheduleModal = true;
+
+    // Optionally, load existing appointment data
+    $appointment = Appointment::find($appointmentId);
+    if ($appointment) {
+        $this->newDate = $appointment->date;
+        $this->newTime = $appointment->time;
+    }
+}
+
+public function closeRescheduleModal()
+{
+    $this->reset(['showRescheduleModal', 'appointmentId', 'newDate', 'newTime']);
+}
+
+public function rescheduleAppointment()
+{
+    $this->validate([
+        'newDate' => 'required|date|after:today',
+        'newTime' => 'required|date_format:H:i',
+    ]);
+
+    $appointment = Appointment::find($this->appointmentId);
+
+    if ($appointment) {
+        $appointment->update([
+            'date' => $this->newDate,
+            'time' => $this->newTime,
+        ]);
+
+        $this->dispatchBrowserEvent('rescheduleSuccess');
+        $this->closeRescheduleModal();
+    } else {
+        $this->dispatchBrowserEvent('rescheduleError');
+    }
+}
 
     public function openPaymentModal($id)
     {

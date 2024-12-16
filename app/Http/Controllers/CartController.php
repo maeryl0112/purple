@@ -124,10 +124,20 @@ class CartController extends Controller
         // Dispatch confirmation emails
         $appointments = Appointment::where('cart_id', $cart->id)->get();
         $customer = auth()->user();
-
         foreach ($appointments as $appointment) {
-            SendAppointmentConfirmationMailJob::dispatch($customer, $appointment);
+            SendAppointmentConfirmationMailJob::dispatch( $customer , $appointment);
         }
+
+       //$twilioService = new TwilioService();
+        //$smsMessage = "Dear {$customer->name}, your appointment has been confirmed.\n";
+        //foreach ($appointments as $appointment) {
+        //    $smsMessage .= "Service: {$appointment->service->name}, Date: {$appointment->date}, Time: {$appointment->time}.\n";
+        //}
+        //$smsMessage .= "Thank you for booking with us!";
+
+        // Send SMS to customer's phone number
+        //$twilioService->sendSMS($customer->phone_number, $smsMessage);
+
 
         // Notify admins
         $admins = User::whereHas('role', function ($query) {
@@ -144,7 +154,7 @@ class CartController extends Controller
             ]);
         }
 
-        return redirect()->route('dashboard')->with('success', 'Your appointment has been booked successfully. SMS details sent!');
+        return redirect()->route('dashboard')->with('success', 'Your appointment has been booked successfully. Email details sent!');
     }
 
 }

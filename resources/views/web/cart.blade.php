@@ -92,7 +92,10 @@
         </div>
 
         <!-- Checkout Confirmation Modal -->
-        <div x-data="{ paymentMethod: '', qrImage: '' }" x-show="showCheckoutConfirmation" x-cloak>
+        <div x-data="{ paymentMethod: '', qrImage: '', error: '' }" x-show="showCheckoutConfirmation" x-cloak class="fixed inset-0 overflow-y-auto z-50 flex items-center justify-center">
+            <div class="fixed inset-0 transition-opacity -z-10" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
             <div class="bg-white rounded-lg p-4 max-w-md mx-auto">
                 <h2 class="text-xl font-semibold text-salonPurple">Confirm Appointment</h2>
                 <hr class="my-2 border-gray-400">
@@ -102,13 +105,13 @@
                     @csrf
                     <div class="mt-2">
                         <label class="inline-flex items-center">
-                            <input type="radio" name="payment_method" value="cash" class="form-radio text-purple-600" x-model="paymentMethod" required>
+                            <input type="radio" name="payment_method" value="cash" class="form-radio text-purple-600" x-model="paymentMethod">
                             <span class="ml-2">Cash</span>
                         </label>
                     </div>
                     <div class="mt-2">
                         <label class="inline-flex items-center">
-                            <input type="radio" name="payment_method" value="online" class="form-radio text-purple-600" x-model="paymentMethod" required @change="fetchQrCode">
+                            <input type="radio" name="payment_method" value="online" class="form-radio text-purple-600" x-model="paymentMethod" @change="fetchQrCode">
                             <span class="ml-2">Online</span>
                         </label>
                     </div>
@@ -135,22 +138,26 @@
                                 pattern="\d{4}"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 placeholder="1234"
-                                required
+                                :disabled="paymentMethod !== 'online'"
                             />
                         </div>
                         <p class="text-red-500 mt-2">*Make sure to come on time.</p>
                         <p class="text-red-500">*Please be advised that coming late will result in automatic cancellation.</p>
                     </div>
 
+                    <!-- Error message -->
+                    <p x-show="error" class="text-red-500 mt-2" x-text="error"></p>
+
                     <div class="mt-4 flex justify-end space-x-4">
                         <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50" @click="showCheckoutConfirmation = false">Cancel</button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700" :disabled="!paymentMethod">
+                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700">
                             Confirm
                         </button>
                     </div>
                 </form>
             </div>
         </div>
+
 
         <script>
             function fetchQrCode() {

@@ -5,7 +5,7 @@ use App\Enums\UserRolesEnum;
 use App\Http\Controllers\AdminDashboardHomeController;
 use App\Models\Role;
 use App\Http\Controllers\UserSuspensionController;
-use App\Http\Controllers\DiscountCodeController;
+    use App\Http\Controllers\DiscountCodeController;
 use App\Http\Controllers\DisplayContact;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -212,7 +212,6 @@ Route::get('/services/{slug}', [App\Http\Controllers\DisplayService::class, 'sho
                     return response()->json(['qrImage' => null], 404);
                 })->name('get.qr.code');
             });
-
 
         });
     });

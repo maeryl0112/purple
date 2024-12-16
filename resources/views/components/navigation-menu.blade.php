@@ -1,7 +1,7 @@
 @php
     $userRole = Auth::User()?->role()->first()->name;
 @endphp
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100 z-50 sticky top-0">
+<nav x-data="{ open: false }" class="bg-white border-b border-gray-100 z-50 sticky top-0 border-b border-gray-200 z-50 shadow-md">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 sticky z-50">
         <div class="flex justify-between h-24">
@@ -95,10 +95,10 @@
                     @endif
                     @else
 
-                    <a href="{{ route('login') }}" class="text-salonPurple hover:text-white border border-salonPurple hover:bg-salonPurple focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-1 mb-2 dark:border-purple-400 dark:text-purple-400 dark:hover:text-white dark:hover:bg-purple-500 dark:focus:ring-purple-900">Login</a>
+                    <x-nav-link href="{{ route('login') }}" :active="request()->routeIs('login')">Login</x-nav-link>
 
 
-                    <a href="{{ route('register') }}" class="focus:outline-none text-white bg-salonPurple hover:bg-secondary focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-secondary dark:hover:bg-purple-700 dark:focus:ring-purple-900">Register</a>
+                    <x-nav-link href="{{ route('register') }}" :active="request()->routeIs('register')">Register</x-nav-link>
 
                     @endif
 

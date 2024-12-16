@@ -37,12 +37,13 @@
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                             </svg>
                         </div>
-                        <input type="search" wire:model="search" id="default-search" name="search" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Search Appointments...">
-                        <button type="submit" class="text-white absolute right-2.5 bottom-2.5 bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-4 py-2">Search</button>
+                        <input type="search" wire:model="search" id="default-search" name="search" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-purple-500 focus:border-purple-500" placeholder="Search Appointments...">
                     </div>
                 </div>
-
-                <select class="border text-gray-900  border-gray-300 rounded-lg" wire:model="selectFilter" >
+                
+                
+            <div class="py-3 me-2.5">
+                <select class="border text-gray-900  border-gray-300 px-5 pt-2.5 me-2 rounded-lg focus:ring-purple-500 focus:border-purple-500" wire:model="selectFilter" >
                     <option value="completed">Completed</option>
                     <option value="upcoming">Upcoming</option>
                     <option value="previous">Previous</option>
@@ -50,13 +51,13 @@
                 </select>
 
                 @if ($selectFilter == 'completed')
-                <select wire:model="paymentFilter" id="paymentFilter" class="border text-gray-900  border-gray-300 rounded-lg">
+                <select wire:model="paymentFilter" id="paymentFilter" class="border text-gray-900 px-5 pt-2.5 me-2 focus:ring-purple-500 focus:border-purple-500 border-gray-300 rounded-lg">
                     <option value="">All</option>
                     <option value="cash">Cash</option>
                     <option value="online">Online</option>
                 </select>
                 @endif
-
+            </div>
             </div>
 
             <table class="w-full border-collapse bg-white text-left text-sm text-gray-500 overflow-x-scroll min-w-screen">
@@ -96,7 +97,7 @@
                         <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->service->name}}</td>
                         <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->date}}</td>
                         <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->time }}</td>
-                        <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->employee->first_name}}</td>
+                        <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->first_name}}</td>
 
                         @if (auth()->user()->role->name == 'Admin' || auth()->user()->role->name == 'Employee')
                             <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->user->name}}</td>
@@ -110,20 +111,26 @@
                             @endif
 
 
-                        <td>
-                            <div class="flex gap-1 mt-5">
+                            <td class="px-6 py-4 gap-2">
 
-                                @if ($selectFilter == 'upcoming')
+                           
+                                @if ($selectFilter == 'upcoming'|| 'previous')
 
-                                <button wire:click="openPaymentModal({{ $appointment->id }} )" class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 shadow-lg shadow-purple-500/50 dark:shadow-lg dark:shadow-purple-800/80 rounded-lg text-xs px-4 py-2 inline-flex items-center me-1 mb-2">
-                                    <svg class="w-5 h-5 text dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.5 11.5 11 14l4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                                      </svg>
+                                <button wire:click="openPaymentModal({{ $appointment->id }} )" class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 rounded-lg text-xs px-4 py-2 inline-flex items-center me-1 mb-2">
+
 
 
                                     Completed
 
                                 </button>
+
+                                <button
+                                wire:click="openRescheduleModal({{ $appointment->id }})"
+                                class="px-4 py-2 flex items-center bg-blue-600 text-white rounded-lg text-xs hover:bg-blue-700 focus:ring-2 focus:ring-blue-400">
+
+                                Reschedule
+                            </button>
+
 
                                {{--@php
                                                 $appointmentTime = Carbon\Carbon::parse($appointment->date . ' ' . $appointment->time);
@@ -141,9 +148,6 @@
                                             @endif --}}
 
                                 @endif
-
-
-                            </div>
                         </td>
                     </tr>
                 @endforeach
@@ -213,7 +217,83 @@
             </x-slot>
         </x-dialog-modal>
 
+        <div>
+            <!-- Triggered Modal -->
+            @if ($showRescheduleModal)
+                <div class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                    <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+                        <h3 class="text-xl font-semibold text-gray-800">Reschedule Appointment</h3>
+
+                        <form wire:submit.prevent="rescheduleAppointment" class="mt-4 space-y-4">
+                            <!-- Date Input -->
+                            <div>
+                                <label for="newDate" class="block text-sm font-medium text-gray-700">New Date</label>
+                                <input
+                                    type="date"
+                                    wire:model="newDate"
+                                    id="newDate"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                                />
+                                @error('newDate')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <!-- Time Input -->
+                            <div>
+                                <label for="newTime" class="block text-sm font-medium text-gray-700">New Time</label>
+                                <input
+                                    type="time"
+                                    wire:model="newTime"
+                                    id="newTime"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                                />
+                                @error('newTime')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <!-- Modal Actions -->
+                            <div class="flex justify-end space-x-2">
+                                <button
+                                    type="button"
+                                    wire:click="closeRescheduleModal"
+                                    class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none">
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:ring-4 focus:ring-purple-300">
+                                    Reschedule
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            @endif
+        </div>
+
+
         <script>
+            document.addEventListener('livewire:load', function () {
+                    Livewire.on('rescheduleSuccess', function () {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Appointment has been rescheduled.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                    });
+
+                    Livewire.on('rescheduleError', function () {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Failed to reschedule appointment. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    });
+                });
             document.addEventListener('livewire:load', function () {
                 Livewire.on('appointmentCompleted', function () {
                     Swal.fire({
@@ -234,7 +314,7 @@
                 });
             });
         </script>
-        
+
         </div>
     </div>
 </div>

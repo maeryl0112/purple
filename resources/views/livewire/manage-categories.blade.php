@@ -2,9 +2,9 @@
     <div class="flex justify-between mx-7">
         <h2 class="text-2xl font-bold text-salonPurple">CATEGORIES</h2>
 
-        <x-button wire:click="confirmCategoryAdd"  class="px-5 py-2 text-white bg-purple-500 rounded-md hover:bg--600">
+        <button wire:click="confirmCategoryAdd"  class="px-5 py-2 text-white text-sm bg-salonPurple rounded-md hover:bg-darkPurple">
             Create
-        </x-button>
+        </button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -84,8 +84,8 @@
 
             <x-slot name="content">
                 <div>
-                    <label for="image">Category Image</label>
-                    <input type="file" id="image" wire:model="image">
+                    <label for="image" class="block text-sm font-medium text-gray-700">Image</label>
+                    <input type="file" id="image" wire:model="image" class="rounded-lg">
                     @if ($image)
                         <img src="{{ $image->temporaryUrl() }}" alt="Preview" class="mt-2" width="100">
                     @elseif (isset($category->image))

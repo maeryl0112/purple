@@ -57,7 +57,15 @@
                 </tbody>
             </table>
         </div>
-        <a href="{{route('daily.report.pdf')}}" type="button" class="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 mx-5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">Download Today's Sales Report</a>
-
+        <div class="flex flex-col items-start space-y-4 mx-5">
+            <a href="{{route('daily.report.pdf')}}" 
+            class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">
+            Download This Day Sales Report
+            </a>
+            <a href="{{route('all.daily.report.pdf')}}" 
+            class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">
+            Download All
+            </a>
+        </div>
     </div>
 </x-dashboard>

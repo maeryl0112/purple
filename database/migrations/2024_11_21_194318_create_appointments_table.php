@@ -23,6 +23,8 @@ return new class extends Migration
             $table->foreignId('employee_id')->constrained();
             $table->double('total', 10, 2)->default(0);
             $table->string('cancellation_reason')->nullable();
+            $table->string('last_four_digits', 4)->nullable();
+            $table->string('payment')->nullable();
             $table->string('notes')->nullable();
             $table->boolean('status')->default(true);
             $table->timestamps();

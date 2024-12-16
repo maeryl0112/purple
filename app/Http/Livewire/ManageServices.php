@@ -26,6 +26,19 @@ class ManageServices extends Component
 
     public $employeeIds = [];
 
+
+    
+    
+    public $newService; // Declare $newService explicitly
+    public $selectedServiceId; // Declare $selectedServiceId explicitly
+
+    public function mount()
+    {
+        // Initialize values if needed
+        $this->newService = ''; 
+        $this->selectedServiceId = null;
+    }
+    
     public function showAddServiceModal()
     {
         $this->resetNewService(); // Clear form fields
@@ -59,10 +72,10 @@ class ManageServices extends Component
     public function confirmArchiveService($serviceId)
     {
         $service = Service::findOrFail($serviceId);
-        $service->status = 0; // Archived
+        $service->is_hidden = 1; // Archived
         $service->save();
 
-        $this->emit('serviceArchived'); // Notify front-end for success
+        $this->emit('serviceUnarchived'); // Notify front-end for success
     }
 
     public function unarchiveService($serviceId)
@@ -73,10 +86,10 @@ class ManageServices extends Component
     public function confirmUnarchiveService($serviceId)
     {
         $service = Service::findOrFail($serviceId);
-        $service->status = 1; // Active
+        $service->is_hidden = 0; // Active
         $service->save();
 
-        $this->emit('serviceUnarchived'); // Notify front-end for success
+        $this->emit('serviceArchived'); // Notify front-end for success
     }
 
 
@@ -158,10 +171,10 @@ public function render()
         $employees = \App\Models\Employee::all();
 
         $services = Service::when($this->statusFilter == 'active', function ($query) {
-                    $query->where('status', 1); // Filter by active services
+                    $query->where('is_hidden', 0); // Filter by active services
                 })
                 ->when($this->statusFilter == 'archived', function ($query) {
-                    $query->where('status', 0); // Filter by archived services
+                    $query->where('is_hidden', 1); // Filter by archived services
                 })
                 ->when($this->categoryFilter, function ($query) {
                     $query->where('category_id', $this->categoryFilter); // Filter by category

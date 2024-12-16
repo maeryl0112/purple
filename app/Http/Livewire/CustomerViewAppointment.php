@@ -9,9 +9,12 @@ use Carbon\Carbon;
 use Livewire\Component;
 use App\Jobs\SendReschedAppointmentMailJob;
 use App\Notifications\ReschuledAppointmentNotification;
+use Livewire\WithPagination;
+
 
 class CustomerViewAppointment extends Component
 {
+    use WithPagination;
     public $search;
     public $selectFilter = 'upcoming';
     public $confirmingAppointmentCancellation = false;

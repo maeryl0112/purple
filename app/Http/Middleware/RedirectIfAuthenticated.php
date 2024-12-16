@@ -2,37 +2,37 @@
 
 namespace App\Http\Middleware;
 
-use App\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\Response;
 
 class RedirectIfAuthenticated
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function handle(Request $request, Closure $next, string ...$guards): Response
+    public function handle($request, Closure $next)
     {
-        $guards = empty($guards) ? [null] : $guards;
+        // Check if the user is authenticated
+        if ($request->user()) {
+            $user = $request->user();
 
-        foreach ($guards as $guard) {
-            if (Auth::guard($guard)->check()) {
-                // Get home path
-                $homePath = RouteServiceProvider::getHomePath();
-
-                // Debugging output to log the type and value
-                logger()->info('Redirecting to home path', ['homePath' => $homePath, 'type' => gettype($homePath)]);
-
-                // Ensure the path is a string
-                return redirect((string) RouteServiceProvider::getHomePath());
-
+            if (in_array($user->role_id, [1, 2])) {
+                return $next($request);
             }
+
+            if ($user->role_id === 3) {
+                return redirect()->route('dashboard');
+            }
+
+            // Handle other roles or unauthorized access
+            return redirect()->route('home')->with('error', 'You are not authorized.');
         }
 
+        // If user is not authenticated, proceed with the request
         return $next($request);
     }
 }

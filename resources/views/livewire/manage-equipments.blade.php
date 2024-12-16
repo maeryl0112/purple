@@ -20,8 +20,8 @@
         <div class="w-full m-4 flex">
         <div class="w-1/2 mx-2">
 
-            <button  wire:click="showAddEquipmentModal"  type="button" class="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">ADD</button>
-            <button type="button" wire:click="exportToPdf" class="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">Print to PDF</button>
+            <button  wire:click="showAddEquipmentModal"  type="button" class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">ADD</button>
+            <button type="button" wire:click="exportToPdf" class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">Print to PDF</button>
 
             <label for="default-search" class="my-2 text-sm font-medium text-gray-900 sr-only ">Search</label>
             <div class="relative">
@@ -30,19 +30,19 @@
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                     </svg>
                 </div>
-                <input type="search" wire:model="search" id="default-search" name="search" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Search Equipment...">
-                <button type="submit" class="text-white absolute right-2.5 bottom-2.5 bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-4 py-2">Search</button>
+                <input type="search" wire:model="search" id="default-search" name="search" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-purple-500 focus:border-purple-500" placeholder="Search Equipment...">
+             
             </div>
 
             <div class="pt-2.5">
-                <select id="categoryFilter" wire:model="categoryFilter"  class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg">
+                <select id="categoryFilter" wire:model="categoryFilter"  class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
                     <option value="" selected>All Categories</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category->id }}">{{ $category->name }}</option>
                     @endforeach
                 </select>
 
-            <select wire:model="statusFilter" class="border text-gray-900  px-5 pt-2.5 me-2 border-gray-300 rounded-lg">
+            <select wire:model="statusFilter" class="border text-gray-900  px-5 pt-2.5 me-2 border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
                 <option value="active">Active</option>
                 <option value="archived">Archived</option>
             </select>

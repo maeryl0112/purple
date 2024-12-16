@@ -23,7 +23,7 @@
 <div class="overflow-auto rounded-lg border border-gray-200 shadow-md m-5">
     <div class="w-full m-4 flex">
     <div class="w-1/2 mx-2">
-        <button  wire:click="showAddServiceModal"  type="button" class="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">ADD</button>
+        <button  wire:click="showAddServiceModal"  type="button" class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">ADD</button>
 
         <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only ">Search</label>
         <div class="relative">
@@ -33,7 +33,7 @@
                 </svg>
             </div>
             <input type="search" wire:model="search" id="default-search" name="search" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Search Services...">
-            <button type="submit" class="text-white absolute right-2.5 bottom-2.5 bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-4 py-2">Search</button>
+            <button type="submit" class="text-white absolute right-2.5 bottom-2.5 bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-4 py-2">Search</button>
         </div>
 
         <div class="py-2.5 me-2">
@@ -100,8 +100,8 @@
 
 
             <td class="px-6 py-4">
-                <span class="{{ $service->status ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600' }} px-2 py-1 text-xs font-medium rounded-full">
-                    {{ $service->status ? 'Active' : 'Archived' }}
+                <span class="{{ $service->is_hidden ?  'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'  }} px-2 py-1 text-xs font-medium rounded-full">
+                    {{ $service->is_hidden ?   'Archived' : 'Active'}}
             </td>
 
 
@@ -127,7 +127,7 @@
 
 
 
-                    @if($service->status == 1)  <!-- Active employee -->
+                    @if($service->is_hidden == 0)  <!-- Active employee -->
                     <button wire:click="archiveService({{ $service->id }})" class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 rounded-lg text-xs px-4 py-2 inline-flex items-center me-1 mb-2">
                         <svg class="w-4 h-4 me-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0-3-3m3 3 3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
@@ -136,7 +136,7 @@
                         Archive
                     </button>
                 @endif
-                @if ($service->status == 0) <!-- Only show if archived -->
+                @if ($service->is_hidden == 1) <!-- Only show if archived -->
                     <button wire:click="unarchiveService({{ $service->id }})" class="text-white bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 rounded-lg text-xs px-5 py-2.5  inline-flex text-center me-2 mb-2">
                         <svg class="w-4 h-4 me-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m6 4.125 2.25 2.25m0 0 2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />

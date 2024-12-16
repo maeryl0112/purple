@@ -35,9 +35,9 @@ class Appointment extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
-
+    
     public function service()
     {
         return $this->belongsTo(Service::class);
@@ -50,8 +50,9 @@ class Appointment extends Model
 
     public function employee()
     {
-        return $this->belongsTo(Employee::class);
+        return $this->belongsTo(User::class, 'employee_id');
     }
+
 
 
 
@@ -61,10 +62,11 @@ class Appointment extends Model
         parent::boot();
 
         static::creating(function ($appointment) {
-            // Generate a unique code with a prefix 'APP-' and 5 random digits
-            $randomDigits = str_pad(rand(0, 99999), 5, '0', STR_PAD_LEFT);
-            $appointment->appointment_code = 'APP-' . $randomDigits;
+            // a readable unique code for the appointment, including the id in the code
+            $appointment->appointment_code = 'APP-'.  ($appointment->count() + 1) ;
+
         });
     }
+
 
 }

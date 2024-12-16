@@ -2,18 +2,21 @@
 
 namespace App\Console;
 
+use App\Console\SendAppointmentReminderJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Models\Appointment;
 
 class Kernel extends ConsoleKernel
 {
     /**
      * Define the application's command schedule.
      */
-    protected function schedule(Schedule $schedule): void
+    protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('appointments:send-reminders')->hourly();
     }
+
 
     /**
      * Register the commands for the application.

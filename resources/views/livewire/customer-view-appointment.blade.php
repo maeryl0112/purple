@@ -14,14 +14,30 @@
             </h2>
             <span class="text-m text-red-500">*Note: Cancellation will be disabled after 12 hours</span>
         </div>
-        <div class="mt-4">
-            @if (session()->has('message'))
-                <div class="px-4 py-2 text-white bg-green-500 rounded-md">
-                    {{ session('message') }}
-                </div>
-            @endif
-        </div>
-
+        @if (session('success'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: "{{ session('success') }}",
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            </script>
+        @endif
+        @if (session('error'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: "{{ session('error') }}",
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            </script>
+        @endif
         <div class="overflow-auto rounded-lg border border-gray-200 shadow-md m-5">
             <div class="w-full m-4 flex">
                 <div class="w-1/2 mx-2">
@@ -33,7 +49,7 @@
                             </svg>
                         </div>
                         <input type="search" wire:model="search" id="default-search" name="search" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Search Appointments...">
-                        <button type="submit" class="text-white absolute right-2.5 bottom-2.5 bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-4 py-2">Search</button>
+                        <button type="submit" class="text-white absolute right-2.5 bottom-2.5 bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-4 py-2">Search</button>
                     </div>
                 </div>
 
@@ -54,9 +70,7 @@
                         <th scope="col" class="px-4 py-4 font-bold text-gray-900">Date</th>
                         <th scope="col" class="px-4 py-4 font-bold text-gray-900">Time</th>
                         <th scope="col" class="px-4 py-4 font-bold text-gray-900">Staff Assigned</th>
-                        @if ($selectFilter == 'completed')
                         <th scope="col" class="px-4 py-4 font-bold text-gray-900">Payment</th>
-                        @endif
                         @if ($selectFilter == 'cancelled')
                         <th scope="col" class="px-4 py-4 font-bold text-gray-900">Reason</th>
                         @endif
@@ -74,16 +88,15 @@
                                 <td class="pl-6 py-4 max-w-0">{{ $appointment->appointment_code }}</td>
                                 <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->service->name }}</td>
                                 <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->date }}</td>
-                                <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->time}}</td>
-                                <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->employee->first_name }}</td>
-                                @if ($selectFilter == 'completed')
+                                <td class="px-6 py-4 max-w-xs font-medium text-gray-700">
+                                    {{ \Carbon\Carbon::parse($appointment->time)->format('g:i A') }}
+                                </td>                                <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->employee->first_name }}</td>
                                 <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->payment }}</td>
-                                @endif
                                 @if ($selectFilter == 'cancelled')
                                 <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->cancellation_reason }}</td>
                                 @endif
-                                <td>
-                                    <div class="flex gap-1 mt-5">
+                                <td class="px-6 py-4 gap-2">
+                                   
                                         @if ($selectFilter == 'upcoming')
                                             @php
                                                 $appointmentTime = Carbon\Carbon::parse($appointment->date . ' ' . $appointment->time);
@@ -101,7 +114,6 @@
                                             @endif
 
                                         @endif
-                                    </div>
                                 </td>
                             </tr>
                         @endforeach

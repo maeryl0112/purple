@@ -1,11 +1,11 @@
-<section class="mt-10">
-    <h3 class="text-xl font-medium my-2">Book Your Appointment</h3>
+<section >
+    <h3 class="text-2xl font-bold">Book Your Appointment</h3>
 
     <form wire:submit.prevent="addToCart">
 
         <!-- Date Picker -->
        <!-- Date Picker -->
-<div class="mt-5">
+<div class="mt-2">
     <h4 class="text-lg font-semibold text-gray-900">Select Date</h4>
     <fieldset>
         <input type="date"
@@ -19,8 +19,8 @@
 
 <!-- Time Slot Selection -->
 <!-- Time Slot Selection -->
-<div>
-    <h4 class="text-lg font-medium text-gray-900 mb-4">Select Time</h4>
+<div class="mt-5">
+    <h4 class="text-lg font-semibold text-gray-900">Select Time</h4>
     <div class="grid grid-cols-3 gap-4">
         @php
             $currentDate = \Carbon\Carbon::now()->format('Y-m-d');

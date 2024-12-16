@@ -96,7 +96,7 @@
 
         <div id="dateTime" class="px-5 py-2 text-salonPurple text-m"></div>
     </div>
-    <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
+    <div class="p-4 rounded-lg dark:border-gray-700">
 
        <div class="grid grid-cols-3 gap-4 mb-4">
         <div class="bg-salonPurple  shadow-lg rounded-md flex items-center justify-between p-3 border-b-4 border-purple-400  text-white font-medium group">
@@ -231,7 +231,7 @@
 
     <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
         <div id="serviceCategoryRevenueChart"></div>
-        <a href="{{ route('category.pdf') }}" class="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">Download PDF</a>
+        <a href="{{ route('category.pdf') }}" class="focus:outline-none text-white bg-salonPurple hover:bg-secondary focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-salonPurple dark:hover:bg-purple-700 dark:focus:ring-purple-900">Download PDF</a>
 
 
         <script>
@@ -250,7 +250,7 @@
                 yaxis: { title: { text: 'Sales (₱)' } },
                 title: { text: 'Sales by Service Category', align: 'center' },
                 colors: ['#6a2695'], // Customize bar color
-                tooltip: { y: { formatter: value => `$${value.toFixed(2)}` } }
+                tooltip: { y: { formatter: value => `₱${value.toFixed(2)}` } }
             };
 
             const chart = new ApexCharts(document.querySelector("#serviceCategoryRevenueChart"), options);

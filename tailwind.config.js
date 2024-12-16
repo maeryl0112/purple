@@ -14,12 +14,22 @@ module.exports = {
 
     theme: {
         extend: {
+            keyframes: {
+                'fade-slide': {
+                  '0%': { opacity: '0', transform: 'translateY(20px)' },
+                  '100%': { opacity: '1', transform: 'translateY(0)' },
+                },
+              },
+              animation: {
+                'fade-slide': 'fade-slide 1s ease-out',
+              },
             fontFamily: {
                 sans: ["Figtree", ...defaultTheme.fontFamily.sans],
             },
             colors: {
-                salonPurple: '#6a2695', // salon color
+                salonPurple: '#8751aa', // salon color
                 secondary: '#9667b4',
+                darkPurple: '#6a2695',
             },
         },
     },

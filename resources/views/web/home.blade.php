@@ -14,18 +14,22 @@
 -->
 
 <section
-class="relative bg-cover bg-center bg-no-repeat " style="background-image: url({{ asset('images/background.jpg') }}" ;>
-<div class="absolute inset-0 bg-gradient-to-r from-white/90 to-white/0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l sm:bg-transparent sm:from-white/95 sm:to-white/0"></div>
+data-aos="fade-up"
+  class="relative bg-cover bg-center bg-no-repeat"
+  style="background-image: url({{ asset('images/background.jpg') }})"
+  >
+<div class="absolute inset-0 bg-gradient-to-r from-salonPurple to-white sm:bg-gradient-to-r sm:from-white/95 sm:to-white/0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l"></div>
 
 <div
   class="relative mx-auto max-w-screen-xl px-4 py-32 sm:px-6 lg:flex lg:h-screen lg:items-center lg:px-8"
 >
   <div class="max-w-xl text-left ltr:sm:text-left rtl:sm:text-right">
-    <h1 class="text-3xl font-extrabold sm:text-5xl text-neutral-700">
-      Find Your Perfect Salon Experience at
-      <strong class="block font-extrabold text-salonPurple">
-        Purple Look Hair Salon and Spa.      </strong>
-    </h1>
+    <h1 class="text-3xl font-extrabold sm:text-5xl text-neutral-700 animate-fade-slide">
+        Find Your Perfect Salon Experience at
+        <strong class="block font-extrabold text-salonPurple">
+          Purple Look Hair Salon and Spa.
+        </strong>
+      </h1>
 
     <p class="mt-4 max-w-lg sm:text-xl/relaxed">
         Purple Look's full-service Salon is prepared in every way to make you look amazingly beautiful.
@@ -43,10 +47,13 @@ class="relative bg-cover bg-center bg-no-repeat " style="background-image: url({
 </div>
 </section>
 
-        {{-- <img class="w-full bg-cover" src="{{ asset('images\Salon2.jpg') }}" alt="Banner image"> --}}
-        {{-- <div class="absolute right-1 top-5 font-black text-purple-600 text-7xl">30% OFF <br>THIS SEASON</div> --}}
- <div>
-    <div class="text-center text-4xl font-semibold text-salonPurple m-2 mt-5">Categories</div>
+<!-- Slider -->
+
+
+<section data-aos="fade-up" class="pt-10 pb-10 px-32" >
+        <div class="mx-auto text-center md:max-w-xl lg:max-w-3xl">
+        <h3 class="mb-10 text-3xl text-salonPurple font-extrabold">   CATEGORIES</h3>
+        </div>
 
     <div class="container flex gap-10 p-10 pt-3 justify-center mx-auto">
         @foreach ($categories as $category)
@@ -56,24 +63,23 @@ class="relative bg-cover bg-center bg-no-repeat " style="background-image: url({
                 @else
                 <img class="w-60 rounded-xl" src="{{ asset('images\nails.jpg') }}" alt="Category Image">
                 @endif
-                <span class="text-salonPurple text-2xl">{{ $category->name }}</span>
+                <span class="text-salonPurple text-2xl font-bold">{{ $category->name }}</span>
             </a>
         @endforeach
     </div>
- </div>
+</section>
 
-    </div>
 
-    <section class="pt-5 bg-white">
+    <section data-aos="fade-up" class="pt-10 bg-white" >
       <div class="md:w-4/5 mx-auto">
         <div class="mx-auto text-center md:max-w-xl lg:max-w-3xl">
-          <h3 class="mb-6 text-3xl text-salonPurple font-bold">Popular Services</h3>
-          <p class="mb-6 pb-2 text-gray-700 md:mb-12 md:pb-0">
+          <h3 class="mb-6 text-3xl text-salonPurple font-extrabold">POPULAR SERVICES</h3>
+          <p class="mb-10 pb-2 text-gray-700 md:mb-12 md:pb-0">
             Services Popular among our customers.
           </p>
         </div>
 
-        <div class="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
+        <div class="mb-4 grid gap-6 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
 
             @if($popularServices->count() > 0)
                 @foreach ($popularServices as $service)
@@ -97,97 +103,61 @@ class="relative bg-cover bg-center bg-no-repeat " style="background-image: url({
 
     </section>
 
-    {{--<section class=" w-3/4 p-3 mx-auto pt-5">
-    <div>
-    <div class="text-center text-4xl font-semibold text-salonPurple m-2">Offers</div>
-    </div>
-    <div class="flex gap-10 ">
-        @if($deals->count() > 0)
-            @foreach($deals as $deal)
-                @if($deal->is_hidden == false)
-                    <div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow ">
-                        <a href="#">
-                            <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900">{{ $deal->name }}</h5>
-                        </a>
-                        <p class="mb-3 font-normal text-gray-700 ">{{ $deal->description }}</p>
-                        <a href="#" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-purple-500 rounded-lg hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 ">
-                            View Offer
-                            <svg aria-hidden="true" class="w-4 h-4 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                        </a>
-                    </div>
-                @endif
-            @endforeach
-        @else
-            <p class="mx-auto text-center block text-gray-700 md:mb-12 md:pb-0">
-                No Deals Found
-            </p>
-        @endif
-    </div>
-    </section>
+
 
     {{-- Gallery --}}
-    <section class="pt-5 pb-5 px-10">
+    <section data-aos="fade-up" class="pt-10 pb-10 px-32" >
         <div class="mx-auto text-center md:max-w-xl lg:max-w-3xl">
-          <h3 class="text-3xl text-salonPurple font-bold pb-5">Gallery</h3>
+        <h3 class="mb-10 text-3xl text-salonPurple font-extrabold">   GALLERY</h3>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="grid gap-4">
-                <div>
-                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g1.jpg') }}" alt="">
+        
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+                <div class="transition-transform duration-300 hover:scale-105">
+                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g1.png') }}" alt="">
                 </div>
-                <div>
-                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g2.jpg') }}" alt="">
+                <div class="transition-transform duration-300 hover:scale-105">
+                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g2.png') }}" alt="">
                 </div>
-                <div>
-                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g3.jpg') }}" alt="">
+                <div class="transition-transform duration-300 hover:scale-105">
+                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g3.png') }}" alt="">
                 </div>
-            </div>
-            <div class="grid gap-4">
-                <div>
-                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g4.jpg') }}" alt="">
+                <div class="transition-transform duration-300 hover:scale-105">
+                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g4.png') }}" alt="">
                 </div>
-                <div>
-                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g5.jpg') }}" alt="">
+                <div class="transition-transform duration-300 hover:scale-105">
+                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g5.png') }}" alt="">
                 </div>
-                <div>
-                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g6.jpg') }}" alt="">
+                <div class="transition-transform duration-300 hover:scale-105">
+                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g6.png') }}" alt="">
                 </div>
-            </div>
-            <div class="grid gap-4">
-                <div>
-                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g7.jpg') }}" alt="">
+
+                <div class="transition-transform duration-300 hover:scale-105">
+                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g7.png') }}" alt="">
                 </div>
-                <div>
-                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g8.jpg') }}" alt="">
+                <div class="transition-transform duration-300 hover:scale-105">
+                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g8.png') }}" alt="">
                 </div>
-                <div>
-                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g9.jpg') }}" alt="">
+                <div class="transition-transform duration-300 hover:scale-105">
+                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g9.png') }}" alt="">
                 </div>
-            </div>
-            <div class="grid gap-4">
-                <div>
-                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g10.jpg') }}" alt="">
+                <div class="transition-transform duration-300 hover:scale-105">
+                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g10.png') }}" alt="">
                 </div>
-                <div>
-                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g11.jpg') }}" alt="">
+                <div class="transition-transform duration-300 hover:scale-105">
+                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g11.png') }}" alt="">
                 </div>
-                <div>
-                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g12.jpg') }}" alt="">
+                <div class="transition-transform duration-300 hover:scale-105">
+                    <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g12.png') }}" alt="">
                 </div>
             </div>
         </div>
     </section>
 
     {{-- Testimonials --}}
-    <div class="bg-white pt-2">
-          <div class="mx-auto text-center md:max-w-xl lg:max-w-3xl">
-            <h3 class="mb-6 text-3xl text-salonPurple font-bold">BRANCHES</h3>
-            <p class="mb-6 pb-2 text-gray-700 md:mb-12 md:pb-0">
-              Come visit our branch near you.
-            </p>
-          </div>
-
-
+<section data-aos="fade-up" class="pt-10 pb-10 px-20  bg-white" x>
+        <div class="mx-auto text-center md:max-w-xl lg:max-w-3xl">
+          <h3 class="text-3xl text-salonPurple font-extrabold pb-10">Visit our Branches</h3>
+        </div>
 
 <div id="default-carousel" class="relative w-full" data-carousel="slide">
     <!-- Carousel wrapper -->
@@ -240,9 +210,43 @@ class="relative bg-cover bg-center bg-no-repeat " style="background-image: url({
     </button>
 </div>
 
-</div>
+</section>
 
 
+<section data-aos="fade-up" class="bg-gray-100">
+    <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:py-10 lg:px-8">
+        <div class="max-w-2xl lg:max-w-4xl mx-auto text-center">
+            <h2 class="text-3xl font-extrabold text-salonPurple">Visit Our Location</h2>
+        </div>
+        <div class="mt-16 lg:mt-10">
+            <div  class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div data-aos="fade-right" class="rounded-lg overflow-hidden">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3864.0639820422316!2d120.96238687590224!3d14.423475181386996!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397d23f636b6ae3%3A0xa3f77097d8d6d3b9!2sPurple%20Look!5e0!3m2!1sen!2sus!4v1734361359839!5m2!1sen!2sus"
+                        width="100%" height="480" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+                <div data-aos="fade-left">
+                    <div  class="max-w-full mx-auto rounded-lg overflow-hidden">
+                        <div class="px-6 py-4">
+                            <h3 class="text-lg font-medium text-darkPurple">Our Address</h3>
+                            <p class="mt-1 text-gray-600">Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite</p>
+                        </div>
+                        <div class="border-t border-darkPurple px-6 py-4">
+                            <h3 class="text-lg font-medium text-darkPurple">Hours</h3>
+                            <p class="mt-1 text-gray-600">Monday - Sunday: 8am - 8pm</p>
+                            <p class="mt-1 text-gray-600">Holidays: Closed</p>
+                        </div>
+                        <div class="border-t border-darkPurple px-6 py-4">
+                            <h3 class="text-lg font-medium text-darkPurple">Contact</h3>
+                            <p class="mt-1 text-gray-600">Email: purplelookhairsalonandspa@gmail.com</p>
+                            <p class="mt-1 text-gray-600">Phone: +63 910 7171 482</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
     <!-- Footer container -->
 <footer class="bg-salonPurple text-center p-4 text-neutral-100 lg:text-left">
@@ -340,6 +344,7 @@ class="relative bg-cover bg-center bg-no-repeat " style="background-image: url({
 
     </div>
 </div>
+
 
 <!--Copyright section-->
     <hr class="my-2 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />

@@ -1,40 +1,26 @@
 <x-app-layout>
 
-    {{--<div class="flex w-full transform text-left text-base transition md:my-8 md:max-w-2xl md:px-4 lg:max-w-4xl">--}}
-    <div class="md:w-9/12 w-full mx-auto">
-        <div
-            class="relative flex w-full items-center overflow-hidden bg-white px-4 pb-8 pt-14 shadow-2xl sm:px-6 sm:pt-8 md:p-6 lg:p-8">
-            {{--        <button type="button" class="absolute right-4 top-4 text-gray-400 hover:text-gray-500 sm:right-6 sm:top-8 md:right-6 md:top-6 lg:right-8 lg:top-8">--}}
-            {{--            <span class="sr-only">Close</span>--}}
-            {{--            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">--}}
-            {{--                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />--}}
-            {{--            </svg>--}}
-            {{--        </button>--}}
+<div class="bg-white flex items-center justify-center md:h-screen p-4">
+      <div class="shadow-[0_2px_16px_-3px_rgba(106,38,149,0.3)] max-w-6xl max-md:max-w-lg rounded-md pt-10 p-6">
+        <div class="grid md:grid-cols-2 items-center ">
+          <div class="max-md:order-1 lg:min-w-[450px]">
+            <img src="{{ asset('storage/'. $service->image) }}" alt="{{$service->name . ' image'}}" class="lg:w-11/12 w-full object-cover"/>
+          </div>
 
-            <div class="grid w-full grid-cols-1 items-start gap-x-6 gap-y-8 sm:grid-cols-12 lg:gap-x-8">
-                <div class="aspect-h-3 aspect-w-2 overflow-hidden rounded-lg bg-gray-100 sm:col-span-4 lg:col-span-5">
-                    <img src="{{ asset('storage/'. $service->image) }}" alt="{{$service->name . ' image'}}"
-                         class="object-cover object-center">
-                </div>
-
-                <div class="sm:col-span-8 lg:col-span-7">
-                    <h2 class="text-2xl font-bold text-gray-900 sm:pr-12">{{$service->name}}</h2>
-                    <span class="text-gray-600"> Category : {{ $service->category->name }}</span>
-
-                    {{--                <span class="ml-4 text-gray-500">--}}
-                    {{--                    Duration:--}}
-                    {{--                    @if ($service->duration_minutes >= 60)--}}
-                    {{--                        {{ floor($service->duration_minutes / 60) }} hr--}}
-                    {{--                    @endif--}}
-                    {{--                    @if ($service->duration_minutes % 60 > 0)--}}
-                    {{--                        {{ $service->duration_minutes % 60 }} mins--}}
-                    {{--                    @endif--}}
-                    {{--                    </span>--}}
-
-                    <section aria-labelledby="information-heading" class="mt-2">
+          <div class="md:max-w-md w-full mx-auto">
+            <div class="mt-5 mb-2">
+              <h3 class="text-3xl font-extrabold text-salonPurple">{{$service->name}}</h3>
+              <span class="text-gray-600"> Description : {{ $service->description }}</span>
+              <br>
+              <span class="text-gray-600"> Allergen : {{ $service->allergens }}</span>
+              <br>
+              <span class="text-gray-600"> Category : {{ $service->category->name }}</span>
+            </div>
+          
+            <section aria-labelledby="information-heading">
                         <h3 id="information-heading" class="sr-only">Product information</h3>
 
-                        <p class="text-2xl text-gray-900">PHP {{ number_format($service->price, 0, '.', ',') }}
+                        <p class="text-2xl font-bold text-gray-900 mb-2">₱ {{ number_format($service->price, 0, '.', ',') }}
                         </p>
 
 
@@ -48,22 +34,6 @@
 
                                 <div class="bg-gray-100 px-3 py-2 my-2  over-flow-auto">
                                     <span class="font-semibold"> Analytics insights </span>
-
-{{--                                    'appointmentsTotal' => $appointmentsTotal,--}}
-{{--                                    'timeSlotsStats' => $timeSlotsStats,--}}
-{{--                                    'timeSlotsStatsLastWeek' => $timeSlotsStatsLastWeek,--}}
-{{--                                    'viewsLastWeek' => $viewsLastWeek,--}}
-{{--                                    'viewsLastMonth' => $viewsLastMonth,--}}
-{{--                                    'percentageViewsChangeLastWeek' => $percentageViewsChangeLastWeek,--}}
-{{--                                    'totalRevenue' => $totalRevenue,--}}
-{{--                                    'totalRevenueLastWeek' => $totalRevenueLastWeek,--}}
-{{--                                    'totalRevenueLastMonth' => $totalRevenueLastMonth,--}}
-{{--                                    'percentageRevenueChangeLastWeek' => $percentageRevenueChangeLastWeek,--}}
-{{--                                    'appointmentsLastWeek' => $appointmentsLastWeek,--}}
-{{--                                    'appointmentsLastMonth' => $appointmentsLastMonth,--}}
-{{--                                    'percentageAppointmentsChangeLastWeek' => $percentageAppointmentsChangeLastWeek,--}}
-
-
                                     <table class="border-collapse w-full">
                                         <thead>
                                         <tr>
@@ -161,14 +131,19 @@
 
                                     @endif
 
+                                    
+                
 
-                    </section>
+                </section>
 
-                    @if (Auth::user()?->role_id == 3 )
+                @if (Auth::user()?->role_id == 3 )
                     <livewire:adding-service-to-cart :service="$service"/>
-                    @endif
+                @endif
             </div>
         </div>
+      </div >
     </div>
-    </div>
+
+
+
 </x-app-layout>
