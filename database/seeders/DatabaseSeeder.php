@@ -43,68 +43,32 @@ class DatabaseSeeder extends Seeder
         // Create admin user
         \App\Models\User::create([
             'name' => 'Admin',
-            'email' => 'purplelookhairsalonandspa@gmail.com',
+            'email' => 'admin@purplelook.com',
             'email_verified_at' => now(),
-            'password' => Hash::make('adminpassword'),
+            'password' => Hash::make('Purplelook@2019'),
             'phone_number' => '12345699901',
             'role_id' => UserRolesEnum::Admin,
         ]);
 
         // create mock customers
-        \App\Models\User::create([
-            'name' => 'Customer 1',
-            'email' => 'cust1@gmail.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('custpassword'),
-            'phone_number' => '12995678901',
-            'role_id' => UserRolesEnum::Customer,
-        ]);
-
-        \App\Models\User::create([
-            'name' => 'Customer 2',
-            'email' => 'cust2@gmail.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('custpassword'),
-            'phone_number' => '12775678901',
-            'role_id' => UserRolesEnum::Customer,
-        ]);
-
-        // this customer is suspeneded
-        \App\Models\User::create([
-            'name' => 'Customer 4',
-            'email' => 'cust4@gmail.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('custpassword'),
-            'phone_number' => '22242628901',
-            'role_id' => UserRolesEnum::Customer,
-            'status' => '0',
-        ]);
-
 
 
         // create mock employees
         \App\Models\User::create([
             'name' => 'Employee 1',
-            'email' => 'emp1@salonbliss.com',
+            'email' => 'emp1@purplelook.com',
             'email_verified_at' => now(),
             'password' => Hash::make('emppassword'),
             'phone_number' => '16445678901',
             'role_id' => UserRolesEnum::Employee,
         ]);
 
-        \App\Models\User::create([
-            'name' => 'Employee 2',
-            'email' => 'emp2@salonbliss.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('emppassword'),
-            'phone_number' => '12345238901',
-            'role_id' => UserRolesEnum::Employee,
-        ]);
+   
 
         // this Employee is suspeneded
         \App\Models\User::create([
             'name' => 'Employee 3',
-            'email' => 'emp3@gmail.com',
+            'email' => 'emp3@purplelook.com',
             'email_verified_at' => now(),
             'password' => Hash::make('emppassword'),
             'phone_number' => '00345678901',
