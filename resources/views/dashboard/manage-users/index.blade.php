@@ -1,9 +1,9 @@
 <x-dashboard>
     <div class="p-4 sm:ml-64">
         <div class="flex justify-between items-center mx-7 mb-4">
-            <x-button>
-                <a href="{{ route('manageusers.create') }}">Add User</a>
-            </x-button>
+            <button>
+                <a href="{{ route('manageusers.create') }}" class="px-5 py-2 text-white text-sm bg-salonPurple rounded-md hover:bg-darkPurple">Add User</a>
+            </button>
         </div>
         <div x-data="{showModal:false}">
             <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md m-5 bg-white">

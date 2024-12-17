@@ -68,7 +68,7 @@ class UserController extends Controller
     {
 
         // Redirect if not admin
-        if (auth()->user()->role->name != 'Admin' || auth()->user()->role->name != 'Employee') {
+        if (auth()->user()->role->name != 'Admin' && auth()->user()->role->name != 'Employee') {
             return redirect()->route('dashboard')->with('error', 'You are not authorized to perform this action.');
         }
 
@@ -79,7 +79,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8|max:255',
             'password_confirmation' => 'required|string|min:8|max:255|same:password',
-            'phone_number' => ['required', 'string', 'regex:/^[0-9]{10}$/', 'unique:users'],
+           'phone_number' => 'required', 'string', 'regex:/^\+[1-9]{1}[0-9]{3,14}$/', 'unique:users',
             'role' => 'required|string|in:employee,customer',
         ]);
 

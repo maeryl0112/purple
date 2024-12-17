@@ -26,7 +26,7 @@
             <!-- Phone Number -->
             <div class="col-span-6 sm:col-span-4 my-2">
                 <x-label for="phone_number" value="{{ __('Phone Number') }}" />
-                <span class="text-xs">eg: 0112121211</span>
+                <span class="text-xs">eg: 09123456789</span>
                 <x-input id="phone_number" type="text" class="mt-1 block w-full" name="phone_number" />
                 <x-input-error for="phone_number" class="mt-2" />
             </div>
@@ -51,7 +51,6 @@
                 <select name="role" id="role" class="border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-md shadow-sm">
                     <option value="employee">Employee</option>
                     <option value="customer">Customer</option>
-                    <option value="admin">Admin</option>
                 </select>
                 <x-input-error for="role" class="mt-2" />
             </div>
