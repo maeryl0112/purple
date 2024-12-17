@@ -21,7 +21,7 @@
 
                 <div class="shrink-0 flex items-center">
                     <a href="{{ $appMarkRoute }}">
-                        <x-application-mark class="block h-9 w-auto" />
+                        <x-admin-application-mark class="block h-9 w-auto" />
                     </a>
                 </div>
 
