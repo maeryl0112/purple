@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('online_suppliers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('link');
+            $table->string('link')->nullable();
             $table->string('address')->nullable();
             $table->string('contact')->nullable();
             $table->timestamps();

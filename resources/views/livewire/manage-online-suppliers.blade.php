@@ -54,13 +54,13 @@
                         </td>
                         <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $online_supplier->contact}}</td>
                         <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $online_supplier->address}}</td>
-                        <td>
-                            <div class="flex gap-1 mt-5">
+                        <td class="px-6 py-4 gap-2">
+                           
                                 <x-button wire:click="confirmSupplierEdit({{ $online_supplier->id }})" wire:loading.attr="disabled">
                                     {{ __('Edit') }}
                                 </x-button>
 
-                            </div>
+                          
                         </td>
                     </tr>
                 @endforeach
