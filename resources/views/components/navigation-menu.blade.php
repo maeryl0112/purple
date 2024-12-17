@@ -1,7 +1,7 @@
 @php
     $userRole = Auth::User()?->role()->first()->name;
 @endphp
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100 z-50 sticky top-0 border-b border-gray-200 z-50 shadow-md">
+<nav x-data="{ open: false }" class="bg-white border-b border-gray-100 z-50 sticky top-0 shadow-md">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 sticky z-50">
         <div class="flex justify-between h-24">

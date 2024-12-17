@@ -43,7 +43,7 @@ class AppointmentConfirmationNotification extends Notification implements Should
 
             ->action(
                 'View Your Appointment',
-                route('dashboard', ['customer' => $this->appointment->user->id]) . '?search=' . $this->appointment->appointment_code
+                route('dashboard')
             )
             ->line('Thank you for choosing Purple Look Hair Salon and Spa! We look forward to see you soon.')
             ->line('*Strictly no late, 10 minutes grace period.')
