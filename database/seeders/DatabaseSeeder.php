@@ -5,6 +5,7 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 use App\Enums\UserRolesEnum;
+use App\Models\Admin; 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -143,6 +144,6 @@ class DatabaseSeeder extends Seeder
             TimeSlotSeeder::class,
         ]);
 
-
+        Admin::factory()->create();
     }
 }

@@ -36,6 +36,9 @@ class ManageAppointments extends Component
     public $newDate;
     public $newTime;
 
+    public $filterDate = ''; 
+
+
     public function openRescheduleModal($appointmentId)
 {
     $this->appointmentId = $appointmentId;
@@ -129,6 +132,9 @@ public function rescheduleAppointment()
             });
         }
 
+        if ($this->filterDate) {
+            $query->whereDate('date', '=', $this->filterDate);
+        }
         if ($this->paymentFilter) {
             $query->where('payment', $this->paymentFilter); // Filter by payment type
         }

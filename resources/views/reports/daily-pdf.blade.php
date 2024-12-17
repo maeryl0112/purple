@@ -88,7 +88,7 @@
                         {{ $report->date }}
                     </td>
                     <td rowspan="{{ count($report->services_with_employees_and_customers) + 1 }}">
-                        ₱{{ number_format($report->total_sales, 2) }}
+                        {{ number_format($report->total_sales, 2) }}
                     </td>
                     <td rowspan="{{ count($report->services_with_employees_and_customers) + 1 }}">
                         {{ $report->appointment_count }}
@@ -97,7 +97,7 @@
                 @foreach ($report->services_with_employees_and_customers as $item)
                     <tr>
                         <td>{{ $item['service'] }}</td>
-                        <td>₱{{ number_format($item['price'], 2) }}</td>
+                        <td>{{ number_format($item['price'], 2) }}</td>
                         <td>{{ $item['employee'] }}</td>
                         <td>{{ $item['customer'] }}</td>
                     </tr>

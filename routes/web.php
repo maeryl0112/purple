@@ -1,11 +1,12 @@
 <?php
 
 use App\Http\Controllers;
+use App\Http\Controllers\AdminController;
 use App\Enums\UserRolesEnum;
 use App\Http\Controllers\AdminDashboardHomeController;
 use App\Models\Role;
 use App\Http\Controllers\UserSuspensionController;
-    use App\Http\Controllers\DiscountCodeController;
+use App\Http\Controllers\DiscountCodeController;
 use App\Http\Controllers\DisplayContact;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -14,6 +15,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\SalesReportController;
 use App\Models\Payment;
 use App\Services\TwilioService;
+
 
 
 
@@ -35,8 +37,6 @@ use App\Services\TwilioService;
 Route::get('/', [App\Http\Controllers\HomePageController::class, 'index'])->name('home');
 Route::get('/about',[App\Http\Controllers\DisplayAbout::class, 'about'])->name('about');
 Route::get('/services', [App\Http\Controllers\DisplayService::class, 'index'])->name('services');
-
-
 
 Route::middleware([
     'auth:sanctum',

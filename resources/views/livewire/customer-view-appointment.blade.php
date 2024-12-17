@@ -90,7 +90,7 @@
                                 <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->date }}</td>
                                 <td class="px-6 py-4 max-w-xs font-medium text-gray-700">
                                     {{ \Carbon\Carbon::parse($appointment->time)->format('g:i A') }}
-                                </td>                                <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->employee->first_name }}</td>
+                                </td>                                <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->first_name }}</td>
                                 <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->payment }}</td>
                                 @if ($selectFilter == 'cancelled')
                                 <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->cancellation_reason }}</td>

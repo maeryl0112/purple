@@ -29,7 +29,7 @@
                                   {{ session('errormsg') }}
                               </div>
                           @endif
-                          <form class="space-y-4" method="POST" action="{{ route('login') }}">
+                          <form class="space-y-4" method="POST" action="{{ isset($guard) ? url($guard.'/login') : route('login') }}">
                             @csrf
                     <div>
                       <x-label class="text-gray-800 text-sm mb-2 block" for="email" value="{{ __('Email') }}"/>

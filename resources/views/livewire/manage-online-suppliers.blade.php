@@ -2,9 +2,9 @@
         <div class="flex justify-between mx-7">
             <h2 class="text-2xl font-bold text-salonPurple">SUPPLIERS</h2>
 
-            <x-button wire:click="confirmSupplierAdd"  class="px-5 py-2 text-white bg-purple-500 rounded-md hover:bg--600">
+            <button wire:click="confirmSupplierAdd"  class="px-5 py-2 text-white bg-salonPurple rounded-md hover:bg-darkPurple">
                 Create
-            </x-button>
+            </button>
         </div>
         <div class="mt-4">
             @if (session()->has('message'))

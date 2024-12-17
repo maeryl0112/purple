@@ -26,39 +26,67 @@
         </div>
 
         <div class="overflow-auto rounded-lg border border-gray-200 shadow-md m-5">
-
-            <div class="w-full m-4 flex">
-
-                <div class="w-1/2 mx-2">
-                    <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only ">Search</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                            </svg>
-                        </div>
-                        <input type="search" wire:model="search" id="default-search" name="search" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-purple-500 focus:border-purple-500" placeholder="Search Appointments...">
-                    </div>
+    <div class="w-full m-4 flex flex-wrap items-center space-y-4 md:space-y-0 md:space-x-4">
+        <!-- Search Input -->
+        <div class="w-full md:w-1/3">
+            <label for="default-search" class="sr-only">Search</label>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20" aria-hidden="true">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                    </svg>
                 </div>
-                
-                
-            <div class="py-3 me-2.5">
-                <select class="border text-gray-900  border-gray-300 px-5 pt-2.5 me-2 rounded-lg focus:ring-purple-500 focus:border-purple-500" wire:model="selectFilter" >
-                    <option value="completed">Completed</option>
-                    <option value="upcoming">Upcoming</option>
-                    <option value="previous">Previous</option>
-                    <option value="cancelled">Cancelled</option>
-                </select>
+                <input 
+                    type="search" 
+                    wire:model="search" 
+                    id="default-search" 
+                    name="search" 
+                    class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-purple-500 focus:border-purple-500" 
+                    placeholder="Search Appointments...">
+            </div>
+        </div>
 
-                @if ($selectFilter == 'completed')
-                <select wire:model="paymentFilter" id="paymentFilter" class="border text-gray-900 px-5 pt-2.5 me-2 focus:ring-purple-500 focus:border-purple-500 border-gray-300 rounded-lg">
-                    <option value="">All</option>
-                    <option value="cash">Cash</option>
-                    <option value="online">Online</option>
-                </select>
-                @endif
-            </div>
-            </div>
+        <!-- Date Filter -->
+        <div class="w-full md:w-1/3">
+            <label for="filterDate" class="sr-only">Filter by Date</label>
+            <input 
+                type="date" 
+                wire:model="filterDate" 
+                id="filterDate" 
+                class="block w-full p-2.5 text-sm bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                placeholder="Select date">
+        </div>
+
+        <!-- Status Filter -->
+        <div class="w-full md:w-1/4">
+            <label for="selectFilter" class="sr-only">Filter by Status</label>
+            <select 
+                id="selectFilter" 
+                wire:model="selectFilter" 
+                class="block w-52 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                <option value="completed">Completed</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="previous">Previous</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+        </div>
+
+        <!-- Payment Filter (Conditional) -->
+        @if ($selectFilter == 'completed')
+        <div class="w-full md:w-1/4">
+            <label for="paymentFilter" class="sr-only">Filter by Payment</label>
+            <select 
+                id="paymentFilter" 
+                wire:model="paymentFilter" 
+                class="block w-50 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                <option value="">All</option>
+                <option value="cash">Cash</option>
+                <option value="online">Online</option>
+            </select>
+        </div>
+        @endif
+    </div>
+
 
             <table class="w-full border-collapse bg-white text-left text-sm text-gray-500 overflow-x-scroll min-w-screen">
                 <thead class="bg-gray-50">
@@ -96,7 +124,9 @@
 
                         <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->service->name}}</td>
                         <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->date}}</td>
-                        <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->time }}</td>
+                        <td class="px-6 py-4 max-w-xs font-medium text-gray-700">
+                            {{ \Carbon\Carbon::createFromFormat('H:i:s', $appointment->time)->format('h:i A') }}
+                        </td>
                         <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->first_name}}</td>
 
                         @if (auth()->user()->role->name == 'Admin' || auth()->user()->role->name == 'Employee')
@@ -114,7 +144,7 @@
                             <td class="px-6 py-4 gap-2">
 
                            
-                                @if ($selectFilter == 'upcoming'|| 'previous')
+                                @if ($selectFilter == 'upcoming')
 
                                 <button wire:click="openPaymentModal({{ $appointment->id }} )" class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 rounded-lg text-xs px-4 py-2 inline-flex items-center me-1 mb-2">
 
@@ -242,12 +272,21 @@
                             <!-- Time Input -->
                             <div>
                                 <label for="newTime" class="block text-sm font-medium text-gray-700">New Time</label>
-                                <input
-                                    type="time"
+                                <select
                                     wire:model="newTime"
                                     id="newTime"
                                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-                                />
+                                >
+                                    <option value="">Select a time</option>
+                                    @foreach (range(8, 20) as $hour)
+                                        @php
+                                            $time = \Carbon\Carbon::createFromTime($hour, 0)->format('h:i A');
+                                        @endphp
+                                        <option value="{{ \Carbon\Carbon::createFromTime($hour, 0)->format('H:i') }}">
+                                            {{ $time }}
+                                        </option>
+                                    @endforeach
+                                </select>
                                 @error('newTime')
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
@@ -314,7 +353,15 @@
                 });
             });
         </script>
-
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const datepicker = document.querySelector('#default-datepicker');
+            new Datepicker(datepicker, {
+                format: 'yyyy-mm-dd',
+                autohide: true
+            });
+        });
+        </script>
         </div>
     </div>
 </div>

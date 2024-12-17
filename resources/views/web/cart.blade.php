@@ -22,54 +22,57 @@
             @endif
 
             <div class="flex flex-col md:flex-row gap-4">
-                <div class="md:w-3/4">
-                    <div class="bg-white rounded-lg shadow-md p-6 mb-4">
-                        <table class="w-full">
-                            <thead>
-                                <tr>
-                                    <th class="text-left font-semibold">Service</th>
-                                    <th class="text-left font-semibold">Price</th>
-                                    <th class="text-left font-semibold">Date</th>
-                                    <th class="text-left font-semibold">Time Slot</th>
-                                    <th class="text-left font-semibold">Staff Assigned</th>
-                                    <th class="text-left font-semibold"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if(isset($cart->services) && $cart->services->isNotEmpty())
-                                    @foreach($cart->services as $service)
-                                        <tr>
-                                            <td class="py-4">
-                                                <div class="flex items-center">
-                                                    <img class="h-16 w-16 mr-4" src="{{ '/storage/' . $service->image }}" alt="{{ $service->name . ' image'}}">
-                                                    <span class="font-semibold"> {{ $service->name }}</span>
-                                                </div>
-                                            </td>
-                                            <td class="py-4">₱ {{ number_format($service->price,0, '.', ',') }}</td>
-
-                                            <td class="py-4">{{ $service->pivot->date }}</td>
-                                            <td class="py-4">
-                                                {{ date('g:i a', strtotime($service->pivot->time)) }}
-                                            </td>
-                                            <td class="py-4">{{ $service->pivot->first_name }}</td>
-                                            <form action="{{ route('cart.remove-item', ['cart_service_id' => $service->pivot->id]) }}" method="post">
-                                                @csrf
-                                                @method('delete')
-                                                <td class="py-4">
-                                                    <button type="submit" class="text-red-500 hover:text-red-600 font-semibold">Remove</button>
-                                                </td>
-                                            </form>
-                                        </tr>
-                                    @endforeach
-                                @else
-                                    <tr>
-                                        <td colspan="6" class="text-center pt-8">No items in cart</td>
-                                    </tr>
-                                @endif
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="md:w-3/4">
+    <div class="bg-white rounded-lg shadow-md p-6 mb-4">
+        <div class="overflow-x-auto">
+            <table class="w-full table-auto">
+                <thead>
+                    <tr>
+                        <th class="text-left font-semibold py-2 px-4">Image</th>
+                        <th class="text-left font-semibold py-2 px-4">Service Name</th>
+                        <th class="text-left font-semibold py-2 px-4">Price</th>
+                        <th class="text-left font-semibold py-2 px-4">Date</th>
+                        <th class="text-left font-semibold py-2 px-4">Time Slot</th>
+                        <th class="text-left font-semibold py-2 px-4">Staff Assigned</th>
+                        <th class="text-left font-semibold py-2 px-4"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if(isset($cart->services) && $cart->services->isNotEmpty())
+                        @foreach($cart->services as $service)
+                            <tr class="border-t">
+                                <td class="py-4 px-4">
+                                    <div class="flex items-center">
+                                        <img class="h-16 w-16 mr-1" src="{{ '/storage/' . $service->image }}" alt="{{ $service->name . ' image'}}">
+                                        
+                                    </div>
+                                </td>
+                                <td class="py-4 px-4">{{ $service->name }}</td>
+                                <td class="py-4 px-4">₱ {{ number_format($service->price, 0, '.', ',') }}</td>
+                                <td class="py-4 px-4">{{ $service->pivot->date }}</td>
+                                <td class="py-4 px-4">
+                                    {{ date('g:i a', strtotime($service->pivot->time)) }}
+                                </td>
+                                <td class="py-4 px-4">{{ $service->pivot->first_name }}</td>
+                                <form action="{{ route('cart.remove-item', ['cart_service_id' => $service->pivot->id]) }}" method="post">
+                                    @csrf
+                                    @method('delete')
+                                    <td class="py-4 px-4">
+                                        <button type="submit" class="text-red-500 hover:text-red-600 font-semibold">Remove</button>
+                                    </td>
+                                </form>
+                            </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="6" class="text-center py-8 px-4">No items in cart</td>
+                        </tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
                 <div class="md:w-1/4">
                     <div class="bg-white rounded-lg shadow-md p-6">

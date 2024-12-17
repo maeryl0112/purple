@@ -1,5 +1,6 @@
 <section >
-    <h3 class="text-2xl font-bold">Book Your Appointment</h3>
+    <h3 class="text-2xl font-bold mb-1">Book Your Appointment</h3>
+    <h3 class="text-sm font-medium text-red-500">*Please Select Date first.</h3>
 
     <form wire:submit.prevent="addToCart">
 

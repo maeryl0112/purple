@@ -97,7 +97,7 @@
                     </td>
                     <td class="px-4 py-2">
                         @foreach (explode(',', $report->prices) as $price)
-                            <p>₱{{ number_format($price, 2) }}</p>
+                            <p>{{ number_format($price, 2) }}</p>
                         @endforeach
                     </td>
                     <td class="px-4 py-2">

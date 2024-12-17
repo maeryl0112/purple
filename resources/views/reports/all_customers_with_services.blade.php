@@ -51,7 +51,7 @@ s<!DOCTYPE html>
                     @foreach($services as $service)
                         <tr>
                             <td>{{ $service->service_name }}</td>
-                            <td>₱{{ number_format($service->service_price, 2) }}</td>
+                            <td>{{ number_format($service->service_price, 2) }}</td>
                         </tr>
                     @endforeach
                 </tbody>

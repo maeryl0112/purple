@@ -20,7 +20,7 @@
 
             <div class="w-1/2 mx-2">
 
-                <button  wire:click="showAddSuppliesModal"   type="button" class="focus:outline-none text-white bg-salonPurple   hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">ADD</button>
+                <button  wire:click="showAddSuppliesModal"   type="button" class="focus:outline-none text-white bg-salonPurple   hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">ADD</button>
                 <button type="button" wire:click="exportToPdf"  class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">Print to PDF</button>
             <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only ">Search</label>
             <div class="relative">
@@ -234,8 +234,10 @@
                 @include('components.supplies-form', ['isEditing' => true])
             </x-slot>
             <x-slot name="footer">
+            <div class="flex gap-3">
                 <x-secondary-button wire:click="closeModals">Cancel</x-secondary-button>
                 <x-button wire:click="saveSupplies">Save</x-button>
+            </div>
             </x-slot>
         </x-dialog-modal>
 
@@ -245,8 +247,10 @@
                 @include('components.supplies-form', ['isEditing' => true])
             </x-slot>
             <x-slot name="footer">
+            <div class="flex gap-3">
                 <x-secondary-button wire:click="closeModals">Cancel</x-secondary-button>
                 <x-button wire:click="saveSupplies">Save Changes</x-button>
+            </div>
             </x-slot>
         </x-dialog-modal>
 

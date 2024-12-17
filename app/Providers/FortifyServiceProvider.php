@@ -12,6 +12,12 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
 
+use Illuminate\Contracts\Auth\StatefulGuard;
+use App\Actions\Fortify\AttemptToAuthenticate;
+use App\Actions\Fortify\RedirectIfTwoFactorAuthenticatable;
+use App\Http\Controllers\AdminController;
+use Auth;
+
 class FortifyServiceProvider extends ServiceProvider
 {
     /**
