@@ -26,7 +26,9 @@ class ManageJobCategories extends Component
     {
         $this->job_categories = JobCategory::when($this->search, function ($query) {
             $query->where('name', 'like', '%'.$this->search.'%');
-        })->paginate(10);
+        })
+        ->orderBy('created_at', 'desc') 
+        ->paginate(10);
 
         return view('livewire.manage-job-categories', [
             'job_categories' => $this->job_categories,
