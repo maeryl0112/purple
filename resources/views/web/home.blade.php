@@ -52,12 +52,12 @@ data-aos="fade-up"
 
 <section data-aos="fade-up" class="pt-10 pb-10 px-12" >
         <div class="mx-auto text-center md:max-w-xl lg:max-w-3xl">
-        <h3 class="mb-10 text-3xl text-salonPurple font-extrabold">   CATEGORIES</h3>
+        <h3 class="mb-8 text-3xl text-salonPurple font-extrabold">   CATEGORIES</h3>
         </div>
 
         <div class="p-1 flex flex-wrap items-center justify-center">
         @foreach ($categories as $category)
-    <div class="flex-shrink-0 m-6 relative duration-300 hover:scale-105 overflow-hidden bg-white rounded-lg max-w-xs shadow-lg">
+    <div class="flex-shrink-0 m-4 relative duration-300 hover:scale-105 overflow-hidden bg-white rounded-lg max-w-xs shadow-lg">
    
         <div class="relative flex items-center justify-center">
         @if ($category->image)
