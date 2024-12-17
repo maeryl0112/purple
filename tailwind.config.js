@@ -30,6 +30,7 @@ module.exports = {
                 salonPurple: '#8751aa', // salon color
                 secondary: '#9667b4',
                 darkPurple: '#6a2695',
+                lightPurple: '#c3a8d4',
             },
         },
     },

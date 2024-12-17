@@ -13,7 +13,7 @@
                     @endphp
                 @else
                     @php
-                        {{ $appMarkRoute = route('dashboard'); }}
+                        {{ $appMarkRoute = route('home'); }}
                     @endphp
 
                @endif

@@ -18,7 +18,7 @@ data-aos="fade-up"
   class="relative bg-cover bg-center bg-no-repeat"
   style="background-image: url({{ asset('images/background.jpg') }})"
   >
-<div class="absolute inset-0 bg-gradient-to-r from-salonPurple to-white sm:bg-gradient-to-r sm:from-white/95 sm:to-white/0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l"></div>
+<div class="absolute inset-0 bg-gradient-to-r from-lightPurple/95 to-lightPurple/0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l sm:bg-transparent sm:from-lightPurple/95 sm:to-lightPurple/0"></div>
 
 <div
   class="relative mx-auto max-w-screen-xl px-4 py-32 sm:px-6 lg:flex lg:h-screen lg:items-center lg:px-8"
@@ -26,7 +26,7 @@ data-aos="fade-up"
   <div class="max-w-xl text-left ltr:sm:text-left rtl:sm:text-right">
     <h1 class="text-3xl font-extrabold sm:text-5xl text-neutral-700 animate-fade-slide">
         Find Your Perfect Salon Experience at
-        <strong class="block font-extrabold text-salonPurple">
+        <strong class="block font-extrabold text-darkPurple">
           Purple Look Hair Salon and Spa.
         </strong>
       </h1>
@@ -50,23 +50,30 @@ data-aos="fade-up"
 <!-- Slider -->
 
 
-<section data-aos="fade-up" class="pt-10 pb-10 px-32" >
+<section data-aos="fade-up" class="pt-10 pb-10 px-12" >
         <div class="mx-auto text-center md:max-w-xl lg:max-w-3xl">
         <h3 class="mb-10 text-3xl text-salonPurple font-extrabold">   CATEGORIES</h3>
         </div>
 
-    <div class="container flex gap-10 p-10 pt-3 justify-center mx-auto">
+        <div class="p-1 flex flex-wrap items-center justify-center">
         @foreach ($categories as $category)
-            <a href="#" class="text-center gap-2 duration-300 hover:scale-105">
-                @if ($category->image)
-                <img class="w-60 rounded-xl" src="{{ asset('storage/'.$category->image) }}" alt="{{ $category->name }}">
-                @else
-                <img class="w-60 rounded-xl" src="{{ asset('images\nails.jpg') }}" alt="Category Image">
-                @endif
-                <span class="text-salonPurple text-2xl font-bold">{{ $category->name }}</span>
-            </a>
-        @endforeach
+    <div class="flex-shrink-0 m-6 relative duration-300 hover:scale-105 overflow-hidden bg-white rounded-lg max-w-xs shadow-lg">
+   
+        <div class="relative flex items-center justify-center">
+        @if ($category->image)
+            <img class="relative w-52" src="{{ asset('storage/'.$category->image) }}" alt="{{ $category->name }}">
+            @else
+            <img class="relative w-52"  src="{{ asset('images\nails.jpg') }}" alt="Category Image">
+            @endif
+        </div>
+        <div class="relative text-darkPurple px-4 pb-4 mt-4">
+                <h1 class=" text-center font-bold text-xl">{{ $category->name }}</h1>
+        </div>
+       
     </div>
+    @endforeach
+  
+</div>
 </section>
 
 
@@ -106,12 +113,12 @@ data-aos="fade-up"
 
 
     {{-- Gallery --}}
-    <section data-aos="fade-up" class="pt-10 pb-10 px-32" >
+    <section data-aos="fade-up" class="pt-10 pb-10 px-20" >
         <div class="mx-auto text-center md:max-w-xl lg:max-w-3xl">
         <h3 class="mb-10 text-3xl text-salonPurple font-extrabold">   GALLERY</h3>
         </div>
         
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div class="transition-transform duration-300 hover:scale-105">
                     <img class="h-auto max-w-full rounded-lg" src="{{ asset('images/g1.png') }}" alt="">
                 </div>
@@ -154,9 +161,9 @@ data-aos="fade-up"
     </section>
 
     {{-- Testimonials --}}
-<section data-aos="fade-up" class="pt-10 pb-10 px-20  bg-white" x>
+<section data-aos="fade-up" class="pt-5 pb-5 px-12  bg-white" x>
         <div class="mx-auto text-center md:max-w-xl lg:max-w-3xl">
-          <h3 class="text-3xl text-salonPurple font-extrabold pb-10">Visit our Branches</h3>
+          <h3 class="text-3xl text-salonPurple font-extrabold pb-5">Visit our Branches</h3>
         </div>
 
 <div id="default-carousel" class="relative w-full" data-carousel="slide">
