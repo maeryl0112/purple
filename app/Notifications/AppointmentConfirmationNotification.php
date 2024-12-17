@@ -39,7 +39,7 @@ class AppointmentConfirmationNotification extends Notification implements Should
             ->line('🧾 Appointment Code: ' . $this->appointment->appointment_code)
             ->line('📅 Date: ' . $this->appointment->date)
             ->line('⏰ Time: ' . $this->appointment->time)
-            ->line('📞 Staff Assigned: ' . $this->appointment->employee->first_name)
+            ->line('📞 Staff Assigned: ' . $this->appointment->first_name)
 
             ->action(
                 'View Your Appointment',
