@@ -4,13 +4,7 @@
 
 
 
-        <x-button wire:click="showAddEmployeeModal"  class="px-5 py-2 text-white bg-purple-500 rounded-md hover:bg--600">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
-
-            Create
-        </x-button>
+    
     </div>
 
 
@@ -19,6 +13,8 @@
     <div class="overflow-auto rounded-lg border border-gray-200 shadow-md m-5">
         <div class="w-full m-4 flex">
         <div class="w-1/2 mx-2">
+        <button  wire:click="showAddEmployeeModal"  type="button" class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">ADD</button>
+
             <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only ">Search</label>
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
