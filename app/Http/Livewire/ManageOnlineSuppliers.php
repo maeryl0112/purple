@@ -40,29 +40,32 @@ class ManageOnlineSuppliers extends Component
 
     public function confirmSupplierEdit(OnlineSupplier $online_supplierId)
     {
-        $this->online_supplier = $online_supplierId; // This will load the supplier as an object
+        $this->online_supplier = $online_supplierId; // Load existing supplier
         $this->confirmingSupplierAdd = true;
     }
-    
+
     public function confirmSupplierDeletion()
     {
         $this->confirmingSupplierDeletion = true;
     }
 
-    public function saveOnlineSupplier()
+   public function saveOnlineSupplier()
     {
         $this->validate();
 
-        // If the supplier exists, save it; otherwise, create a new one
         if ($this->online_supplier->id) {
+            // Update the existing supplier
             $this->online_supplier->save();
+            $this->emit('supplierUpdated'); // Emit update event
         } else {
+            // Create a new supplier
             OnlineSupplier::create([
                 'name' => $this->online_supplier->name,
                 'link' => $this->online_supplier->link,
                 'contact' => $this->online_supplier->contact,
                 'address' => $this->online_supplier->address,
             ]);
+            $this->emit('supplierAdded'); // Emit add event
         }
 
         $this->confirmingSupplierAdd = false;
@@ -78,7 +81,7 @@ class ManageOnlineSuppliers extends Component
 
     public function confirmSupplierAdd()
     {
-        $this->online_supplier = new OnlineSupplier(); // Initialize as an empty object
+        $this->online_supplier = new OnlineSupplier(); // New empty supplier
         $this->confirmingSupplierAdd = true;
     }
 }

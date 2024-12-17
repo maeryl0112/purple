@@ -132,6 +132,29 @@
                 <x-slot name="footer">
                 </x-slot>
             </x-dialog-modal>
+
+
+            <script>
+            document.addEventListener('livewire:load', function () {
+                // Listen for supplier added event
+                Livewire.on('supplierAdded', () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Supplier Added',
+                        text: 'The supplier has been successfully added!',
+                    });
+                });
+
+                // Listen for supplier updated event
+                Livewire.on('supplierUpdated', () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Supplier Updated',
+                        text: 'The supplier has been successfully updated!',
+                    });
+                });
+            });
+        </script>
         </div>
     </div>
 </div>
