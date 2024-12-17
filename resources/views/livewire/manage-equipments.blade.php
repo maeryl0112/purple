@@ -173,7 +173,7 @@
                             Unarchive
                         </button>
                     @endif
-                    </div>
+                 
                 </td>
             </tr>
             @endforeach

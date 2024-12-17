@@ -3,7 +3,7 @@
         <h2 class="text-2xl font-bold text-salonPurple">
 
 
-            MANAGE  SUPPLIES AND CONSUMABLES</h2>
+            MANAGE  CONSUMABLES</h2>
 
 
 
