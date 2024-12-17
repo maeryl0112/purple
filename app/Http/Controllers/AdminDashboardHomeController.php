@@ -252,7 +252,7 @@ class AdminDashboardHomeController extends Controller
             $currentDateTime = now()->format('Y-m-d H:i:s');
 
         // Load the PDF view
-        $pdf = PDF::loadView('reports.all_customers_with_services', compact('customers'.'currentDateTime','preparedBy','image'));
+        $pdf = PDF::loadView('reports.all_customers_with_services', compact('customers','currentDateTime','preparedBy','image'));
 
         // Return the PDF download
         return $pdf->download('all_customers_with_services_report.pdf');

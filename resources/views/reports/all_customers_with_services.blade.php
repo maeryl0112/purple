@@ -38,7 +38,7 @@ s<!DOCTYPE html>
         <div class="customer">
             <h2>Customer: {{ $services->first()->name }}</h2>
             <p>Email: {{ $services->first()->email }}</p>
-            <p><strong>Total Revenue:</strong> ₱{{ number_format($services->first()->total_revenue, 2) }}</p>
+            <p><strong>Total Revenue:</strong> {{ number_format($services->first()->total_revenue, 2) }}</p>
 
             <table>
                 <thead>

@@ -268,7 +268,7 @@
                     </span>
                     <h3 class="text-base font-light text-gray-500 dark:text-gray-400">Sales Every Month</h3>
                 </div>
-                <a href="{{route('weekly.report')}}" class="px-4 py-2 text-sm font-medium text-white bg-salonPurple rounded-lg hover:bg-secondary">
+                <a href="{{route('monthly.report')}}" class="px-4 py-2 text-sm font-medium text-white bg-salonPurple rounded-lg hover:bg-secondary">
                     View Details
                 </a>
             </div>
