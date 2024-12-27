@@ -91,7 +91,7 @@
             <table class="w-full border-collapse bg-white text-left text-sm text-gray-500 overflow-x-scroll min-w-screen">
                 <thead class="bg-gray-50">
                 <tr>
-                    <th scope="col" class="pl-6 py-4 font-bold text-gray-900">Code</th>
+                    <th scope="col" class="pl-6 py-4 font-bold text-gray-900">Number</th>
                     <th scope="col" class="px-6 py-4 font-bold text-gray-900">Service</th>
                     <th scope="col" class="px-6 py-4 font-bold text-gray-900">Date</th>
                     <th scope="col" class="px-6 py-4 font-bold text-gray-900">Time</th>
@@ -120,7 +120,7 @@
                 @else
                 @foreach ($appointments as $appointment)
                     <tr class="hover:bg-gray-50">
-                        <td class="pl-6 py-4  max-w-0">{{ $appointment->appointment_code }}</td>
+                        <td class="pl-6 py-4  max-w-0">{{ $appointment->id }}</td>
 
                         <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->service->name}}</td>
                         <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->date}}</td>

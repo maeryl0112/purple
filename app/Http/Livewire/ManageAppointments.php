@@ -37,6 +37,7 @@ class ManageAppointments extends Component
     public $newTime;
 
     public $filterDate = ''; 
+    public $filterStaff = '';
 
 
     public function openRescheduleModal($appointmentId)
@@ -159,7 +160,7 @@ public function rescheduleAppointment()
 
 
         // Get the appointments
-        $this->appointments = $query->orderBy('date')->paginate(20);
+        $this->appointments = $query->orderBy('created_at')->paginate(20);
 //        dd($this->appointments);
 
         return view('livewire.manage-appointments', [

@@ -145,6 +145,7 @@
                             />
                         </div>
                         <p class="text-red-500 mt-2">*Make sure to come on time.</p>
+                        <p class="text-red-500 mt-2">*Grace Period: 10 minutes</p>
                         <p class="text-red-500">*Please be advised that coming late will result in automatic cancellation.</p>
                     </div>
 

@@ -12,9 +12,11 @@
         }
         .header {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
             margin-bottom: 20px;
+            text-align: center;
         }
         .logo h1 {
             font-family: cursive;

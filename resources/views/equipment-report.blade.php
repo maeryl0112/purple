@@ -13,9 +13,11 @@
         }
         .header {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
             margin-bottom: 20px;
+            text-align: center;
         }
         .logo h1 {
             font-family: cursive;
@@ -45,6 +47,10 @@
         table th {
             background-color: #f2f2f2;
         }
+        .low-stock, .maintenance-alert {
+            color: red;
+            font-weight: bold;
+        }
         tfoot td {
             font-weight: bold;
             background-color: #f2f2f2;
@@ -72,11 +78,11 @@
             <img src="{{ $image }}" width="300px" alt="Purple Look Salon and Spa Logo">
             <p>Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite <br> purplelookhairsalonandspa@gmail.com <br> 09********</p>
         </div>
+    </div>
         <div class="report-info">
             <p><strong>Prepared By:</strong> {{ $preparedBy }}</p>
             <p><strong>Report Date & Time:</strong> {{ $currentDateTime }}</p>
         </div>
-    </div>
     <h1 class="report-title">Equipment Report</h1>
     <table>
         <thead>
@@ -92,16 +98,22 @@
         </thead>
         <tbody>
             @foreach ($equipments as $equipment)
-        <tr>
-            <td>{{ $equipment->name }}</td>
-            <td>{{ $equipment->category->name ?? 'N/A' }}</td>
-            <td>{{ $equipment->brand_name }}</td>
-            <td>{{ $equipment->quantity }}</td>
-            <td>{{ $equipment->employee->first_name ?? 'N/A' }}</td>
-            <td>{{ $equipment->last_maintenance ? \Carbon\Carbon::parse($equipment->last_maintenance)->format('Y-m-d') : 'N/A' }}</td>
-            <td>{{ $equipment->next_maintenance ? \Carbon\Carbon::parse($equipment->next_maintenance)->format('Y-m-d') : 'N/A' }}</td>
-        </tr>
-    @endforeach
+                @php
+                    $lowQuantity = $equipment->quantity < 5; // Example threshold for low quantity
+                    $maintenanceAlert = $equipment->next_maintenance && \Carbon\Carbon::parse($equipment->next_maintenance)->lessThanOrEqualTo(now()->addDays(7));
+                @endphp
+                <tr>
+                    <td>{{ $equipment->name }}</td>
+                    <td>{{ $equipment->category->name ?? 'N/A' }}</td>
+                    <td>{{ $equipment->brand_name }}</td>
+                    <td class="{{ $lowQuantity ? 'low-stock' : '' }}">{{ $equipment->quantity }}</td>
+                    <td>{{ $equipment->employee->first_name ?? 'N/A' }}</td>
+                    <td>{{ $equipment->last_maintenance ? \Carbon\Carbon::parse($equipment->last_maintenance)->format('Y-m-d') : 'N/A' }}</td>
+                    <td class="{{ $maintenanceAlert ? 'maintenance-alert' : '' }}">
+                        {{ $equipment->next_maintenance ? \Carbon\Carbon::parse($equipment->next_maintenance)->format('Y-m-d') : 'N/A' }}
+                    </td>
+                </tr>
+            @endforeach
         </tbody>
         <tfoot>
             <tr>

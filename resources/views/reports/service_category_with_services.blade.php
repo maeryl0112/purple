@@ -15,9 +15,11 @@
         }
         .header {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
             margin-bottom: 20px;
+            text-align: center;
         }
         .category { margin-bottom: 30px; }
     </style>
@@ -28,11 +30,11 @@
            <img src="{{ $image }}" width="300px" alt="Salon Logo">
            <p>Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite </br> purplelookhairsalonandspa@gmail.com </br> 09********</p>
         </div>
+    </div>
         <div class="report-info">
             <p><strong>Prepared By:</strong> {{ $preparedBy }}</p>
             <p><strong>Report Date & Time:</strong> {{ $currentDateTime }}</p>
         </div>
-    </div>
 
     @foreach($serviceCategoryRevenue as $categoryName => $services)
         <div class="category">

@@ -12,15 +12,25 @@ s<!DOCTYPE html>
         .logo p {
             font-size: smaller;
             color: #62a;
+            text-align: center;
         }
         .header {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
             margin-bottom: 20px;
+            text-align: center;
         }
         .customer { margin-bottom: 20px; page-break-after: always; }
-    </style>
+        .report-info {
+            margin-top: 10px;
+        }
+        .logo img {
+            display: block;
+            margin: 0 auto;
+        }
+    </style>    
 </head>
 <body>
     <div class="header">
@@ -28,12 +38,12 @@ s<!DOCTYPE html>
            <img src="{{ $image }}" width="300px" alt="Salon Logo">
            <p>Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite </br> purplelookhairsalonandspa@gmail.com </br> 09********</p>
         </div>
-        <div class="report-info">
+       
+    </div>
+    <div class="report-info">
             <p><strong>Prepared By:</strong> {{ $preparedBy }}</p>
             <p><strong>Report Date & Time:</strong> {{ $currentDateTime }}</p>
         </div>
-    </div>
-
     @foreach($customers as $customerId => $services)
         <div class="customer">
             <h2>Customer: {{ $services->first()->name }}</h2>
