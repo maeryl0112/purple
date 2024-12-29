@@ -248,26 +248,35 @@
 
             <div class="pt-4 pb-1 border-t border-gray-200">
                 <x-responsive-nav-link href="{{ route('manageequipments') }}" :active="request()->routeIs('manageequipments')">
-                    {{ __('Manage Equipments') }}
+                    {{ __('Manage Equipments and Supplies') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link href="{{ route('managesupplies') }}" :active="request()->routeIs('managesupplies')">
+                    {{ __('Manage Supplies') }}
                 </x-responsive-nav-link>
 
                 <x-responsive-nav-link href="{{ route('manageonlinesuppliers') }}" :active="request()->routeIs('manageonlinesuppliers')">
-                    {{ __('Manage Supplies') }}
+                    {{ __('Manage Online Supplier') }}
                 </x-responsive-nav-link>
+
+                <x-responsive-nav-link href="{{ route('managepayments') }}" :active="request()->routeIs('managepayments')">
+                    {{ __('Manage QR Payment') }}
+                </x-responsive-nav-link>
+
                 <div class="pt-4 pb-1 border-t border-gray-200">
-                    <x-responsive-nav-link href="{{ route('daily.report') }}" :active="request()->routeIs('manageequipments')">
+                    <x-responsive-nav-link href="{{ route('daily.report') }}" :active="request()->routeIs('daily.report')">
                         {{ __('Daily Sales Report') }}
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link href="{{ route('weekly.report') }}" :active="request()->routeIs('manageequipments')">
+                    <x-responsive-nav-link href="{{ route('weekly.report') }}" :active="request()->routeIs('weekly.report')">
                         {{ __('Weekly Sales Report') }}
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link href="{{ route('monthly.report') }}" :active="request()->routeIs('manageequipments')">
+                    <x-responsive-nav-link href="{{ route('monthly.report') }}" :active="request()->routeIs('monthly.report')">
                         {{ __('Monthly Sales Report') }}
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link href="{{ route('quarterly.report') }}" :active="request()->routeIs('manageequipments')">
+                    <x-responsive-nav-link href="{{ route('quarterly.report') }}" :active="request()->routeIs('quarterly.report')">
                         {{ __('Quarterly Sales Report') }}
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link href="{{ route('annual.report') }}" :active="request()->routeIs('manageequipments')">
+                    <x-responsive-nav-link href="{{ route('annual.report') }}" :active="request()->routeIs('annual.report')">
                         {{ __('Annual Sales Report') }}
                     </x-responsive-nav-link>
             </div>
