@@ -262,12 +262,21 @@
 
             <div class="pt-4 pb-1 border-t border-gray-200">
                 <x-responsive-nav-link href="{{ route('manageequipments') }}" :active="request()->routeIs('manageequipments')">
-                    {{ __('Manage Equipments') }}
+                    {{ __('Manage Equipments and Supplies') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link href="{{ route('managesupplies') }}" :active="request()->routeIs('managesupplies')">
+                    {{ __('Manage Supplies') }}
                 </x-responsive-nav-link>
 
                 <x-responsive-nav-link href="{{ route('manageonlinesuppliers') }}" :active="request()->routeIs('manageonlinesuppliers')">
-                    {{ __('Manage Supplies') }}
+                    {{ __('Manage Online Supplier') }}
                 </x-responsive-nav-link>
+
+                <x-responsive-nav-link href="{{ route('managepayments') }}" :active="request()->routeIs('managepayments')">
+                    {{ __('Manage QR Payment') }}
+                </x-responsive-nav-link>
+
                 <div class="pt-4 pb-1 border-t border-gray-200">
                     <x-responsive-nav-link href="{{ route('daily.report') }}" :active="request()->routeIs('manageequipments')">
                         {{ __('Daily Sales Report') }}
