@@ -186,20 +186,20 @@
                 {{ __('About') }}
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link href="{{ route('services') }}" :active="request()->routeIs('services')">
+            <!--<x-responsive-nav-link href="{{ route('services') }}" :active="request()->routeIs('services')">
                 {{ __('Services') }}
-            </x-responsive-nav-link>
+            </x-responsive-nav-link> -->
 
             @auth
 
-            @if($userRole == 'Customer')
+           <!-- @if($userRole == 'Customer')
             <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                 {{ __('My Appointment') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link href="{{ route('cart') }}" :active="request()->routeIs('cart')">
                 {{ __('Cart') }}
             </x-responsive-nav-link>
-            @endif
+            @endif -->
 
             @if($userRole == 'Employee')
             <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
