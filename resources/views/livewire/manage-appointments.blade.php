@@ -59,7 +59,7 @@
 
         <!-- Status Filter -->
         <div class="w-full md:w-1/4">
-            <label for="selectFilter" class="sr-only">Filter by Status</label>
+          
             <select 
                 id="selectFilter" 
                 wire:model="selectFilter" 
@@ -69,6 +69,20 @@
                 <option value="previous">Previous</option>
                 <option value="cancelled">Cancelled</option>
             </select>
+
+            <select wire:model="employeeId" id="employeeFilter" class="form-select">
+            <option value="">All Employees</option>
+            @foreach($employees as $employee)
+                <option value="{{ $employee->id }}">{{ $employee->first_name }}</option>
+            @endforeach
+        </select>
+
+        <select wire:model="serviceId" id="serviceFilter" class="form-select">
+        <option value="">All Services</option>
+        @foreach($services as $service)
+            <option value="{{ $service->id }}">{{ $service->name }}</option>
+        @endforeach
+    </select>
         </div>
 
         <!-- Payment Filter (Conditional) -->

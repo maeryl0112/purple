@@ -53,64 +53,78 @@
 </div>
 
 
-
-        <!-- Employee Selection -->
-        <div class="mt-5">
-            <h4 class="text-lg font-semibold text-gray-900">Select Staff</h4>
-            <fieldset class="mt-2">
-                <legend class="sr-only">Select an Employee</legend>
-                <div class="grid grid-cols-3 gap-4" x-data="{ selectedEmployee : @entangle('selectedEmployee').defer }">
-                    @foreach($employees as $employee)
-                        <div wire:key="employee-{{ $employee->id }}-element">
-                            @if($employee->available)
-                                <label wire:key="employee-{{ $employee->id }}-available"
-                                       class="group relative flex items-center text-gray-800 justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase focus:outline-none sm:flex-1 cursor-pointer shadow-sm"
-                                       x-bind:class="{
-                                           'bg-purple-500 text-white': selectedEmployee === {{ $employee->id }},
-                                           'bg-gray-50 hover:bg-purple-100': selectedEmployee !== {{ $employee->id }}
-                                       }">
-                                    <input type="radio" name="employee-choice"
-                                           value="{{ $employee->id }}"
-                                           class="sr-only"
-                                           x-on:change="selectedEmployee = {{ $employee->id }}"
-                                           aria-labelledby="employee-choice-{{ $employee->id }}-label">
-                                    <span id="employee-choice-{{ $employee->id }}-label">
-                                        {{ $employee->first_name }}
-                                        <br>
-                                        <span>
-                                            {{ $employee->jobCategory?->name }}
-                                            </span>
-                                    </span>
-                                    <span class="pointer-events-none absolute -inset-px rounded-md" aria-hidden="true"></span>
-                                </label>
-                            @else
-                                <label wire:key="employee-{{ $employee->id }}-unavailable"
-                                       class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 cursor-not-allowed bg-gray-50 text-gray-200">
-                                    <input type="radio" name="employee-choice"
-                                           value="{{ $employee->id }}" disabled class="sr-only"
-                                           aria-labelledby="employee-choice-{{ $employee->id }}-label">
-                                    <span id="employee-choice-{{ $employee->id }}-label">
-                                        {{ $employee->first_name }}
-                                        <br>
-                                        <span>
-                                        {{ $employee->jobCategory?->name }}
-                                        </span>
-                                    </span>
-                                    <span aria-hidden="true"
-                                          class="pointer-events-none absolute -inset-px rounded-md border-2 border-gray-200">
-                                        <svg class="absolute inset-0 h-full w-full stroke-2 text-gray-200"
-                                             viewBox="0 0 100 100" preserveAspectRatio="none" stroke="currentColor">
-                                            <line x1="0" y1="100" x2="100" y2="0" vector-effect="non-scaling-stroke"/>
-                                        </svg>
-                                    </span>
-                                </label>
-                            @endif
-                        </div>
-                    @endforeach
-
+      <!-- Employee Selection -->
+      <div class="mt-5">
+    <h4 class="text-lg font-semibold text-gray-900">Select Staff</h4>
+    <fieldset class="mt-2">
+        <legend class="sr-only">Select an Employee</legend>
+        <div class="grid grid-cols-3 gap-4" x-data="{ selectedEmployee : @entangle('selectedEmployee').defer }">
+            @foreach($employees as $employee)
+                <div wire:key="employee-{{ $employee->id }}-element">
+                    @if($employee->available)
+                        <!-- Available Employee -->
+                        <label wire:key="employee-{{ $employee->id }}-available"
+                               class="group relative flex items-center text-gray-800 justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase focus:outline-none sm:flex-1 cursor-pointer shadow-sm"
+                               x-bind:class="{
+                                   'bg-purple-500 text-white': selectedEmployee === {{ $employee->id }},
+                                   'bg-gray-50 hover:bg-purple-100': selectedEmployee !== {{ $employee->id }}
+                               }">
+                            <input type="radio" name="employee-choice"
+                                   value="{{ $employee->id }}"
+                                   class="sr-only"
+                                   x-on:change="selectedEmployee = {{ $employee->id }}"
+                                   aria-labelledby="employee-choice-{{ $employee->id }}-label">
+                            <span id="employee-choice-{{ $employee->id }}-label">
+                                {{ $employee->first_name }}
+                                <br>
+                                <span>{{ $employee->jobCategory?->name }}</span>
+                            </span>
+                        </label>
+                    @else
+                        <!-- Unavailable Employee -->
+                        <label wire:key="employee-{{ $employee->id }}-unavailable"
+                               class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase cursor-not-allowed"
+                               x-bind:class="{
+                                   'bg-red-500 text-white': '{{ $employee->reason }}' === 'taken',
+                                   'bg-gray-200 text-gray-500': '{{ $employee->reason }}' === 'off_duty'
+                               }">
+                            <input type="radio" name="employee-choice"
+                                   value="{{ $employee->id }}" disabled class="sr-only"
+                                   aria-labelledby="employee-choice-{{ $employee->id }}-label">
+                            <span id="employee-choice-{{ $employee->id }}-label">
+                                {{ $employee->first_name }}
+                                <br>
+                                <span>{{ $employee->jobCategory?->name }}</span>
+                                <br>
+                                @if($employee->reason === 'taken')
+                                    <span class="text-xs italic">(Taken)</span>
+                                @elseif($employee->reason === 'off_duty')
+                                    <span class="text-xs italic">(Off Duty)</span>
+                                @endif
+                            </span>
+                            <span aria-hidden="true"
+                                  class="pointer-events-none absolute -inset-px rounded-md border-2"
+                                  x-bind:class="{
+                                      'border-red-500': '{{ $employee->reason }}' === 'taken',
+                                      'border-gray-400': '{{ $employee->reason }}' === 'off_duty'
+                                  }">
+                                <svg class="absolute inset-0 h-full w-full stroke-2"
+                                     x-bind:class="{
+                                         'text-red-500': '{{ $employee->reason }}' === 'taken',
+                                         'text-gray-400': '{{ $employee->reason }}' === 'off_duty'
+                                     }"
+                                     viewBox="0 0 100 100" preserveAspectRatio="none" stroke="currentColor">
+                                    <line x1="0" y1="0" x2="0" y2="0" vector-effect="non-scaling-stroke"/>
+                                </svg>
+                            </span>
+                        </label>
+                    @endif
                 </div>
-            </fieldset>
+            @endforeach
         </div>
+    </fieldset>
+</div>
+
 
         <!-- Submit Button -->
         <button type="submit"

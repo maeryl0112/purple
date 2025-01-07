@@ -31,10 +31,20 @@ class NewAppointmentNotification extends Notification
 
     public function toDatabase($notifiable)
     {
+        $paymentMethod = $this->appointment->payment ?? 'N/A';
+        $paymentDetails = $paymentMethod === 'online' && $this->appointment->last_four_digits
+            ? ' (Reference no. ending in ' . $this->appointment->last_four_digits . ')'
+            : '';
+    
         return [
             'appointment_id' => $this->appointment->id,
-            'user_id' => $this->appointment->user->name,
-            'message' => 'A new appointment has been booked by ' . $this->appointment->user->name,
+            'user_name' => $this->appointment->user->name ?? 'Unknown User',
+            'payment_method' => $paymentMethod,
+            'message' => 'A new appointment has been booked by ' 
+                . ($this->appointment->user->name ?? 'Unknown User') 
+                . ' with Payment Method: ' 
+                . $paymentMethod
+                . $paymentDetails,
         ];
     }
 }

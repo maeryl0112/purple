@@ -62,38 +62,44 @@ class AddingServiceToCart extends Component
 
     // This method will check employee availability based on selected date and time slot
     private function displayUnavailableEmployees()
-{
-    if (!$this->selectedDate) {
-        return;
-    }
-
-    $selectedDayOfWeek = Carbon::parse($this->selectedDate)->format('l'); // Get the day name
-
-    // Fetch unavailable employees due to existing appointments
-    $unavailableDueToAppointments = Appointment::where('date', $this->selectedDate)
-        ->where('time', $this->selectedTime)
-        ->pluck('employee_id')
-        ->toArray();
-
-    foreach ($this->employees as $employee) {
-        // Check if the employee works on the selected day
-        $isWorkingDay = in_array($selectedDayOfWeek, $employee->working_days ?? []);
-
-        // Check if the employee is unavailable due to an appointment
-        $isUnavailableByAppointment = in_array($employee->id, $unavailableDueToAppointments);
-
-        // Determine availability: the employee must be working and not booked
-        $isAvailable = $isWorkingDay && !$isUnavailableByAppointment;
-
-        $employee->available = $isAvailable;
-
-        // Reset selected employee if they become unavailable
-        if ($this->selectedEmployee == $employee->id && !$isAvailable) {
-            $this->selectedEmployee = null;
+    {
+        if (!$this->selectedDate) {
+            return;
+        }
+    
+        $selectedDayOfWeek = Carbon::parse($this->selectedDate)->format('l'); // Get the day name
+    
+        // Fetch unavailable employees due to existing appointments
+        $unavailableDueToAppointments = Appointment::where('date', $this->selectedDate)
+            ->where('time', $this->selectedTime)
+            ->pluck('employee_id')
+            ->toArray();
+    
+        foreach ($this->employees as $employee) {
+            // Check if the employee works on the selected day
+            $isWorkingDay = in_array($selectedDayOfWeek, $employee->working_days ?? []);
+    
+            // Check if the employee is unavailable due to an appointment
+            $isUnavailableByAppointment = in_array($employee->id, $unavailableDueToAppointments);
+    
+            // Determine availability and set reason
+            if (!$isWorkingDay) {
+                $employee->available = false;
+                $employee->reason = 'off_duty';
+            } elseif ($isUnavailableByAppointment) {
+                $employee->available = false;
+                $employee->reason = 'taken';
+            } else {
+                $employee->available = true;
+                $employee->reason = null;
+            }
+    
+            // Reset selected employee if they become unavailable
+            if ($this->selectedEmployee == $employee->id && !$employee->available) {
+                $this->selectedEmployee = null;
+            }
         }
     }
-}
-
 
 
 

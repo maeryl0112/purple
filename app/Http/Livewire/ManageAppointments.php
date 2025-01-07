@@ -4,6 +4,8 @@ namespace App\Http\Livewire;
 
 use App\Enums\UserRolesEnum;
 use App\Models\Appointment;
+use App\Models\Service;
+use App\Models\Employee;
 use Carbon\Carbon;
 use Livewire\Component;
 
@@ -31,6 +33,8 @@ class ManageAppointments extends Component
     public $selectFilter = 'upcoming'; // can be 'upcoming' , 'previous' , 'cancelled'
     public $paymentFilter = null;
     private $userId;
+    public  $employeeId;
+    public $serviceId;
 
     public $showRescheduleModal = false;
     public $newDate;
@@ -108,7 +112,7 @@ public function rescheduleAppointment()
 
     public function render()
     {
-        $query = Appointment::with( 'user', 'service');
+        $query = Appointment::with( 'user', 'service', 'employee');
         if ($this->search) {
             $query->where(function ($subQuery) {
                 $subQuery
@@ -144,6 +148,16 @@ public function rescheduleAppointment()
 
             $query->where('user_id', $this->userId);
         }
+
+        if ($this->employeeId) { // Add employee filter
+            $query->where('employee_id', $this->employeeId);
+        }
+        
+        if ($this->serviceId) { // Add service filter
+            $query->where('service_id', $this->serviceId);
+        }
+        
+
 //        dd($this->selectFilter);
         if ($this->selectFilter === 'previous') {
             $query->whereDate('date', '<', Carbon::today())->where('status', 1);
@@ -165,6 +179,8 @@ public function rescheduleAppointment()
 
         return view('livewire.manage-appointments', [
             'appointments' => $this->appointments,
+            'employees' => Employee::all(),
+            'services' => Service::all(),
         ]);
     }
 
