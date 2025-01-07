@@ -49,14 +49,14 @@
 
                     <!-- Auth Navigation Links -->
                     @auth
-                    @if($userRole == 'Customer')
+                    <!-- @if($userRole == 'Customer')
                     <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                         {{ __('My Appointment') }}
                     </x-nav-link>
 
                     <x-nav-link href="{{ route('cart') }}" :active="request()->routeIs('cart')">
                         {{ __('Cart') }}
-                    </x-nav-link>
+                    </x-nav-link> -->
 
 
                     @endif

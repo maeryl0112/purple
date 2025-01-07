@@ -77,7 +77,7 @@ data-aos="fade-up"
 </section>
 
 
-    <section data-aos="fade-up" class="pt-10 bg-white" >
+    <!-- <section data-aos="fade-up" class="pt-10 bg-white" >
       <div class="md:w-4/5 mx-auto">
         <div class="mx-auto text-center md:max-w-xl lg:max-w-3xl">
           <h3 class="mb-6 text-3xl text-salonPurple font-extrabold">POPULAR SERVICES</h3>
@@ -108,7 +108,7 @@ data-aos="fade-up"
       </div>
 
 
-    </section>
+    </section> -->
 
 
 
