@@ -26,7 +26,7 @@ class EquipmentNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -35,13 +35,13 @@ class EquipmentNotification extends Notification
     public function toMail($notifiable)
     {
         $message = (new MailMessage)
-            ->subject('Equipment Notification')
-            ->line("Equipment: {$this->equipment->name}");
+            ->subject('Equipment Notification: ' . ($this->type === 'low_quantity' ? 'Low Quantity' : 'Maintenance Due'))
+            ->line('Equipment: ' . $this->equipment->name);
 
         if ($this->type === 'low_quantity') {
-            $message->line("Quantity is low: {$this->equipment->quantity}");
+            $message->line('Quantity is low: ' . $this->equipment->quantity);
         } elseif ($this->type === 'maintenance_due') {
-            $message->line("Next maintenance due on: {$this->equipment->next_maintenance}");
+            $message->line('Next maintenance due on: '. $this->equipment->next_maintenance);
         }
 
         return $message;
@@ -55,7 +55,12 @@ class EquipmentNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'equipment_id' => $this->equipment->id,
+            'equipment_name' => $this->equipment->name,
+            'type' => $this->type,
+            'message' => $this->type === 'low_quantity' 
+                ? 'Quantity is low: ' . $this->equipment->quantity
+                : 'Next maintenance due on: ' . $this->equipment->next_maintenance,
         ];
     }
 }

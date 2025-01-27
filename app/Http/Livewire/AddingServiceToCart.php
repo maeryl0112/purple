@@ -19,6 +19,9 @@ class AddingServiceToCart extends Component
     public $selectedDate;
     public $employees;
 
+    protected $listeners = ['employeeAvailabilityUpdated' => '$refresh'];
+
+
     public function mount(Service $service)
 {
     $this->service = $service;
@@ -60,58 +63,76 @@ class AddingServiceToCart extends Component
         $this->displayUnavailableEmployees();
     }
 
-    // This method will check employee availability based on selected date and time slot
-    private function displayUnavailableEmployees()
+    private function refreshEmployeeAvailability($employeeId, $date, $time)
     {
-        if (!$this->selectedDate) {
+        $employee = Employee::find($employeeId);
+
+        if (!$employee) {
             return;
         }
-    
-        $selectedDayOfWeek = Carbon::parse($this->selectedDate)->format('l'); // Get the day name
-    
-        // Fetch unavailable employees due to existing appointments
-        $unavailableDueToAppointments = Appointment::where('date', $this->selectedDate)
-            ->where('time', $this->selectedTime)
-            ->pluck('employee_id')
-            ->toArray();
-    
-        foreach ($this->employees as $employee) {
-            // Check if the employee works on the selected day
-            $isWorkingDay = in_array($selectedDayOfWeek, $employee->working_days ?? []);
-    
-            // Check if the employee is unavailable due to an appointment
-            $isUnavailableByAppointment = in_array($employee->id, $unavailableDueToAppointments);
-    
-            // Determine availability and set reason
-            if (!$isWorkingDay) {
-                $employee->available = false;
-                $employee->reason = 'off_duty';
-            } elseif ($isUnavailableByAppointment) {
-                $employee->available = false;
-                $employee->reason = 'taken';
-            } else {
-                $employee->available = true;
-                $employee->reason = null;
-            }
-    
-            // Reset selected employee if they become unavailable
-            if ($this->selectedEmployee == $employee->id && !$employee->available) {
-                $this->selectedEmployee = null;
-            }
+
+        // Check if there are any overlapping appointments that make the employee unavailable
+        $hasConflictingAppointments = Appointment::where('employee_id', $employeeId)
+            ->where('date', $date)
+            ->where('time', $time)
+            ->where('status', 1) // Check for active appointments only
+            ->exists();
+
+        // Update the employee's availability
+        if (!$hasConflictingAppointments) {
+            $employee->available = true;
+            $employee->save();
         }
     }
 
 
+    // This method will check employee availability based on selected date and time slot
+    private function displayUnavailableEmployees()
+{
+    if (!$this->selectedDate) {
+        return;
+    }
+
+    $selectedDayOfWeek = Carbon::parse($this->selectedDate)->format('l'); // Get day name
+
+    // Fetch unavailable employees due to active appointments (status = 1)
+    $unavailableEmployees = Appointment::where('date', $this->selectedDate)
+        ->where('time', $this->selectedTime)
+        ->where('status', 1) // Only consider active appointments
+        ->pluck('employee_id')
+        ->toArray();
+
+    $this->employees->each(function ($employee) use ($selectedDayOfWeek, $unavailableEmployees) {
+        $isWorkingDay = in_array($selectedDayOfWeek, $employee->working_days ?? []);
+        $isUnavailable = in_array($employee->id, $unavailableEmployees);
+
+        if (!$isWorkingDay) {
+            $employee->available = false;
+            $employee->reason = 'off_duty';
+        } elseif ($isUnavailable) {
+            $employee->available = false;
+            $employee->reason = 'taken';
+        } else {
+            $employee->available = true;
+            $employee->reason = null;
+        }
+
+        if ($this->selectedEmployee == $employee->id && !$employee->available) {
+            $this->selectedEmployee = null;
+        }
+    });
+}
+
+    protected $rules = [
+        'selectedEmployee' => 'required|exists:employees,id',
+        'selectedDate' => 'required|date',
+        'selectedTime' => 'required',
+    ];
 
     // Add the service to the cart
     public function addToCart()
 {
-    Log::info('Attempting to add to cart', [
-        'service_id' => $this->service->id,
-        'selected_date' => $this->selectedDate,
-        'selected_time' => $this->selectedTime,
-        'selected_employee' => $this->selectedEmployee,
-    ]);
+    $this->validate();
 
     try {
         // Check if the service is hidden

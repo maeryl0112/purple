@@ -98,6 +98,7 @@ Route::get('/services/{slug}', [App\Http\Controllers\DisplayService::class, 'sho
 
             Route::get('/admin/reports/top-customers', [AdminDashboardHomeController::class, 'index']);
 
+            Route::get('/inventory-history', [App\Http\Controllers\EquipmentNotification::class, 'showNotifications'])->name('inventory.notification');
 
             Route::get('/daily-report', [SalesReportController::class, 'dailyReport'])->name('daily.report');
             Route::get('/daily-report/pdf', [SalesReportController::class, 'downloadPDF'])->name('daily.report.pdf');

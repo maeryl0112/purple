@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ConsumablesNotification extends Notification
+class SuppliesNotification extends Notification
 {
     use Queueable;
 
@@ -36,16 +36,16 @@ class ConsumablesNotification extends Notification
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail($notifiable)
     {
         $message = (new MailMessage)
             ->subject('Consumables Notification: ' . ($this->type === 'low_quantity' ? 'Low Quantity' : 'Near Expiration'))
-            ->line('Consumables: ' . $this->supply->name);
+            ->line('Consumable: ' . $this->supply->name);
 
         if ($this->type === 'low_quantity') {
             $message->line('Quantity is low: ' . $this->supply->quantity);
-        } elseif ($this->type === 'expiration_date') {
-            $message->line('Expiration is near on: '. $this->supply->expiration_date);
+        } elseif ($this->type === 'near_expiration') {
+            $message->line('Near expiration date on: ' . $this->supply->expiration_date);
         }
 
         return $message;
@@ -59,12 +59,13 @@ class ConsumablesNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-           'supply_id' => $this->supply->id,
+            'supply_id' => $this->supply->id,
             'supply_name' => $this->supply->name,
             'type' => $this->type,
-            'message' => $this->type === 'low_quantity' 
+            'message' => $this->type === 'low_quantity'
                 ? 'Quantity is low: ' . $this->supply->quantity
-                : 'Expiration is near on: ' . $this->supply->expiration_date,
+                : 'Near expiration on: ' . 
+                $this->supply->expiration_date,
         ];
     }
 }

@@ -6,6 +6,7 @@ use App\Enums\UserRolesEnum;
 use App\Models\Appointment;
 use App\Models\Service;
 use App\Models\Employee;
+use App\Models\User;
 use Carbon\Carbon;
 use Livewire\Component;
 
@@ -25,10 +26,11 @@ class ManageAppointments extends Component
     public $appointment;
 
     public $confirmingAppointmentAdd;
-    public $appointmentIdToCancel;
-    public $confirmingAppointmentCancellation = false;
-    public $cancellationReason;
     private $timeNow;
+
+    public $confirmingAppointmentCancellation = false;
+    public $appointmentIdToCancel;
+    public $cancellationReason;
 
     public $selectFilter = 'upcoming'; // can be 'upcoming' , 'previous' , 'cancelled'
     public $paymentFilter = null;
@@ -42,6 +44,67 @@ class ManageAppointments extends Component
 
     public $filterDate = ''; 
     public $filterStaff = '';
+
+   
+
+    public function setAppointmentIdToCancel($id)
+    {
+        $this->appointmentIdToCancel = $id;
+        $this->confirmingAppointmentCancellation = true;
+    }
+
+    public function cancelAppointment()
+    {
+        $this->validate([
+            'cancellationReason' => 'required|string|max:255',
+        ]);
+    
+        $appointment = Appointment::find($this->appointmentIdToCancel);
+    
+        if (!$appointment) {
+            $this->dispatchBrowserEvent('appointmentError', [
+                'message' => 'Appointment not found.',
+            ]);
+            return;
+        }
+    
+        // Cancel the appointment
+        $appointment->update([
+            'status' => 0,
+            'cancellation_reason' => $this->cancellationReason,
+        ]);
+    
+        // Notify the customer who owns the canceled appointment
+        $customer = $appointment->user; // Assuming 'user' relation exists
+        $this->dispatchBrowserEvent('sweetAlert', [
+            'title' => 'Appointment Canceled!',
+            'text' => "Dear {$customer->name}, your appointment for {$appointment->service->name} on {$appointment->date} at {$appointment->time} has been canceled.",
+            'icon' => 'info',
+        ]);
+        event(new SlotAvailable($appointment));
+    
+        // Notify all other customers about the slot availability
+        $this->notifyOtherCustomers($appointment);
+    
+        $this->confirmingAppointmentCancellation = false;
+    
+        $this->dispatchBrowserEvent('notification', [
+            'message' => 'Appointment canceled, and employee availability updated.',
+        ]);
+    }
+
+    private function notifyOtherCustomers($appointment)
+{
+    $otherCustomers = User::where('id', '!=', $appointment->user_id)->get();
+
+    foreach ($otherCustomers as $customer) {
+        $this->dispatchBrowserEvent('notifySlotAvailable', [
+            'message' => "A slot is now available for {$appointment->service->name} on {$appointment->date} at {$appointment->time}.",
+            'customerName' => $customer->name,
+        ]);
+    }
+}
+
 
 
     public function openRescheduleModal($appointmentId)
@@ -182,40 +245,6 @@ public function rescheduleAppointment()
             'employees' => Employee::all(),
             'services' => Service::all(),
         ]);
-    }
-
-
-    public function setAppointmentIdToCancel($id)
-    {
-        $this->appointmentIdToCancel = $id;
-        $this->confirmingAppointmentCancellation = true;
-    }
-    public function cancelAppointment()
-    {
-        $this->validate([
-            'cancellationReason' => 'required|string|max:255',
-        ]);
-
-        // Retrieve the appointment using the ID
-        $appointment = Appointment::find($this->appointmentIdToCancel);
-
-        // Check if appointment exists and belongs to the authenticated user
-        if (!$appointment || auth()->user()->id !== $appointment->user_id) {
-            session()->flash('error', 'Unauthorized or Appointment not found.');
-            return;
-        }
-
-        // Update appointment status and cancellation reason
-        $appointment->status = 0; // Assuming 0 means canceled
-        $appointment->cancellation_reason = $this->cancellationReason;
-
-        if ($appointment->save()) {
-            // Successfully canceled, reset component state
-            $this->reset(['confirmingAppointmentCancellation', 'cancellationReason', 'appointmentIdToCancel']);
-            session()->flash('message', 'Appointment canceled successfully with reason: ' . $this->cancellationReason);
-        } else {
-            session()->flash('error', 'An error occurred while canceling the appointment.');
-        }
     }
 
     public function markAsRead($notificationId)

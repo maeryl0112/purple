@@ -5,10 +5,14 @@
     use App\Models\Category;
     use App\Models\OnlineSupplier;
     use App\Models\Supply;
+    use App\Models\User;
+    use App\Models\Employee;
+    use App\Notifications\ConsumablesNotification;
     use Livewire\Component;
     use Livewire\WithFileUploads;
     use Livewire\WithPagination;
     use Barryvdh\DomPDF\Facade\Pdf;
+    use Carbon\Carbon;
     use Storage;
 
     class ManageSupplies extends Component
@@ -31,6 +35,7 @@
         public $selectFilter = 'all';  // Default to 'all' filter
         public $statusFilter = 'active';
         private $userId;
+        protected $notifiedSupplies = [];
         public $paginate = 10;
 
         protected $listeners = [
@@ -221,11 +226,47 @@
             // Get paginated supplies
             $supplies = $query->paginate($this->paginate ?: 10);
 
+            foreach ($supplies as $supply) {
+                $nearExpiration = Carbon::parse($supply->expiration_date);
+                $lowQuantity = $supply->quantity < 10;
+            
+                // Notify for low quantity
+                if ($lowQuantity && !in_array($supply->id, $this->notifiedSupplies)) {
+                    $this->notifyAdminAndEmployees($supply, 'low_quantity');
+                    $this->notifiedSupplies[] = $supply->id;
+                }
+            
+                // Notify for near expiration (1 week before the expiration date)
+                if (
+                    $nearExpiration->diffInDays(Carbon::today()) <= 7 &&
+                    !$nearExpiration->isPast() &&
+                    !in_array($supply->id . 'near_expiration', $this->notifiedSupplies)
+                ) {
+                    $this->notifyAdminAndEmployees($supply, 'expiration_date');
+                    $this->notifiedSupplies[] = $supply->id . 'expiration_date';
+                }
+            }
+
             return view('livewire.manage-supplies', [
                 'supplies' => $supplies,
                 'categories' => $this->categories,
                 'online_suppliers' => $this->online_suppliers,
             ]);
+        }
+
+        public function notifyAdminAndEmployees($supply, $type)
+        {
+            $admin = User::where('role_id', 1)->first();
+            $employees = User::where('role_id', 2)->get();
+
+            if ($admin) {
+                $admin->notify(new ConsumablesNotification($supply, $type));
+            }
+
+            foreach ($employees as $employee) {
+                $employee->notify(new ConsumablesNotification($supply, $type));
+            }
+
         }
 
         public function exportToPdf()

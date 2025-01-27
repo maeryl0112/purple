@@ -13,9 +13,7 @@ class NewServiceReleasedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(
-        public Service $service,
-    )
+    public function __construct(public Service $service,)
     {
     }
 

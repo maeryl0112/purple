@@ -130,7 +130,7 @@
                         <p x-show="!qrImage" class="text-gray-500">Loading QR Code...</p>
                         <div class="mt-4">
                             <label for="lastFourDigits" class="block text-sm font-medium text-gray-700">
-                                Enter the last four digits of your payment:
+                                Enter the last four digits of your Reference No.:
                             </label>
                             <input
                                 type="text"

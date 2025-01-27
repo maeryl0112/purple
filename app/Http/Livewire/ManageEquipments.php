@@ -201,20 +201,20 @@ class ManageEquipments extends Component
 
     $equipments = $query->paginate($this->paginate);
 
-        foreach ($equipments as $equipment) {
-            $maintenanceDate = Carbon::parse($equipment->next_maintenance);
-            $lowQuantity = $equipment->quantity < 5;
-
-            if ($lowQuantity && !in_array($equipment->id, $this->notifiedEquipments)) {
-                $this->notifyAdminAndEmployee($equipment, 'low_quantity');
-                $this->notifiedEquipments[] = $equipment->id;
-            }
-
-            if (($maintenanceDate->isToday() || $maintenanceDate->isTomorrow()) && !in_array($equipment->id . '_maintenance', $this->notifiedEquipments)) {
-                $this->notifyAdminAndEmployee($equipment, 'maintenance_due');
-                $this->notifiedEquipments[] = $equipment->id . '_maintenance';
-            }
+    foreach ($equipments as $equipment) {
+        $maintenanceDate = Carbon::parse($equipment->next_maintenance);
+        $lowQuantity = $equipment->quantity < 10;
+    
+        if ($lowQuantity && !in_array($equipment->id, $this->notifiedEquipments)) {
+            $this->notifyAdminAndEmployees($equipment, 'low_quantity');
+            $this->notifiedEquipments[] = $equipment->id;
         }
+    
+        if (($maintenanceDate->isToday() || $maintenanceDate->isTomorrow()) && !in_array($equipment->id . 'maintenance', $this->notifiedEquipments)) {
+            $this->notifyAdminAndEmployees($equipment, 'maintenance_due');
+            $this->notifiedEquipments[] = $equipment->id . 'maintenance';
+        }
+    }
 
         return view('livewire.manage-equipments', [
             'equipments' => $equipments,
@@ -222,36 +222,22 @@ class ManageEquipments extends Component
         ]);
     }
 
-    public function notifyAdminAndEmployee($equipment, $type)
-{
-    // Retrieve admins with 'admin' role
-    $admins = User::whereHas('role', function ($query) {
-        $query->where('name', 'admin'); // Adjust if role is identified by name or role_id
-    })->get();
-
-    // Check if there are any admins
-    if ($admins->isEmpty()) {
-        \Log::warning('No admins found for notification.');
+    protected function notifyAdminAndEmployees($equipment, $type)
+    {
+        // Get the admin and all employees
+        $admin = User::where('role_id', 1)->first(); // Assuming there's a role column
+        $employees = User::where('role_id', 2)->get(); // Assuming employees have the role 'employee'
+    
+        // Notify the admin
+        if ($admin) {
+            $admin->notify(new EquipmentNotification($equipment, $type));
+        }
+    
+        // Notify all employees
+        foreach ($employees as $employee) {
+            $employee->notify(new EquipmentNotification($equipment, $type));
+        }
     }
-
-    // Find the specific employee assigned to this equipment
-    $employee = null;
-    if ($equipment->employee_id) {
-        $employee = User::find($equipment->employee_id);
-    }
-
-    // Notify admins
-    foreach ($admins as $admin) {
-        $admin->notify(new EquipmentNotification($equipment, $type));
-    }
-
-    // Notify employee if exists
-    if ($employee) {
-        $employee->notify(new EquipmentNotification($equipment, $type));
-    } else {
-        \Log::warning('No employee assigned to the equipment with ID: ' . $equipment->id);
-    }
-}
 
 public function exportToPdf()
 {

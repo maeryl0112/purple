@@ -164,8 +164,21 @@
                             <span class="ml-2 text-sm tracking-wide truncate">Manage Online Suppliers</span>
                             </a>
                           </li>
-
                           
+                          <li>
+                            <a href="{{ route('inventory.notification') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-darkPurple pr-6
+                           {{ request()->routeIs('inventory.notification') ? 'bg-purple-300 border-purple-500 rounded-lg text-gray-900 font-semibold' : '' }}
+                            ">
+
+                            <span class="inline-flex justify-center items-center ml-4">
+                            <svg class="w-6 h-6 text-gray-500 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 9H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h6m0-6v6m0-6 5.419-3.87A1 1 0 0 1 18 5.942v12.114a1 1 0 0 1-1.581.814L11 15m7 0a3 3 0 0 0 0-6M6 15h3v5H6v-5Z"/>
+                          </svg>
+
+                            </span>
+                            <span class="ml-2 text-sm tracking-wide truncate">Inventory Notice History</span>
+                            </a>
+                          </li>
                           @if(Auth::user()->role_id == 1 )
                           <li class="px-5">
                             <div class="flex flex-row items-center h-8">

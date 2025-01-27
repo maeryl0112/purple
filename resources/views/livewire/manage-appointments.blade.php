@@ -70,14 +70,14 @@
                 <option value="cancelled">Cancelled</option>
             </select>
 
-            <select wire:model="employeeId" id="employeeFilter" class="form-select">
+            <select wire:model="employeeId" id="employeeFilter" class="block w-52 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
             <option value="">All Employees</option>
             @foreach($employees as $employee)
                 <option value="{{ $employee->id }}">{{ $employee->first_name }}</option>
             @endforeach
         </select>
 
-        <select wire:model="serviceId" id="serviceFilter" class="form-select">
+        <select wire:model="serviceId" id="serviceFilter" class="block w-52 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
         <option value="">All Services</option>
         @foreach($services as $service)
             <option value="{{ $service->id }}">{{ $service->name }}</option>
@@ -164,7 +164,7 @@
 
 
 
-                                    Completed
+                                    Confirm
 
                                 </button>
 
@@ -174,22 +174,13 @@
 
                                 Reschedule
                             </button>
+                            <x-danger-button wire:click="setAppointmentIdToCancel({{ $appointment->id }})" wire:loading.attr="disabled">
+                                                {{ __('Cancel') }}
+                                            </x-danger-button>
 
+                              
 
-                               {{--@php
-                                                $appointmentTime = Carbon\Carbon::parse($appointment->date . ' ' . $appointment->time);
-                                                $timeDifference = $appointmentTime->diffInHours(now());
-                                            @endphp
-
-                                            @if ($timeDifference > 12) <!-- Adjust to 24 if needed -->
-                                                <x-danger-button wire:click="setAppointmentIdToCancel({{ $appointment->id }})" wire:loading.attr="disabled">
-                                                    {{ __('Cancel') }}
-                                                </x-danger-button>
-                                            @else
-                                                <button disabled class="text-gray-500 bg-gray-300 rounded-md px-4 py-2 cursor-not-allowed">
-                                                    {{ __('Cannot Cancel') }}
-                                                </button>
-                                            @endif --}}
+                
 
                                 @endif
                         </td>
@@ -227,39 +218,34 @@
         </x-dialog-modal>
 
         <x-dialog-modal wire:model="confirmingAppointmentCancellation">
-            <x-slot name="title">
-                Cancel Appointment
-            </x-slot>
-
-            <x-slot name="content">
-                <p>Are you sure you want to cancel this appointment?</p>
-
-                <!-- Reason selection dropdown -->
-                <div class="mt-4">
-                    <label for="cancellationReason" class="block text-sm font-medium text-gray-700">Reason for cancellation</label>
-                    <select id="cancellationReason" wire:model="cancellationReason" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                        <option value="">Select a reason</option>
-                        <option value="Not needed anymore">Not needed anymore</option>
-                        <option value="Scheduling conflict">Scheduling conflict</option>
-                        <option value="Found a better provider">Found a better provider</option>
-                        <option value="Other">Other</option>
-                    </select>
-                    @error('cancellationReason') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                </div>
-            </x-slot>
-
-            <x-slot name="footer">
-                <div class="flex gap-3">
-                    <x-secondary-button wire:click="$set('confirmingAppointmentCancellation', false)" wire:loading.attr="disabled">
-                        Back
-                    </x-secondary-button>
-
-                    <x-danger-button wire:click="cancelAppointment" wire:loading.attr="disabled">
-                        Confirm Cancellation
-                    </x-danger-button>
-                </div>
-            </x-slot>
-        </x-dialog-modal>
+        <x-slot name="title">
+            Cancel Appointment
+        </x-slot>
+        <x-slot name="content">
+            <p>Are you sure you want to cancel this appointment?</p>
+            <div class="mt-4">
+                <label for="cancellationReason" class="block text-sm font-medium text-gray-700">Reason for cancellation</label>
+                <select id="cancellationReason" wire:model="cancellationReason" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    <option value="">Select a reason</option>
+                    <option value="Not needed anymore">Not needed anymore</option>
+                    <option value="Scheduling conflict">Scheduling conflict</option>
+                    <option value="Found a better provider">Found a better provider</option>
+                    <option value="Other">Other</option>
+                </select>
+                @error('cancellationReason') 
+                    <span class="text-red-500 text-sm">{{ $message }}</span> 
+                @enderror
+            </div>
+        </x-slot>
+        <x-slot name="footer">
+            <x-secondary-button wire:click="$set('confirmingAppointmentCancellation', false)">
+                Back
+            </x-secondary-button>
+            <x-danger-button wire:click="cancelAppointment">
+                Confirm Cancellation
+            </x-danger-button>
+        </x-slot>
+    </x-dialog-modal>
 
         <div>
             <!-- Triggered Modal -->
@@ -361,6 +347,14 @@
                     Swal.fire({
                         title: 'Error!',
                         text: 'Appointment not found.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+                Livewire.on('appointmentError', function () {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to cancel appointment. Please try again.',
                         icon: 'error',
                         confirmButtonText: 'OK'
                     });

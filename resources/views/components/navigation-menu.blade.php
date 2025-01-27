@@ -60,10 +60,8 @@
 
 
                     @endif
-                    @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 2)
-                    <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
+                 
+                    
 
                     <div class="ml-3 relative" x-data="{ open: false }">
                         <button @click="open = !open" @click.away="open = false" type="button" class="relative rounded-full p-1 text-gray-600 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
@@ -81,18 +79,21 @@
                                 <p class="text-gray-700 px-4 py-2 font-semibold">Notifications</p>
                                 <hr class="my-2">
 
-                                @forelse(auth()->user()->unreadNotifications as $notification)
-                                    <a href="{{ route('notifications.redirectToAppointment', $notification->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ $notification->read_at ? '' : 'bg-blue-100' }}">
-                                        {{ $notification->data['message'] }}
-                                    </a>
-                                @empty
-                                    <p class="block px-4 py-2 text-sm text-gray-700">No new notifications</p>
-                                @endforelse
+                                @foreach(auth()->user()->notifications as $notification)
+                                    <div class="p-4 border-b">
+                                        <p class="text-sm">{{ $notification->data['message'] }}</p>
+                                        @if(isset($notification->data['action_url']))
+                                            <a href="{{ $notification->data['action_url'] }}" class="text-blue-500 hover:underline text-sm">
+                                                View Details
+                                            </a>
+                                        @endif
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
                     </div>
 
-                    @endif
+                    
                     @else
 
                     <x-nav-link href="{{ route('login') }}" :active="request()->routeIs('login')">Login</x-nav-link>

@@ -7,6 +7,7 @@ use App\Models\TimeSlot;
 use App\Models\User;
 use Carbon\Carbon;
 use Livewire\Component;
+use App\Events\AppointmentCancelled;
 use App\Jobs\SendReschedAppointmentMailJob;
 use App\Notifications\ReschuledAppointmentNotification;
 use Livewire\WithPagination;
@@ -84,6 +85,8 @@ class CustomerViewAppointment extends Component
         $this->appointmentIdToCancel = $id;
         $this->confirmingAppointmentCancellation = true;
     }
+    use App\Events\AppointmentCancelled;
+
     public function cancelAppointment()
     {
         $this->validate([
@@ -104,6 +107,9 @@ class CustomerViewAppointment extends Component
         $appointment->cancellation_reason = $this->cancellationReason;
 
         if ($appointment->save()) {
+            // Broadcast event to notify admin and employee
+            AppointmentCancelled::dispatch($appointment);
+
             // Successfully canceled, reset component state
             $this->reset(['confirmingAppointmentCancellation', 'cancellationReason', 'appointmentIdToCancel']);
             session()->flash('message', 'Appointment canceled successfully with reason: ' . $this->cancellationReason);

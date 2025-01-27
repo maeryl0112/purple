@@ -51,6 +51,8 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
+                    
+
                     <div class="ml-3 relative" x-data="{ open: false }">
                         <button @click="open = !open" @click.away="open = false" type="button" class="relative rounded-full p-1 text-gray-600 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                             <span class="sr-only">View notifications</span>
@@ -63,19 +65,19 @@
                         </button>
 
                         <div x-show="open" x-transition class="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-    <div class="py-2">
-        <p class="text-gray-700 px-4 py-2 font-semibold">Notifications</p>
-        <hr class="my-2">
-        @forelse(auth()->user()->unreadNotifications as $notification)
-    <a href="{{ route('notifications.redirectToAppointment', $notification->id) }}"
-       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ $notification->read_at ? '' : 'bg-blue-100' }}">
-        {{ $notification->data['message'] }}
-    </a>
-@empty
-    <p class="block px-4 py-2 text-sm text-gray-700">No new notifications</p>
-@endforelse
-    </div>
-</div>
+                            <div class="py-2">
+                                <p class="text-gray-700 px-4 py-2 font-semibold">Appointment Notifications</p>
+                                <hr class="my-2">
+                                @forelse(auth()->user()->unreadNotifications as $notification)
+                            <a href="{{ route('notifications.redirectToAppointment', $notification->id) }}"
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ $notification->read_at ? '' : 'bg-blue-100' }}">
+                                {{ $notification->data['message'] }}
+                            </a>
+                        @empty
+                            <p class="block px-4 py-2 text-sm text-gray-700">No New Appointment Notifications</p>
+                        @endforelse
+                            </div>
+                        </div>
                     </div>
 
                     @endif
