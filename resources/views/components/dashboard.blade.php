@@ -176,7 +176,7 @@
                           </svg>
 
                             </span>
-                            <span class="ml-2 text-sm tracking-wide truncate">Inventory Notice History</span>
+                            <span class="ml-2 text-sm tracking-wide truncate">Inventory Notice History  </span>
                             </a>
                           </li>
                           @if(Auth::user()->role_id == 1 )
@@ -209,6 +209,66 @@
                             <div class="flex flex-row items-center h-8">
                               <div class="text-sm font-light tracking-wide text-gray-500">REPORT</div>
                             </div>
+                          </li>
+
+                          <li>
+                            <a href="{{ route('daily.report') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-darkPurple pr-6
+                           {{ request()->routeIs('daily.report') ? 'bg-purple-300 border-purple-500 rounded-lg text-gray-900 font-semibold' : '' }}
+                            ">
+
+                            <span class="inline-flex justify-center items-center ml-4">
+                            
+                            </span>
+                            <span class="ml-2 text-sm tracking-wide truncate">Daily Sales Report</span>
+                            </a>
+                          </li>
+
+                          <li>
+                            <a href="{{ route('weekly.report') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-darkPurple pr-6
+                           {{ request()->routeIs('weekly.report') ? 'bg-purple-300 border-purple-500 rounded-lg text-gray-900 font-semibold' : '' }}
+                            ">
+
+                            <span class="inline-flex justify-center items-center ml-4">
+                           
+                            </span>
+                            <span class="ml-2 text-sm tracking-wide truncate">Weekly Sales Report</span>
+                            </a>
+                          </li>
+
+                          <li>
+                            <a href="{{ route('monthly.report') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-darkPurple pr-6
+                           {{ request()->routeIs('monthly.report') ? 'bg-purple-300 border-purple-500 rounded-lg text-gray-900 font-semibold' : '' }}
+                            ">
+
+                            <span class="inline-flex justify-center items-center ml-4">
+                            
+                            </span>
+                            <span class="ml-2 text-sm tracking-wide truncate">Monthly Sales Report</span>
+                            </a>
+                          </li>
+
+                          <li>
+                            <a href="{{ route('quarterly.report') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-darkPurple pr-6
+                           {{ request()->routeIs('quarterly.report') ? 'bg-purple-300 border-purple-500 rounded-lg text-gray-900 font-semibold' : '' }}
+                            ">
+
+                            <span class="inline-flex justify-center items-center ml-4">
+                            
+                            </span>
+                            <span class="ml-2 text-sm tracking-wide truncate">Quarterly Sales Report</span>
+                            </a>
+                          </li>
+
+                          <li>
+                            <a href="{{ route('annual.report') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-darkPurple pr-6
+                           {{ request()->routeIs('annual.report') ? 'bg-purple-300 border-purple-500 rounded-lg text-gray-900 font-semibold' : '' }}
+                            ">
+
+                            <span class="inline-flex justify-center items-center ml-4">
+                            
+                            </span>
+                            <span class="ml-2 text-sm tracking-wide truncate">Annualy Sales Report</span>
+                            </a>
                           </li>
 
                           <li>

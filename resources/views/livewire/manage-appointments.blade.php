@@ -17,20 +17,15 @@
 
 
         </div>
-        <div class="mt-4">
-            @if (session()->has('message'))
-                <div class="px-4 py-2 text-white bg-green-500 rounded-md">
-                    {{ session('message') }}
-                </div>
-            @endif
-        </div>
+        
 
         <div class="overflow-auto rounded-lg border border-gray-200 shadow-md m-5">
-    <div class="w-full m-4 flex flex-wrap items-center space-y-4 md:space-y-0 md:space-x-4">
+        <div class="w-full m-4 flex">
+        <div class="w-1/1 mx-2">
+
         <!-- Search Input -->
-        <div class="w-full md:w-1/3">
-            <label for="default-search" class="sr-only">Search</label>
-            <div class="relative">
+        <label for="default-search" class="my-2 text-sm font-medium text-gray-900 sr-only ">Search</label>
+        <div class="relative">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20" aria-hidden="true">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
@@ -43,62 +38,76 @@
                     name="search" 
                     class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-purple-500 focus:border-purple-500" 
                     placeholder="Search Appointments...">
-            </div>
         </div>
+        <div class="pt-2.5">
+       
+           <input 
+               type="date" 
+               wire:model="filterDate" 
+               id="filterDate" 
+              class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
+               placeholder="Select date">
 
-        <!-- Date Filter -->
-        <div class="w-full md:w-1/3">
-            <label for="filterDate" class="sr-only">Filter by Date</label>
-            <input 
-                type="date" 
-                wire:model="filterDate" 
-                id="filterDate" 
-                class="block w-full p-2.5 text-sm bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                placeholder="Select date">
-        </div>
+               <select 
+                id="timeFilter" 
+                wire:model="timeFilter" 
+                class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                <option value="">All</option>
+                <option value="08:00:00">8:00 AM</option>
+                <option value="09:00:00">9:00 AM</option>
+                <option value="10:00:00">10:00 AM</option>
+                <option value="11:00:00">11:00 AM</option>
+                <option value="12:00:00">12:00 PM</option>
+                <option value="13:00:00">1:00 PM</option>
+                <option value="14:00:00">2:00 PM</option>
+                <option value="15:00:00">3:00 PM</option>
+                <option value="16:00:00">4:00 PM</option>
+                <option value="17:00:00">5:00 PM</option>
+                <option value="18:00:00">6:00 PM</option>
+                <option value="19:00:00">7:00 PM</option>
+                <option value="20:00:00">8:00 PM</option>
 
-        <!-- Status Filter -->
-        <div class="w-full md:w-1/4">
-          
+
+            </select>
+
             <select 
                 id="selectFilter" 
                 wire:model="selectFilter" 
-                class="block w-52 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
                 <option value="completed">Completed</option>
                 <option value="upcoming">Upcoming</option>
                 <option value="previous">Previous</option>
                 <option value="cancelled">Cancelled</option>
             </select>
 
-            <select wire:model="employeeId" id="employeeFilter" class="block w-52 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+            <select wire:model="employeeId" id="employeeFilter" class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
             <option value="">All Employees</option>
             @foreach($employees as $employee)
                 <option value="{{ $employee->id }}">{{ $employee->first_name }}</option>
             @endforeach
         </select>
 
-        <select wire:model="serviceId" id="serviceFilter" class="block w-52 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+        <select wire:model="serviceId" id="serviceFilter" class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
         <option value="">All Services</option>
         @foreach($services as $service)
             <option value="{{ $service->id }}">{{ $service->name }}</option>
         @endforeach
     </select>
-        </div>
 
-        <!-- Payment Filter (Conditional) -->
-        @if ($selectFilter == 'completed')
-        <div class="w-full md:w-1/4">
-            <label for="paymentFilter" class="sr-only">Filter by Payment</label>
+    
+            
             <select 
                 id="paymentFilter" 
                 wire:model="paymentFilter" 
-                class="block w-50 p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
                 <option value="">All</option>
                 <option value="cash">Cash</option>
                 <option value="online">Online</option>
             </select>
+        
         </div>
-        @endif
+
+</div>
     </div>
 
 
@@ -158,7 +167,7 @@
                             <td class="px-6 py-4 gap-2">
 
                            
-                                @if ($selectFilter == 'upcoming')
+                                @if ($selectFilter == 'upcoming' || $selectFilter == 'previous')
 
                                 <button wire:click="openPaymentModal({{ $appointment->id }} )" class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 rounded-lg text-xs px-4 py-2 inline-flex items-center me-1 mb-2">
 
@@ -370,7 +379,7 @@
             });
         });
         </script>
-        </div>
+</div>
     </div>
 </div>
 

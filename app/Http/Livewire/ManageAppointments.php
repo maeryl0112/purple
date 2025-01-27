@@ -34,6 +34,7 @@ class ManageAppointments extends Component
 
     public $selectFilter = 'upcoming'; // can be 'upcoming' , 'previous' , 'cancelled'
     public $paymentFilter = null;
+    public $timeFilter = null;
     private $userId;
     public  $employeeId;
     public $serviceId;
@@ -205,6 +206,9 @@ public function rescheduleAppointment()
         }
         if ($this->paymentFilter) {
             $query->where('payment', $this->paymentFilter); // Filter by payment type
+        }
+        if ($this->timeFilter) {
+            $query->where('time', $this->timeFilter); // Filter by payment type
         }
 
         if ($this->userId) {
