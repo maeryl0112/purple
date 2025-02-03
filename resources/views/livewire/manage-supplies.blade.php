@@ -36,7 +36,7 @@
              <select class="border text-gray-900 px-5 pt-2.5 me-2 border-gray-300 focus:ring-purple-500 focus:border-purple-500 rounded-lg" wire:model="selectFilter" >
                 <option value="all">All</option>
                 <option value="expired">Expired</option>
-                <option value="lowquantity">Low Quantity</option>
+                <option value="low_quantity">Low Quantity</option>
           </select>
 
             <select wire:model="statusFilter" class="border text-gray-900 px-5 pt-2.5 me-2 border-gray-300 focus:ring-purple-500 focus:border-purple-500 rounded-lg">
