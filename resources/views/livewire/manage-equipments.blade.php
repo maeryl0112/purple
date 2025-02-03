@@ -42,10 +42,26 @@
                     @endforeach
                 </select>
 
+                <select id="categoryFilter" wire:model="categoryFilter"  class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                    <option value="" selected>All Categories</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                </select>
+
             <select wire:model="statusFilter" class="border text-gray-900  px-5 pt-2.5 me-2 border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
                 <option value="active">Active</option>
                 <option value="archived">Archived</option>
             </select>
+
+            @if(Auth::user()->role_id == 1 )
+            <select id="branchFilter" wire:model="branchFilter"  class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                    <option value="" selected>All Branch<i class="fas fa-code-branch    "></i></option>
+                    @foreach ($branches as $branch)
+                        <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                    @endforeach
+                </select>
+                @endif
             </div>
 
 
@@ -64,7 +80,7 @@
               <th scope="col" class="px-6 py-4 font-large text-gray-900">Quantity</th>
               <th scope="col" class="px-6 py-4 font-large text-gray-900">Last Maintenance</th>
               <th scope="col" class="px-6 py-4 font-large text-gray-900">Next Maintenance</th>
-              <th scope="col" class="px-6 py-4 font-large text-gray-900">Purchased Date</th>
+              <th scope="col" class="px-6 py-4 font-large text-gray-900">Branch</th>
               <th scope="col" class="px-6 py-4 font-large text-gray-900">Assigned Staff</th>
               <th scope="col" class="px-6 py-4 font-large text-gray-900">Status</th>
               <th scope="col" class="px-6 py-4 font-large text-gray-900">Actions</th>
@@ -112,9 +128,9 @@
                     <div class="font-medium text-gray-700">{{ $equipment->next_maintenance}}</div>
                 </td>
 
-                <td class="px-6 py-4  max-w-0">
-                    <div class="font-medium text-gray-700">{{ $equipment->purchased_date}}</div>
-                </td>
+                    <td class="px-6 py-4  max-w-0">
+                        <div class="font-medium text-gray-700">{{ $equipment->branch ? $equipment->branch->name : 'No Branch Assigned' }}</div>
+                    </td>
 
                 <td class="px-6 py-4  max-w-0">
                     <div class="font-medium text-gray-700">{{ $equipment->employee?->first_name}}</div>

@@ -14,25 +14,25 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AppointmentConfirmationMail;
+
 
 class SendAppointmentConfirmationMailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(
-        public User $customer,
-        public Appointment $appointment
-    )
+    public $customer, $appointment;
+
+    public function __construct($customer, $appointment)
     {
+        $this->customer = $customer;
+        $this->appointment = $appointment;
     }
 
     public function handle(): void
     {
 
-        $notification = new AppointmentConfirmationNotification(
-            $this->appointment
-        );
-
-        Notification::send($this->customer, $notification);
+        Mail::to($this->customer->email)->send(new AppointmentConfirmationMail($this->appointment));
     }
 }

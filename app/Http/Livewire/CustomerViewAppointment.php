@@ -85,7 +85,6 @@ class CustomerViewAppointment extends Component
         $this->appointmentIdToCancel = $id;
         $this->confirmingAppointmentCancellation = true;
     }
-    use App\Events\AppointmentCancelled;
 
     public function cancelAppointment()
     {

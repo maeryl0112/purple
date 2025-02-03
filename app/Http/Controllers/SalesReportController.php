@@ -10,119 +10,159 @@ use Carbon\Carbon;
 class SalesReportController extends Controller
 {
     //daily sales report
-    public function dailyReport(Request $request)
-    {
-        // Get the date from the request, default to today
-        $selectedDate = $request->input('date', now()->toDateString());
+                public function dailyReport(Request $request)
+            {
+                // Get the date and branch ID from the request, default to today and all branches
+                $selectedDate = $request->input('date', now()->toDateString());
+                $selectedBranch = $request->input('branch_id'); // Optional branch filter
 
-        // Query data for the selected date
+                // Query data for the selected date with an optional branch filter
+                $reports = Appointment::selectRaw('
+                        appointments.date,
+                        SUM(appointments.total) as total_sales,
+                        COUNT(appointments.id) as appointment_count,
+                        GROUP_CONCAT(CONCAT(services.name, ":", services.price, ":", employees.first_name, ":", users.name)) as services_with_details
+                    ')
+                    ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
+                    ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
+                    ->leftJoin('users', 'appointments.user_id', '=', 'users.id') // Join users/customers table
+                    ->leftJoin('branches', 'appointments.branch_id', '=', 'branches.id') // Join branches table
+                    ->where('appointments.status', 1) // Assuming 2 means completed
+                    ->whereDate('appointments.date', $selectedDate) // Filter by the selected date
+                    ->when($selectedBranch, function ($query, $selectedBranch) {
+                        return $query->where('appointments.branch_id', $selectedBranch);
+                    })
+                    ->groupBy('appointments.date')
+                    ->get();
+
+                // Process services_with_details into structured data
+                $reports->transform(function ($report) {
+                    $services = explode(',', $report->services_with_details);
+
+                    // Group services by name and calculate totals
+                    $groupedServices = collect($services)->map(function ($service) {
+                        [$name, $price, $employee, $customer] = explode(':', $service);
+                        return [
+                            'name' => $name,
+                            'price' => (float) $price,
+                            'employee' => $employee,
+                            'customer' => $customer,
+                        ];
+                    })->groupBy('name')->map(function ($group) {
+                        return [
+                            'total_price' => $group->sum('price'),
+                            'details' => $group,
+                        ];
+                    });
+
+                    $report->grouped_services = $groupedServices; // Attach grouped data to the report
+                    return $report;
+                });
+
+                $grandTotal = $reports->sum('total_sales'); // Calculate grand total
+
+                // Fetch all branches for dropdown
+                $branches = \App\Models\Branch::all();
+
+                return view('reports.daily', compact('reports', 'grandTotal', 'selectedDate', 'selectedBranch', 'branches'));
+            }
+
+    
+    // Specific Day Report
+    public function downloadPDF(Request $request)
+    {
+        $selectedDate = $request->input('date', now()->toDateString()); // Get selected or today's date
+        $selectedBranch = $request->input('branch_id'); // Get selected branch
+        $today = now()->toDateString();
+    
         $reports = Appointment::selectRaw('
-                date,
-                SUM(total) as total_sales,
+                appointments.date,
+                SUM(appointments.total) as total_sales,
                 COUNT(appointments.id) as appointment_count,
-                GROUP_CONCAT(DISTINCT CONCAT(services.name, ":", services.price, ":", employees.first_name, ":", users.name)) as services_with_details
+                GROUP_CONCAT(CONCAT(services.name, ":", services.price, ":", employees.first_name, ":", users.name)) as services_with_details
             ')
             ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
             ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
-            ->leftJoin('users', 'appointments.user_id', '=', 'users.id') // Join users/customers table
-            ->where('appointments.status', 2) // Assuming 2 means completed
-            ->whereDate('date', $selectedDate) // Filter by the selected date
-            ->groupBy('date')
+            ->leftJoin('users', 'appointments.user_id', '=', 'users.id')
+            ->leftJoin('branches', 'appointments.branch_id', '=', 'branches.id')
+            ->where('appointments.status', 1)
+            ->whereDate('appointments.date', $selectedDate) // Filter by selected date
+            ->when($selectedBranch, function ($query, $selectedBranch) {
+                return $query->where('appointments.branch_id', $selectedBranch);
+            })
+            ->groupBy('appointments.date')
             ->get();
-
-        // Process services with details into structured data
+    
+        // Process services_with_details into structured data
         $reports->transform(function ($report) {
             $services = explode(',', $report->services_with_details);
-            $report->services_with_details = collect($services)->map(function ($service) {
+            $groupedServices = collect($services)->map(function ($service) {
                 [$name, $price, $employee, $customer] = explode(':', $service);
                 return [
                     'name' => $name,
-                    'price' => $price,
+                    'price' => (float) $price,
                     'employee' => $employee,
                     'customer' => $customer,
                 ];
+            })->groupBy('name')->map(function ($group) {
+                return [
+                    'total_price' => $group->sum('price'),
+                    'details' => $group,
+                ];
             });
+    
+            $report->grouped_services = $groupedServices;
             return $report;
         });
-
-        $grandTotal = $reports->sum('total_sales'); // Calculate grand total
-
-        return view('reports.daily', compact('reports', 'grandTotal', 'selectedDate'));
+    
+        $image = public_path('images/banner-purple.png');
+        $grandTotal = $reports->sum('total_sales');
+        $preparedBy = auth()->user()->name ?? 'System Admin';
+        $currentDateTime = now()->format('Y-m-d H:i:s');
+    
+        // Generate the PDF
+        $pdf = Pdf::loadView('reports.daily-pdf', compact('reports', 'preparedBy', 'currentDateTime', 'grandTotal', 'image', 'selectedDate', 'selectedBranch'));
+    
+        return $pdf->download('daily-sales-report-' . $selectedDate . '.pdf');
     }
-
-    //specific day
-    public function downloadPDF()
+    
+// All Daily Reports
+public function downloadAllPDF()
 {
-    $today = now()->toDateString(); // Get today's date in 'Y-m-d' format
-
     $reports = Appointment::selectRaw('
-        `date`,
-        SUM(`total`) as total_sales,
-        COUNT(appointments.id) as appointment_count,
-        GROUP_CONCAT(DISTINCT CONCAT(services.name, ":", services.price, ":", employees.first_name, ":", users.name)) as service_employee_customer_pairs
-    ')
+            appointments.date,
+            SUM(appointments.total) as total_sales,
+            COUNT(appointments.id) as appointment_count,
+            GROUP_CONCAT(CONCAT(services.name, ":", services.price, ":", employees.first_name, ":", users.name)) as services_with_details
+        ')
         ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
         ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
-        ->leftJoin('users', 'appointments.user_id', '=', 'users.id') // Join users table
-        ->where('appointments.status', 2) // Only completed appointments
-        ->whereDate('appointments.date', $today) // Filter by today's date
-        ->groupBy('date')
+        ->leftJoin('users', 'appointments.user_id', '=', 'users.id')
+        ->leftJoin('branches', 'appointments.branch_id', '=', 'branches.id') // Include branches
+        ->where('appointments.status', 1) // Only completed appointments
+        ->groupBy('appointments.date')
+        ->orderBy('appointments.date', 'desc')
         ->get();
 
-    // Transform the results to make them more structured
-    $reports->transform(function ($report) {
-        $pairs = explode(',', $report->service_employee_customer_pairs);
-        $report->services_with_employees_and_customers = collect($pairs)->map(function ($pair) {
-            [$service, $price, $employee, $customer] = explode(':', $pair);
-            return [
-                'service' => $service,
-                'price' => $price,
-                'employee' => $employee,
-                'customer' => $customer,
-            ];
-        });
-        return $report;
-    });
-
-        $image = public_path('images/banner-purple.png'); // Path to the banner image
-
-        $grandTotal = $reports->sum('total_sales'); // Sum of all daily sales
-        $preparedBy = auth()->user()->name ?? 'System Admin'; // Name of the user generating the report
-        $currentDateTime = now()->format('Y-m-d H:i:s'); // Current date and time for the report
-
-        // Generate the PDF
-        $pdf = Pdf::loadView('reports.daily-pdf', compact('reports', 'preparedBy', 'currentDateTime', 'grandTotal', 'image'));
-        return $pdf->download('daily-sales-report-' . $today . '.pdf');
-    }
-
-    //download all daily
-        public function downloadAllPDF()
-        {
-            $reports = Appointment::selectRaw('
-        date,
-        SUM(total) as total_sales,
-        COUNT(appointments.id) as appointment_count,
-        GROUP_CONCAT(DISTINCT CONCAT(services.name, ":", services.price, ":", employees.first_name, ":", users.name)) as services_with_details
-    ')
-    ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
-    ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
-    ->leftJoin('users', 'appointments.user_id', '=', 'users.id') // Join users/customers table
-    ->where('appointments.status', 2) // Assuming 2 means completed
-    ->groupBy('date')
-    ->get();
-
-    // Process services with details into structured data
+    // Process services_with_details into structured data
     $reports->transform(function ($report) {
         $services = explode(',', $report->services_with_details);
-        $report->services_with_details = collect($services)->map(function ($service) {
+        $groupedServices = collect($services)->map(function ($service) {
             [$name, $price, $employee, $customer] = explode(':', $service);
             return [
                 'name' => $name,
-                'price' => $price,
+                'price' => (float) $price,
                 'employee' => $employee,
                 'customer' => $customer,
             ];
+        })->groupBy('name')->map(function ($group) {
+            return [
+                'total_price' => $group->sum('price'),
+                'details' => $group,
+            ];
         });
+
+        $report->grouped_services = $groupedServices;
         return $report;
     });
 
@@ -131,43 +171,88 @@ class SalesReportController extends Controller
     $preparedBy = auth()->user()->name ?? 'System Admin';
     $currentDateTime = now()->format('Y-m-d H:i:s');
 
+    // Generate the PDF
     $pdf = Pdf::loadView('reports.all-daily-pdf', compact('reports', 'preparedBy', 'currentDateTime', 'grandTotal', 'image'));
 
     return $pdf->download('all-daily-sales-reports.pdf');
 }
 
+
+
     //weekly
     public function weeklyReport(Request $request)
-{
-    // Get the selected week (format: YYYY-WW), default to the current week
-    $selectedWeek = $request->input('week', now()->format('Y-\WW'));
-    [$year, $week] = explode('-W', $selectedWeek);
+    {
+        // Get the selected week (format: YYYY-WW), default to the current week
+        $selectedWeek = $request->input('week', Carbon::now()->format('Y-\WW'));
+        $selectedBranch = $request->input('branch_id'); // Optional branch filter
+    
+        // Extract year and week number
+        [$year, $week] = explode('-W', $selectedWeek);
+    
+        // Calculate start and end of the week
+        $startOfWeek = Carbon::createFromFormat('Y-m-d', "$year-01-01")
+            ->startOfYear()
+            ->addWeeks($week - 1)
+            ->startOfWeek();
+    
+        $endOfWeek = $startOfWeek->copy()->endOfWeek();
+    
+        // Query for the weekly data
+        $reports = Appointment::selectRaw('
+                date,
+                SUM(total) as total_sales,
+                GROUP_CONCAT(CONCAT(services.name, ":", services.price, ":", employees.first_name, ":", users.name) SEPARATOR "|") as services_with_details
+            ')
+            ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
+            ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
+            ->leftJoin('users', 'appointments.user_id', '=', 'users.id')
+            ->when($selectedBranch, function ($query, $selectedBranch) {
+                return $query->where('appointments.branch_id', $selectedBranch);
+            })
+            ->where('appointments.status', 1) // Completed appointments
+            ->whereBetween('appointments.date', [$startOfWeek, $endOfWeek])
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get();
+    
+        // Process services_with_details into structured data
+        $reports->transform(function ($report) {
+            $services = explode('|', $report->services_with_details);
+    
+            $groupedServices = collect($services)->map(function ($service) {
+                [$name, $price, $employee, $customer] = explode(':', $service);
+                return [
+                    'name' => $name,
+                    'price' => (float) $price,
+                    'employee' => $employee,
+                    'customer' => $customer,
+                ];
+            })->groupBy('name')->map(function ($group) {
+                return [
+                    'total_price' => $group->sum('price'),
+                    'details' => $group,
+                ];
+            });
+    
+            $report->grouped_services = $groupedServices;
+            return $report;
+        });
+    
+        $grandTotal = $reports->sum('total_sales');
+    
+        // If request is AJAX, return JSON response for dynamic UI updates
+        if ($request->ajax()) {
+            $html = view('reports.weekly', compact('reports', 'grandTotal'))->render();
+            return response()->json(['html' => $html]);
+        }
+    
+        // Fetch all branches for filtering
+        $branches = \App\Models\Branch::all();
+    
+        return view('reports.weekly', compact('reports', 'grandTotal', 'selectedWeek', 'branches', 'selectedBranch'));
+    }
+    
 
-    // Query data for the selected week
-    $reports = Appointment::selectRaw('
-            YEARWEEK(`date`, 1) as week,
-            MIN(`date`) as week_start,
-            MAX(`date`) as week_end,
-            SUM(`total`) as total_sales,
-            COUNT(appointments.id) as appointment_count,
-            GROUP_CONCAT(DISTINCT services.name) as services,
-            GROUP_CONCAT(DISTINCT services.price) as prices,
-            GROUP_CONCAT(DISTINCT employees.first_name) as employees,
-            GROUP_CONCAT(DISTINCT users.name) as customers
-        ')
-        ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
-        ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
-        ->leftJoin('users', 'appointments.user_id', '=', 'users.id')
-        ->where('appointments.status', 2) // Assuming 2 means completed
-        ->whereRaw('YEAR(`date`) = ? AND WEEK(`date`, 1) = ?', [$year, $week]) // Filter by year and week
-        ->groupBy('week')
-        ->orderBy('week', 'DESC')
-        ->get();
-
-    $grandTotal = $reports->sum('total_sales'); // Calculate grand total
-
-    return view('reports.weekly', compact('reports', 'grandTotal', 'selectedWeek'));
-}
     //specific week
     public function downloadAllWeeklyPDF()
     {
@@ -241,41 +326,64 @@ class SalesReportController extends Controller
 
 public function monthlyReport(Request $request)
 {
-    $currentYear = now()->year; // Default year is the current year
-    $selectedMonth = $request->input('month', now()->format('Y-m')); // Default to current month (format: YYYY-MM)
-    [$year, $month] = explode('-', $selectedMonth);
+    // Get the selected month and branch ID
+    $selectedMonth = $request->input('date', now()->format('Y-m'));
+    $selectedBranch = $request->input('branch_id');
 
-    // Query to fetch monthly data with filters
+    // Extract the year and month
+    $year = \Carbon\Carbon::parse($selectedMonth)->year;
+    $month = \Carbon\Carbon::parse($selectedMonth)->month;
+
+    // Query data for the selected month
     $reports = Appointment::selectRaw('
-                    YEAR(`date`) as year,
-                    MONTH(`date`) as month,
-                    SUM(`total`) as total_sales,
-                    COUNT(appointments.id) as appointment_count,
-                    GROUP_CONCAT(DISTINCT services.name) as services,
-                    GROUP_CONCAT(DISTINCT services.price) as prices,
-                    GROUP_CONCAT(DISTINCT employees.first_name) as employees,
-                    GROUP_CONCAT(DISTINCT users.name) as customers
-                ')
-                ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
-                ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
-                ->leftJoin('users', 'appointments.user_id', '=', 'users.id')
-                ->where('appointments.status', 2) // Assuming 2 means completed
-                ->whereYear('appointments.date', $year) // Filter by selected year
-                ->whereMonth('appointments.date', $month) // Filter by selected month
-                ->groupBy('year', 'month')
-                ->orderBy('month', 'ASC')
-                ->get();
+            MONTH(appointments.date) as month,
+            SUM(appointments.total) as total_sales,
+            COUNT(appointments.id) as appointment_count,
+            GROUP_CONCAT(CONCAT(services.name, ":", services.price, ":", employees.first_name, ":", users.name)) as services_with_details
+        ')
+        ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
+        ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
+        ->leftJoin('users', 'appointments.user_id', '=', 'users.id') // Join users/customers table
+        ->leftJoin('branches', 'appointments.branch_id', '=', 'branches.id') // Join branches table
+        ->where('appointments.status', 1) // Assuming 1 means completed
+        ->whereYear('appointments.date', $year) // Filter by year
+        ->whereMonth('appointments.date', $month) // Filter by month
+        ->when($selectedBranch, function ($query, $selectedBranch) {
+            return $query->where('appointments.branch_id', $selectedBranch);
+        })
+        ->groupByRaw('MONTH(appointments.date)')
+        ->get();
 
-    // Convert numeric month to month name in words using Carbon
-    foreach ($reports as $report) {
-        $report->month_name = Carbon::createFromDate($report->year, $report->month, 1)->format('F');
-    }
+    // Process services_with_details into structured data
+    $reports->transform(function ($report) {
+        $services = explode(',', $report->services_with_details);
 
-    // Calculate the grand total for the selected month
-    $grandTotal = $reports->sum('total_sales');
+        $groupedServices = collect($services)->map(function ($service) {
+            [$name, $price, $employee, $customer] = explode(':', $service);
+            return [
+                'name' => $name,
+                'price' => (float) $price,
+                'employee' => $employee,
+                'customer' => $customer,
+            ];
+        })->groupBy('name')->map(function ($group) {
+            return [
+                'total_price' => $group->sum('price'),
+                'details' => $group,
+            ];
+        });
 
-    return view('reports.monthly', compact('reports', 'grandTotal', 'selectedMonth'));
+        $report->grouped_services = $groupedServices; // Attach grouped data to the report
+        return $report;
+    });
+
+    $grandTotal = $reports->sum('total_sales'); // Calculate grand total
+    $branches = \App\Models\Branch::all();
+
+    return view('reports.monthly', compact('reports', 'grandTotal', 'selectedMonth', 'selectedBranch', 'branches'));
 }
+
+
 
     public function downloadMonthlyPdf()
     {
@@ -367,75 +475,110 @@ public function monthlyReport(Request $request)
 
 
     public function quarterlyReport(Request $request)
-    {
-        $currentYear = now()->year;
-        $currentQuarter = ceil(now()->month / 3); // Determine the current quarter
+{
+    $selectedYear = $request->input('year', now()->year); // Default to the current year
+    $selectedQuarter = $request->input('quarter', ceil(now()->month / 3)); // Default to the current quarter
+    $selectedBranch = $request->input('branch_id'); // Optional branch filter
 
-        $selectedYear = $request->input('year', $currentYear); // Default to current year
-        $selectedQuarter = $request->input('quarter', $currentQuarter); // Default to current quarter
+    $reports = Appointment::selectRaw('
+            QUARTER(appointments.date) as quarter,
+            YEAR(appointments.date) as year,
+            SUM(appointments.total) as total_sales,
+            COUNT(appointments.id) as appointment_count,
+            GROUP_CONCAT(CONCAT(services.name, ":", services.price, ":", employees.first_name, ":", users.name)) as services_with_details
+        ')
+        ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
+        ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
+        ->leftJoin('users', 'appointments.user_id', '=', 'users.id')
+        ->leftJoin('branches', 'appointments.branch_id', '=', 'branches.id')
+        ->where('appointments.status', 1)
+        ->whereYear('appointments.date', $selectedYear)
+        ->whereRaw('QUARTER(appointments.date) = ?', [$selectedQuarter])
+        ->when($selectedBranch, function ($query, $selectedBranch) {
+            return $query->where('appointments.branch_id', $selectedBranch);
+        })
+        ->groupBy('quarter', 'year')
+        ->get();
 
-        $reports = Appointment::selectRaw('
-                    QUARTER(appointments.date) as quarter,
-                    YEAR(appointments.date) as year,
-                    CONCAT("Q", QUARTER(appointments.date), " ", YEAR(appointments.date)) as quarter_label,
-                    MIN(appointments.date) as quarter_start,
-                    MAX(appointments.date) as quarter_end,
-                    SUM(appointments.total) as total_sales,
-                    COUNT(appointments.id) as appointment_count,
-                    COUNT(DISTINCT services.id) as service_count,
-                    GROUP_CONCAT(DISTINCT services.name) as services,
-                    GROUP_CONCAT(DISTINCT services.price) as prices,
-                    GROUP_CONCAT(DISTINCT employees.first_name) as employees,
-                    GROUP_CONCAT(DISTINCT users.name) as customers
-                ')
-                ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id') // Join with employees
-                ->leftJoin('services', 'appointments.service_id', '=', 'services.id')   // Join with services
-                ->leftJoin('users', 'appointments.user_id', '=', 'users.id')  // Join with users/customers
-                ->where('appointments.status', 2) // Assuming 2 means completed
-                ->when($selectedYear, function ($query, $selectedYear) {
-                    return $query->whereYear('appointments.date', $selectedYear);
-                })
-                ->when($selectedQuarter, function ($query, $selectedQuarter) {
-                    return $query->whereRaw('QUARTER(appointments.date) = ?', [$selectedQuarter]);
-                })
-                ->groupBy('year', 'quarter', 'quarter_label') // Correct grouping
-                ->orderBy('year', 'DESC')
-                ->orderBy('quarter', 'DESC')
-                ->get();
+    $reports->transform(function ($report) {
+        $services = explode(',', $report->services_with_details);
+        $groupedServices = collect($services)->map(function ($service) {
+            [$name, $price, $employee, $customer] = explode(':', $service);
+            return [
+                'name' => $name,
+                'price' => (float) $price,
+                'employee' => $employee,
+                'customer' => $customer,
+            ];
+        })->groupBy('name')->map(function ($group) {
+            return [
+                'total_price' => $group->sum('price'),
+                'details' => $group,
+            ];
+        });
 
-        return view('reports.quarterly', compact('reports', 'selectedYear', 'selectedQuarter'));
-    }
+        $report->grouped_services = $groupedServices;
+        return $report;
+    });
+
+    $grandTotal = $reports->sum('total_sales');
+    $branches = \App\Models\Branch::all();
+
+    return view('reports.quarterly', compact('reports', 'grandTotal', 'selectedYear', 'selectedQuarter', 'selectedBranch', 'branches'));
+}
 
 
-    public function annualReport(Request $request)
-    {
-        // Get the selected year from the request or default to the current year
-        $selectedYear = $request->input('year', date('Y'));
 
-        // Fetch the reports filtered by the selected year
-        $reports = Appointment::selectRaw('
-                YEAR(appointments.date) as year,
-                MIN(appointments.date) as year_start,
-                MAX(appointments.date) as year_end,
-                SUM(appointments.total) as total_sales,
-                COUNT(appointments.id) as appointment_count,
-                COUNT(DISTINCT services.id) as services_count,
-                GROUP_CONCAT(DISTINCT services.name ORDER BY services.name ASC) as services,
-                GROUP_CONCAT(DISTINCT services.price ORDER BY services.price ASC) as prices,
-                GROUP_CONCAT(DISTINCT employees.first_name ORDER BY employees.first_name ASC) as employees,
-                GROUP_CONCAT(DISTINCT users.name ORDER BY users.name ASC) as customers
-            ')
-            ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
-            ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
-            ->leftJoin('users', 'appointments.user_id', '=', 'users.id')
-            ->where('appointments.status', 2) // Assuming 2 means completed
-            ->whereYear('appointments.date', $selectedYear)
-            ->groupBy('year')
-            ->orderBy('year', 'DESC')
-            ->get();
+public function annualReport(Request $request)
+{
+    $selectedYear = $request->input('year', now()->year); // Default to the current year
+    $selectedBranch = $request->input('branch_id'); // Optional branch filter
 
-        return view('reports.annual', compact('reports', 'selectedYear'));
-    }
+    $reports = Appointment::selectRaw('
+            YEAR(appointments.date) as year,
+            SUM(appointments.total) as total_sales,
+            COUNT(appointments.id) as appointment_count,
+            GROUP_CONCAT(CONCAT(services.name, ":", services.price, ":", employees.first_name, ":", users.name)) as services_with_details
+        ')
+        ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
+        ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
+        ->leftJoin('users', 'appointments.user_id', '=', 'users.id')
+        ->leftJoin('branches', 'appointments.branch_id', '=', 'branches.id')
+        ->where('appointments.status', 1)
+        ->whereYear('appointments.date', $selectedYear)
+        ->when($selectedBranch, function ($query, $selectedBranch) {
+            return $query->where('appointments.branch_id', $selectedBranch);
+        })
+        ->groupBy('year')
+        ->get();
+
+    $reports->transform(function ($report) {
+        $services = explode(',', $report->services_with_details);
+        $groupedServices = collect($services)->map(function ($service) {
+            [$name, $price, $employee, $customer] = explode(':', $service);
+            return [
+                'name' => $name,
+                'price' => (float) $price,
+                'employee' => $employee,
+                'customer' => $customer,
+            ];
+        })->groupBy('name')->map(function ($group) {
+            return [
+                'total_price' => $group->sum('price'),
+                'details' => $group,
+            ];
+        });
+
+        $report->grouped_services = $groupedServices;
+        return $report;
+    });
+
+    $grandTotal = $reports->sum('total_sales');
+    $branches = \App\Models\Branch::all();
+
+    return view('reports.annual', compact('reports', 'grandTotal', 'selectedYear', 'selectedBranch', 'branches'));
+}
+
 
 
 public function downloadQuarterlyPDF()

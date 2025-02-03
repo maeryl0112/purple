@@ -29,6 +29,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'phone_number',
         'role_id',
+        'branch_id',
         'status',
 
     ];
@@ -69,6 +70,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
     function cart() {
         return $this->hasOne(Cart::class);
+    }
+
+    function branch() {
+        return $this->belongsTo(Branch::class);
     }
 }
 

@@ -70,15 +70,14 @@
 
             </select>
 
-            <select 
-                id="selectFilter" 
-                wire:model="selectFilter" 
-                class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
-                <option value="completed">Completed</option>
-                <option value="upcoming">Upcoming</option>
-                <option value="previous">Previous</option>
-                <option value="cancelled">Cancelled</option>
-            </select>
+      
+                <select wire:model="selectFilter" class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                    <option value="upcoming">Upcoming</option>
+                    <option value="previous">Previous</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+  
 
             <select wire:model="employeeId" id="employeeFilter" class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
             <option value="">All Employees</option>
@@ -93,6 +92,15 @@
             <option value="{{ $service->id }}">{{ $service->name }}</option>
         @endforeach
     </select>
+
+    @if(Auth::user()->role_id == 1 )
+            <select id="branchId" wire:model="branchId"  class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                    <option value="" selected>All Branch<i class="fas fa-code-branch    "></i></option>
+                    @foreach ($branches as $branch)
+                        <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                    @endforeach
+                </select>
+                @endif
 
     
             
@@ -123,6 +131,8 @@
                     @if (auth()->user()->role->name  == 'Admin' || auth()->user()->role->name  == 'Employee')
 
                     <th scope="col" class="px-6 py-4 font-bold text-gray-900">Customer</th>
+                    <th scope="col" class="px-6 py-4 font-bold text-gray-900">Branch</th>
+
                         <th scope="col" class="px-6 py-4 font-bold text-gray-900">Contact No</th>
                     @endif
                     <th scope="col" class="px-6 py-4 font-bold text-gray-900">Payment</th>
@@ -154,6 +164,10 @@
 
                         @if (auth()->user()->role->name == 'Admin' || auth()->user()->role->name == 'Employee')
                             <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->user->name}}</td>
+                                <td class="px-6 py-4 max-w-xs font-medium text-gray-700"> {{ $appointment->employee?->branch?->name }}
+
+                                </td>
+
                             <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->user->phone_number}}</td>
                             <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->payment }} @if ($appointment->payment === 'online' && $appointment->last_four_digits)
                                 <p>Proof of Payment: Last Four Digits - {{ $appointment->last_four_digits }}</p>
@@ -169,12 +183,11 @@
                            
                                 @if ($selectFilter == 'upcoming' || $selectFilter == 'previous')
 
-                                <button wire:click="openPaymentModal({{ $appointment->id }} )" class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 rounded-lg text-xs px-4 py-2 inline-flex items-center me-1 mb-2">
-
-
-
+                                <button wire:click="openPaymentModal('{{ $appointment->id }}')" 
+                                        wire:loading.attr="disabled"
+                                        wire:loading.class="opacity-50 cursor-not-allowed"
+                                        class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 rounded-lg text-xs px-4 py-2 inline-flex items-center me-1 mb-2">
                                     Confirm
-
                                 </button>
 
                                 <button
@@ -183,9 +196,9 @@
 
                                 Reschedule
                             </button>
-                            <x-danger-button wire:click="setAppointmentIdToCancel({{ $appointment->id }})" wire:loading.attr="disabled">
+                            <button wire:click="setAppointmentIdToCancel({{ $appointment->id }})" wire:loading.attr="disabled" class="px-4 py-2 mt-2 flex items-center bg-red-600 text-white rounded-lg text-xs hover:bg-red-700 focus:ring-2 focus:ring-red-400">
                                                 {{ __('Cancel') }}
-                                            </x-danger-button>
+                                            </button>
 
                               
 
@@ -205,18 +218,21 @@
 
         <x-dialog-modal wire:model="showPaymentModal">
             <x-slot name="title">
-                {{ __('Mark as Complete') }}
+                {{ __('Confirming Appointment') }}
             </x-slot>
 
             <x-slot name="content">
-                <h2 class="text-lg font-semibold mb-4">Are you sure you want to mark this as complete?</h2>
+                <h2 class="text-lg font-semibold mb-4">Are you sure you want to confirm this as appointment?</h2>
             </x-slot>
 
             <x-slot name="footer">
                 <div class="flex gap-3">
-                    <x-button wire:click="completeAppointment" wire:loading.attr="disabled">
-                        {{ __('Confirm') }}
-                    </x-secondary-button>
+                @if($appointmentId)
+    <button wire:click="completeAppointment({{ $appointmentId }})" class="bg-purple-500 text-white px-4 py-2 rounded">
+        Confirm
+    </button>
+@endif
+
 
                     <x-danger-button wire:click="closePaymentModal" wire:loading.attr="disabled">
                         {{ __('Cancel') }}
@@ -346,7 +362,7 @@
                 Livewire.on('appointmentCompleted', function () {
                     Swal.fire({
                         title: 'Success!',
-                        text: 'Appointment marked as completed.',
+                        text: 'Appointment confirmed. Email Details Sent!',
                         icon: 'success',
                         confirmButtonText: 'OK'
                     });

@@ -5,6 +5,7 @@
     use App\Models\Category;
     use App\Models\OnlineSupplier;
     use App\Models\Supply;
+    use App\Models\Branch;
     use App\Models\User;
     use App\Models\Employee;
     use App\Notifications\ConsumablesNotification;
@@ -30,11 +31,12 @@
         public $newSupplies = [];
         public $image;
         public $categories;
+        public $branches;
+        public $branchFilter = '';
         public $online_suppliers;
         public $categoryFilter = null;
         public $selectFilter = 'all';  // Default to 'all' filter
         public $statusFilter = 'active';
-        private $userId;
         protected $notifiedSupplies = [];
         public $paginate = 10;
 
@@ -78,19 +80,11 @@
             $this->resetPage(); // Reset pagination to the first page
         }
 
-        public function mount($userId = null, $selectFilter = 'all')
+        public function mount()
         {
-            if (auth()->user()->role->name == 'Customer') {
-                $this->userId = auth()->user()->id;
-            } elseif (in_array(auth()->user()->role->name, ['Employee', 'Admin'])) {
-                $this->userId = $userId;
-            }
-
-            // Set the select filter based on the passed parameter or default value
-            $this->selectFilter = $selectFilter ?: 'all';
-
             // Fetch categories and online suppliers
             $this->categories = Category::all();
+            $this->branches = Branch::all();
             $this->online_suppliers = OnlineSupplier::all();
 
             $this->resetNewSupplies();
@@ -178,6 +172,15 @@
             'image' => 'nullable|image|max:2048',
         ]);
 
+        $user = auth()->user();
+        if ($user->role_id == 1) { // Admin
+            $this->validate([
+                'newSupplies.branch_id' => 'required|exists:branches,id',
+            ]);
+        } else { // Employee
+            $this->newSupplies['branch_id'] = $user->branch_id;
+        }
+
         // Handle image upload
         if ($this->image) {
             $path = $this->image->store('images', 'public');
@@ -199,9 +202,18 @@
 
         public function render()
         {
+
+            $user = auth()->user();
+
             $query = Supply::with(['category', 'online_supplier'])
+            ->when($user->role_id !=1, function ($query) use ($user) {
+                $query->where('branch_id', $user->branch_id);
+            })
                 ->when($this->categoryFilter, function ($query) {
                     $query->where('category_id', $this->categoryFilter);
+                })
+                ->when($this->branchFilter, function ($query) {
+                    $query->where('branch_id', $this->branchFilter);
                 })
                 ->when($this->search, function ($query) {
                     $query->where(function ($q) {
@@ -250,6 +262,7 @@
             return view('livewire.manage-supplies', [
                 'supplies' => $supplies,
                 'categories' => $this->categories,
+                'branches' => $this->branches,
                 'online_suppliers' => $this->online_suppliers,
             ]);
         }

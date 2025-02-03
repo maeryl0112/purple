@@ -26,6 +26,7 @@ class Appointment extends Model
         'first_name',
         'payment',
         'last_four_digits',
+        'branch_id',
 
     ];
 
@@ -50,10 +51,13 @@ class Appointment extends Model
 
     public function employee()
     {
-        return $this->belongsTo(User::class, 'employee_id');
+        return $this->belongsTo(Employee::class);
     }
 
-
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
 
 
 

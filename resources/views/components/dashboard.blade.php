@@ -112,7 +112,16 @@
                                 </a>
                               </li>
 
-
+                              <li>
+                                <a href="{{route('managebranches')}}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-darkPurple pr-6
+                                {{ request()->routeIs('managebranches') ? 'bg-purple-300 border-purple-500 rounded-lg text-gray-900 font-semibold' : '' }}
+                                ">
+                                  <span class="inline-flex justify-center items-center ml-4">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                                  </span>
+                                  <span class="ml-2 text-sm tracking-wide truncate">Manage Branches</span>
+                                </a>
+                              </li>
                             @endif
 
 
@@ -150,7 +159,7 @@
                             </a>
                           </li>
 
-
+                          @if(Auth::user()->role_id == 1 )
                           <li>
                             <a href="{{ route('manageonlinesuppliers') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-darkPurple pr-6
                            {{ request()->routeIs('manageonlinesuppliers') ? 'bg-purple-300 border-purple-500 rounded-lg text-gray-900 font-semibold' : '' }}
@@ -164,7 +173,7 @@
                             <span class="ml-2 text-sm tracking-wide truncate">Manage Online Suppliers</span>
                             </a>
                           </li>
-                          
+                          @endif
                           <li>
                             <a href="{{ route('inventory.notification') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-darkPurple pr-6
                            {{ request()->routeIs('inventory.notification') ? 'bg-purple-300 border-purple-500 rounded-lg text-gray-900 font-semibold' : '' }}
@@ -271,36 +280,7 @@
                             </a>
                           </li>
 
-                          <li>
-                            <button type="button" class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700" aria-controls="dropdown-example" data-collapse-toggle="dropdown-example">
-                            <svg class="w-6 h-6 text-gray-600 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.6 16.733c.234.269.548.456.895.534a1.4 1.4 0 0 0 1.75-.762c.172-.615-.446-1.287-1.242-1.481-.796-.194-1.41-.861-1.241-1.481a1.4 1.4 0 0 1 1.75-.762c.343.077.654.26.888.524m-1.358 4.017v.617m0-5.939v.725M4 15v4m3-6v6M6 8.5 10.5 5 14 7.5 18 4m0 0h-3.5M18 4v3m2 8a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z"/>
-                              </svg>
-
-
-                                  <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">Sales Report</span>
-                                  <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-                                  </svg>
-                            </button>
-                            <ul id="dropdown-example" class="hidden py-2 space-y-2">
-                                  <li>
-                                     <a  href="{{ route('daily.report') }}"  class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Daily</a>
-                                  </li>
-                                  <li>
-                                    <a href="{{ route('weekly.report') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Weekly</a>
-                                  </li>
-                                  <li>
-                                    <a href="{{ route('monthly.report') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Monthly</a>
-                                  </li>
-                                  <li>
-                                    <a href="{{ route('quarterly.report') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Quarterly</a>
-                                  </li>
-                                  <li>
-                                    <a href="{{ route('annual.report') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Annualy</a>
-                                  </li>
-                            </ul>
-                         </li>
+                          
 
                          
 

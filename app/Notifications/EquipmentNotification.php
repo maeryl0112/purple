@@ -36,7 +36,9 @@ class EquipmentNotification extends Notification
     {
         $message = (new MailMessage)
             ->subject('Equipment Notification: ' . ($this->type === 'low_quantity' ? 'Low Quantity' : 'Maintenance Due'))
-            ->line('Equipment: ' . $this->equipment->name);
+            ->line('Equipment: ' . $this->equipment->name)
+            ->line('Branch: ' . $this->equipment->branch->name);
+            
 
         if ($this->type === 'low_quantity') {
             $message->line('Quantity is low: ' . $this->equipment->quantity);
@@ -57,6 +59,7 @@ class EquipmentNotification extends Notification
         return [
             'equipment_id' => $this->equipment->id,
             'equipment_name' => $this->equipment->name,
+            'equipment_branch' => $this->equipment->branch->name,
             'type' => $this->type,
             'message' => $this->type === 'low_quantity' 
                 ? 'Quantity is low: ' . $this->equipment->quantity

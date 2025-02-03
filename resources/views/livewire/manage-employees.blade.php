@@ -38,6 +38,15 @@
                 <option value="{{ $category->id }}">{{ $category->name }}</option>
             @endforeach
         </select>
+
+        @if(Auth::user()->role_id == 1 )
+            <select id="branchFilter" wire:model="branchFilter"  class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                    <option value="" selected>All Branch<i class="fas fa-code-branch    "></i></option>
+                    @foreach ($branches as $branch)
+                        <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                    @endforeach
+                </select>
+                @endif
         </div>
     </div>
 </div>
@@ -52,6 +61,7 @@
                     <th scope="col" class="px-6 py-3 text-gray-900">Email</th>
                     <th scope="col" class="px-6 py-3 text-gray-900">Phone Number</th>
                     <th scope="col" class="px-6 py-3 text-gray-900">Position</th>
+                    <th scope="col" class="px-6 py-3 text-gray-900">Branch</th>
                     <th scope="col" class="px-6 py-3 text-gray-900">On Duty Days</th>
                     <th scope="col" class="px-6 py-3 text-gray-900">Status</th>
                     <th scope="col" class="px-6 py-3 text-gray-900">Visibility</th>
@@ -72,6 +82,7 @@
                     <td class="px-6 py-4">{{ $employee->email }}</td>
                     <td class="px-6 py-4">{{ $employee->phone_number }}</td>
                     <td class="px-6 py-4">{{ $employee->jobCategory?->name }}</td>
+                    <td class="px-6 py-4">{{ $employee->branch ? $employee->branch->name : 'No Branch Assigned' }}</td>
                     <td class="px-6 py-4">{{ implode(', ', $employee->working_days ?? []) }}</td>
                     <td class="px-6 py-4">
                         <span class="{{ $employee->status ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600' }} px-2 py-1 text-xs font-medium rounded-full">

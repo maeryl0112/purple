@@ -65,6 +65,21 @@
         @error('newSupplies.expiration_date') <span class="text-red-500">{{ $message }}</span>@enderror
     </div>
 
+    <div>
+    <label class="block text-sm font-medium text-gray-700"> Branch</label>
+
+    @if(auth()->user()->role_id == 1)
+        <select wire:model="newSupplies.branch_id" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" >
+            <option value="">Select Branch</option>
+            @foreach(\App\Models\Branch::all() as $branch)
+                <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+            @endforeach
+        </select>
+    @else
+        <input type="text" class="form-input w-full bg-gray-200" value="{{ auth()->user()->branch->name }}" readonly>
+    @endif
+</div>
+
     <div class="sm:col-span-2">
 
             <label for="quantity" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Choose quantity:</label>

@@ -19,7 +19,7 @@ use Illuminate\Http\Request;
 
 class AdminDashboardHomeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $todayDate = Carbon::today()->toDateString();
 
@@ -54,7 +54,7 @@ class AdminDashboardHomeController extends Controller
         $revenueData = DB::table('appointments')
         ->selectRaw('MONTH(date) as month, SUM(total) as total')
         ->whereYear('date', $currentYear)
-        ->where('status', 2) // Only completed appointments
+        ->where('status', 1) // Only completed appointments
         ->groupBy('month')
         ->orderBy('month')
         ->get();
@@ -81,7 +81,7 @@ class AdminDashboardHomeController extends Controller
 
             $paymentBreakdown = DB::table('appointments')
             ->select('payment', DB::raw('COUNT(*) as payment_count'))
-            ->where('status', 'completed') // Only include completed appointments
+            ->where('status', 1) // Only include completed appointments
             ->groupBy('payment') // Group by payment method (Cash, Online)
             ->get();
 
@@ -102,7 +102,7 @@ class AdminDashboardHomeController extends Controller
             ->select('categories.name as category_name', DB::raw('SUM(appointments.total) as total_revenue'))
             ->join('services', 'appointments.service_id', '=', 'services.id') // Join with services
             ->join('categories', 'services.category_id', '=', 'categories.id') // Join with categories
-            ->where('appointments.status', 2) // Filter only completed appointments
+            ->where('appointments.status', 1) // Filter only completed appointments
             ->groupBy('categories.name') // Group by category name
             ->orderByDesc('total_revenue') // Sort by total revenue
             ->get();
@@ -174,6 +174,46 @@ class AdminDashboardHomeController extends Controller
             ->get();
 
 
+            $selectedDate = $request->input('date', Carbon::today()->toDateString());
+            // Query data for the selected date
+            $reports = Appointment::selectRaw('
+                    date,
+                    SUM(total) as total_sales,
+                    COUNT(appointments.id) as appointment_count,
+                    GROUP_CONCAT(CONCAT(services.name, ":", services.price, ":", employees.first_name, ":", users.name)) as services_with_details
+                ')
+                ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
+                ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
+                ->leftJoin('users', 'appointments.user_id', '=', 'users.id') // Join users/customers table
+                ->where('appointments.status', 2) // Assuming 2 means completed
+                ->groupBy('date')
+                ->get();
+        
+            // Process services_with_details into structured data
+            $reports->transform(function ($report) {
+                $services = explode(',', $report->services_with_details);
+        
+                // Group services by name and calculate totals
+                $groupedServices = collect($services)->map(function ($service) {
+                    [$name, $price, $employee, $customer] = explode(':', $service);
+                    return [
+                        'name' => $name,
+                        'price' => (float) $price,
+                        'employee' => $employee,
+                        'customer' => $customer,
+                    ];
+                })->groupBy('name')->map(function ($group) {
+                    return [
+                        'total_price' => $group->sum('price'),
+                        'details' => $group,
+                    ];
+                });
+        
+                $report->grouped_services = $groupedServices; // Attach grouped data to the report
+                return $report;
+            });
+        
+            $grandTotal = $reports->sum('total_sales'); // Calculate grand total
 
         return view('dashboard.admin-employee', [
             'totalCustomers' => $totalCustomers,
@@ -198,6 +238,10 @@ class AdminDashboardHomeController extends Controller
              'todaysSchedule' => $todaysSchedule,
         'tomorrowsSchedule' => $tomorrowsSchedule,
         'upcomingSchedule' => $upcomingSchedule,
+        'grandTotal' => $grandTotal,
+        'reports' => $reports,
+        'selectedDate' => $selectedDate,
+        
             // Supplies nearing expiration
 
         ]);
@@ -214,7 +258,7 @@ class AdminDashboardHomeController extends Controller
             )
             ->join('services', 'appointments.service_id', '=', 'services.id')
             ->join('categories', 'services.category_id', '=', 'categories.id')
-            ->where('appointments.status', 2)
+            ->where('appointments.status', 1)
             ->groupBy('categories.name', 'services.name', 'services.price')
             ->orderBy('categories.name')
             ->orderByDesc('service_revenue')
@@ -258,5 +302,57 @@ class AdminDashboardHomeController extends Controller
         return $pdf->download('all_customers_with_services_report.pdf');
     }
 
+    public function dailyReport(Request $request)
+    {
+        // Get the date from the request, default to today
+        $selectedDate = $request->get('date', now()->format('Y-m-d'));
+    
+        // Query data for the selected date
+        $reports = Appointment::selectRaw('
+                date,
+                SUM(total) as total_sales,
+                COUNT(appointments.id) as appointment_count,
+                GROUP_CONCAT(CONCAT(services.name, ":", services.price, ":", employees.first_name, ":", users.name)) as services_with_details
+            ')
+            ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
+            ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
+            ->leftJoin('users', 'appointments.user_id', '=', 'users.id') // Join users/customers table
+            ->where('appointments.status', 1) // Assuming 2 means completed
+            ->whereDate('date', $selectedDate) // Filter by the selected date
+            ->groupBy('date')
+            ->get();
+    
+        // Process services_with_details into structured data
+        $reports->transform(function ($report) {
+            $services = explode(',', $report->services_with_details);
+    
+            // Group services by name and calculate totals
+            $groupedServices = collect($services)->map(function ($service) {
+                [$name, $price, $employee, $customer] = explode(':', $service);
+                return [
+                    'name' => $name,
+                    'price' => (float) $price,
+                    'employee' => $employee,
+                    'customer' => $customer,
+                ];
+            })->groupBy('name')->map(function ($group) {
+                return [
+                    'total_price' => $group->sum('price'),
+                    'details' => $group,
+                ];
+            });
+    
+            $report->grouped_services = $groupedServices; // Attach grouped data to the report
+            return $report;
+        });
+    
+        $grandTotal = $reports->sum('total_sales'); // Calculate grand total
+    
+        return view('dashboard.admin-employee', compact(
+            'reports',
+            'grandTotal',
+            'selectedDate'));
+    }
+    
 
 }

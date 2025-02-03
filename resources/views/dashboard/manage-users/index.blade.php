@@ -48,12 +48,15 @@
                                 <th class="px-6 py-3 text-left font-medium">Id</th>
                                 <th class="px-6 py-3 text-left font-medium">User</th>
                                 <th class="px-6 py-3 text-left font-medium">Status</th>
+                                <th class="px-6 py-3 text-left font-medium">Branch</th>
                                 <th class="px-6 py-3 text-left font-medium">Role</th>
                                 <th class="px-6 py-3 text-left font-medium">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @foreach ($users as $user)
+                            @if(auth()->user()->role_id != 2     || auth()->user()->branch_id == $user->branch_id)
+
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4">{{ $user->id }}</td>
                                     <td class="px-6 py-4 flex items-center gap-3">
@@ -78,6 +81,8 @@
                                             {{ $user->status ? 'Active' : 'Suspended' }}
                                         </span>
                                     </td>
+                                    <td class="px-6 py-4">{{ $user->branch ? $user->branch->name : 'No Branch Assigned' }}</td>
+
                                     <td class="px-6 py-4">{{ $user->role->name }}</td>
                                     <td class="px-6 py-4">
                                         <div class="flex gap-2">
@@ -99,6 +104,7 @@
                                         </div>
                                     </td>
                                 </tr>
+                                @endif
                             @endforeach
                         </tbody>
                     </table>

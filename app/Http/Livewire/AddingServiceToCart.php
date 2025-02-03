@@ -4,7 +4,7 @@ namespace App\Http\Livewire;
 
 use App\Models\Appointment;
 use App\Models\Employee;
-use App\Models\Service;
+use App\Models\Service; 
 use App\Models\TimeSlot;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;

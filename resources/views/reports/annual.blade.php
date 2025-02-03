@@ -4,82 +4,84 @@
             <h2 class="text-4xl font-bold text-salonPurple">Annual Sales Report</h2>
         </div>
 
-        <!-- Filters -->
+        <!-- Year Filter -->
         <div class="py-4 ml-5">
-            <form action="{{ route('annual.report') }}" method="GET" class="flex items-center space-x-4">
-                <div>
-                    <label for="year" class="block text-gray-700 font-semibold">Select Year:</label>
-                    <select id="year" name="year" class="border-gray-300 rounded-md shadow-sm" onchange="this.form.submit()">
-                        @foreach (range(date('Y'), date('Y') - 5) as $year)
-                            <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>
-                                {{ $year }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+            <form method="GET" action="{{ route('annual.report') }}">
+                <label for="year">Select Year:</label>
+                <select name="year" class="border-gray-300 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500">
+                    @foreach (range(date('Y'), date('Y') - 10) as $year) {{-- Show last 10 years --}}
+                        <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}</option>
+                    @endforeach
+                </select>
+
+                <label for="branch">Select Branch:</label>
+                <select name="branch_id" class="border-gray-300 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500">
+                    <option value="">All Branches</option>
+                    @foreach ($branches as $branch)
+                        <option value="{{ $branch->id }}" {{ $selectedBranch == $branch->id ? 'selected' : '' }}>
+                            {{ $branch->name }}
+                        </option>
+                    @endforeach
+                </select>
+
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2">Filter</button>
             </form>
         </div>
 
         <!-- Data Table -->
-        <div class="overflow-auto rounded-lg border border-gray-200 shadow-md m-5">
-            <table class="w-full border-collapse bg-white text-center text-sm text-gray-950">
+        <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md m-5">
+            <table class="w-full border-collapse bg-white text-lg text-gray-950 border border-gray-300">
                 <thead class="bg-gray-100">
                     <tr>
-                        <th class="px-4 py-2">Year</th>
-                        <th class="px-4 py-2">Total Sales</th>
-                        <th class="px-4 py-2">Appointment Count</th>
-                        <th class="px-4 py-2">Service Count</th>
-                        <th class="px-4 py-2">Services</th>
-                        <th class="px-4 py-2">Prices</th>
-                        <th class="px-4 py-2">Employees</th>
-                        <th class="px-4 py-2">Customers</th>
+                        <th class="px-4 py-2 border border-gray-300 text-left">Year</th>
+                        <th class="px-4 py-2 border border-gray-300 text-left">Service Name</th>
+                        <th class="px-4 py-2 border border-gray-300 text-right">Sales</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($reports as $report)
                         @php
-                            $services = explode(',', $report->services);
-                            $prices = explode(',', $report->prices);
-                            $employees = explode(',', $report->employees);
-                            $customers = explode(',', $report->customers);
-                            $maxRows = max(count($services), count($prices), count($employees), count($customers));
+                            $annualTotal = 0;
                         @endphp
+
                         <tr>
-                            <td rowspan="{{ $maxRows }}" class="align-top px-4 py-2">{{ $report->year }}</td>
-                            <td rowspan="{{ $maxRows }}" class="align-top px-4 py-2">
-                                ₱ {{ number_format($report->total_sales, 2) }}
+                            <td class="px-4 py-2 border border-gray-300 font-bold text-left align-top" rowspan="{{ $report->grouped_services->count() + 1 }}">
+                                {{ $report->year }}
                             </td>
-                            <td rowspan="{{ $maxRows }}" class="align-top px-4 py-2">{{ $report->appointment_count }}</td>
-                            <td rowspan="{{ $maxRows }}" class="align-top px-4 py-2">{{ $report->services_count }}</td>
-                            <td class="px-4 py-2">{{ $services[0] ?? 'N/A' }}</td>
-                            <td class="px-4 py-2">₱ {{ $prices[0] ?? 'N/A' }}</td>
-                            <td class="px-4 py-2">{{ $employees[0] ?? 'N/A' }}</td>
-                            <td class="px-4 py-2">{{ $customers[0] ?? 'N/A' }}</td>
                         </tr>
-                        @for ($i = 1; $i < $maxRows; $i++)
+
+                        @foreach ($report->grouped_services as $serviceName => $group)
+                            @php
+                                $annualTotal += $group['total_price'];
+                            @endphp
                             <tr>
-                                <td class="px-4 py-2">{{ $services[$i] ?? 'N/A' }}</td>
-                                <td class="px-4 py-2">₱ {{ $prices[$i] ?? 'N/A' }}</td>
-                                <td class="px-4 py-2">{{ $employees[$i] ?? 'N/A' }}</td>
-                                <td class="px-4 py-2">{{ $customers[$i] ?? 'N/A' }}</td>
+                                <td class="px-4 py-2 border border-gray-300">{{ $serviceName }}</td>
+                                <td class="px-4 py-2 border border-gray-300 text-right">₱{{ number_format($group['total_price'], 2) }}</td>
                             </tr>
-                        @endfor
+                        @endforeach
+
+                        <tr>
+                            <td class="px-4 py-2 border border-gray-300 font-bold text-right" colspan="2">Total Sales:</td>
+                            <td class="px-4 py-2 border border-gray-300 font-bold text-right">₱{{ number_format($annualTotal, 2) }}</td>
+                        </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-4 py-2">No data available for the selected year.</td>
+                            <td colspan="3" class="px-4 py-2 border border-gray-300 text-center">No sales data found for the selected year.</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+
+        <!-- Download Buttons -->
         <div class="flex flex-col items-start space-y-4 mx-5">
-            <a href="{{route('annual.report.pdf')}}" 
-            class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">
-            Download This Year's Sales Report
+            <a href="{{ route('annual.report.pdf') }}" 
+                class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                Download This Year's Sales Report
             </a>
-            <a href="{{route('all.annual.report.pdf')}}" 
-            class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">
-            Download All
+            <a href="{{ route('all.annual.report.pdf') }}" 
+                class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                Download All Annual Reports
             </a>
         </div>
     </div>

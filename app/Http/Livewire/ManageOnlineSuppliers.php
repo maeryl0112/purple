@@ -65,6 +65,9 @@ class ManageOnlineSuppliers extends Component
                 'contact' => $this->online_supplier->contact,
                 'address' => $this->online_supplier->address,
             ]);
+            
+            $this->newSupplies['branch_id'] = $this->userBranchId;
+
             $this->emit('supplierAdded'); // Emit add event
         }
 

@@ -64,47 +64,38 @@
            <p>Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite </br> purplelookhairsalonandspa@gmail.com </br> 09********</p>
         </div>
     </div>
-        <div class="report-info">
-            <p><strong>Prepared By:</strong> {{ $preparedBy }}</p>
-            <p><strong>Report Date & Time:</strong> {{ $currentDateTime }}</p>
-        </div>
 
-    <h2 class="report-title">Daily Sales Report for {{ \Carbon\Carbon::today()->format('F d, Y') }}</h2>
+    <div class="report-info">
+        <p><strong>Prepared By:</strong> {{ $preparedBy }}</p>
+        <p><strong>Report Date & Time:</strong> {{ $currentDateTime }}</p>
+        <p><strong>Report for Date:</strong> {{ \Carbon\Carbon::parse($selectedDate)->format('F d, Y') }}</p>
+        @if(isset($selectedBranch) && $selectedBranch)
+            <p><strong>Branch:</strong> {{ $selectedBranch }}</p>
+        @endif
+    </div>
 
-    <table>
+    <h2 class="report-title">Daily Sales Report</h2>
+
+    <table class="table-container">
         <thead>
             <tr>
-                <th>Date</th>
-                <th>Total Sales</th>
-                <th>Appointments</th>
-                <th>Service</th>
-                <th>Price</th>
-                <th>Employee</th>
-                <th>Customer</th>
+                <th>Service Name</th>
+                <th>Sales</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($reports as $report)
-                <tr>
-                    <td rowspan="{{ count($report->services_with_employees_and_customers) + 1 }}">
-                        {{ $report->date }}
-                    </td>
-                    <td rowspan="{{ count($report->services_with_employees_and_customers) + 1 }}">
-                        {{ number_format($report->total_sales, 2) }}
-                    </td>
-                    <td rowspan="{{ count($report->services_with_employees_and_customers) + 1 }}">
-                        {{ $report->appointment_count }}
-                    </td>
-                </tr>
-                @foreach ($report->services_with_employees_and_customers as $item)
+                @foreach ($report->grouped_services as $serviceName => $serviceData)
                     <tr>
-                        <td>{{ $item['service'] }}</td>
-                        <td>{{ number_format($item['price'], 2) }}</td>
-                        <td>{{ $item['employee'] }}</td>
-                        <td>{{ $item['customer'] }}</td>
+                        <td>{{ $serviceName }}</td>
+                        <td>{{ number_format($serviceData['total_price'], 2) }}</td>
                     </tr>
                 @endforeach
             @endforeach
+            <tr class="total-row">
+                <td><strong>Total Sales:</strong></td>
+                <td><strong>{{ number_format($grandTotal, 2) }}</strong></td>
+            </tr>
         </tbody>
     </table>
 </body>

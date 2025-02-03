@@ -14,9 +14,11 @@ class AppointmentConfirmationNotification extends Notification implements Should
 {
     use Queueable;
 
-    public function __construct(public Appointment $appointment)
-    {
+    public $appointment;
 
+    public function __construct(Appointment $appointment)
+    {
+        $this->appointment = $appointment;
     }
     /**
      * Get the notification's delivery channels.

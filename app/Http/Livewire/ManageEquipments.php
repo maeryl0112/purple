@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use App\Models\Category;
 use App\Models\Employee;
 use App\Models\Equipment;
+use App\Models\Branch;
 use App\Models\User;
 use App\Notifications\EquipmentNotification;
 use Carbon\Carbon;
@@ -32,8 +33,10 @@ class ManageEquipments extends Component
     public $image;
     public $categories;
     public $categoryFilter = null;
+    public $branchFilter = '';
     public $statusFilter = 'active';
     public $employees;
+    public $branches;
     public $paginate = 10;
 
     protected $listeners = [
@@ -78,6 +81,7 @@ class ManageEquipments extends Component
     public function mount()
     {
         $this->categories = Category::all();
+        $this->branches = Branch::all();
         $this->employees = Employee::all();
 
         $this->resetNewEquipment();
@@ -145,27 +149,38 @@ class ManageEquipments extends Component
             'newEquipment.purchased_date' => 'required|date',
             'image' => 'nullable|image|max:2048',
         ]);
-
+    
+        // Assign branch based on role
+        $user = auth()->user();
+        if ($user->role_id == 1) { // Admin
+            $this->validate([
+                'newEquipment.branch_id' => 'required|exists:branches,id',
+            ]);
+        } else { // Employee
+            $this->newEquipment['branch_id'] = $user->branch_id;
+        }
+    
         // Convert empty strings to NULL for nullable date fields
         $this->newEquipment['last_maintenance'] = $this->newEquipment['last_maintenance'] ?: null;
         $this->newEquipment['next_maintenance'] = $this->newEquipment['next_maintenance'] ?: null;
-
+    
         if ($this->image) {
             $path = $this->image->store('images', 'public');
             $this->newEquipment['image'] = $path;
         }
-
+    
         Equipment::updateOrCreate(
             ['id' => $this->selectedEquipmentId],
             $this->newEquipment
         );
-
+    
         session()->flash('message', $this->selectedEquipmentId ? 'Equipment updated successfully!' : 'Equipment added successfully!');
-
+    
         $this->closeModals();
-
+    
         $this->dispatchBrowserEvent('equipmentAddedOrUpdated');
     }
+    
 
 
 
@@ -181,15 +196,23 @@ class ManageEquipments extends Component
     }
 
     public function render()
-    {
-            $query = Equipment::with(['employee', 'category'])
+{
+    $user = auth()->user();
+
+    $query = Equipment::with(['employee', 'category'])
+        ->when($user->role_id != 1, function ($query) use ($user) { // Employees only see their branch
+            $query->where('branch_id', $user->branch_id);
+        })
         ->when($this->categoryFilter, function ($query) {
             $query->where('category_id', $this->categoryFilter);
+        })
+        ->when($this->branchFilter, function ($query) {
+            $query->where('branch_id', $this->branchFilter);
         })
         ->when($this->search, function ($query) {
             $query->where(function ($q) {
                 $q->where('name', 'like', '%' . $this->search . '%')
-                ->orWhere('brand_name', 'like', '%' . $this->search . '%');
+                  ->orWhere('brand_name', 'like', '%' . $this->search . '%');
             });
         })
         ->when($this->statusFilter == 'active', function ($query) {
@@ -201,26 +224,13 @@ class ManageEquipments extends Component
 
     $equipments = $query->paginate($this->paginate);
 
-    foreach ($equipments as $equipment) {
-        $maintenanceDate = Carbon::parse($equipment->next_maintenance);
-        $lowQuantity = $equipment->quantity < 10;
-    
-        if ($lowQuantity && !in_array($equipment->id, $this->notifiedEquipments)) {
-            $this->notifyAdminAndEmployees($equipment, 'low_quantity');
-            $this->notifiedEquipments[] = $equipment->id;
-        }
-    
-        if (($maintenanceDate->isToday() || $maintenanceDate->isTomorrow()) && !in_array($equipment->id . 'maintenance', $this->notifiedEquipments)) {
-            $this->notifyAdminAndEmployees($equipment, 'maintenance_due');
-            $this->notifiedEquipments[] = $equipment->id . 'maintenance';
-        }
-    }
+    return view('livewire.manage-equipments', [
+        'equipments' => $equipments,
+        'categories' => $this->categories,
+        'branches' => $this->branches,
+    ]);
+}
 
-        return view('livewire.manage-equipments', [
-            'equipments' => $equipments,
-            'categories' => $this->categories,
-        ]);
-    }
 
     protected function notifyAdminAndEmployees($equipment, $type)
     {

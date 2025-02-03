@@ -14,11 +14,17 @@ class OnlineSupplier extends Model
         'link',
         'contact',
         'address',
+        'branch_id',
     ];
 
     public function supply()
     {
         return $this->hasMany(Supply::class);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
     }
 
 }

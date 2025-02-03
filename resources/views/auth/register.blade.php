@@ -157,7 +157,7 @@
     </div>
     <div class="lg:h-[400px] md:h-[300px] max-md:mt-8">
         <img src="{{asset('images/banner2.png')}}" class="lg:w-[100%] w-full h-52 object-contain block mx-auto" alt="login-image" />
-        <h1 class="text-purple-950 italic text-3xl text-center">“Unleash your inner radiance at Purple Look, a full-service salon dedicated to making you feel and look your absolute best. We're a salon for everyone, where beauty knows no bounds.“</h1>
+        <h1 class="text-purple-950 italic text-3xl text-center">“Glam Up Your Day, the Purple Look Way.“</h1>
     </div>
 </div>
 </div>

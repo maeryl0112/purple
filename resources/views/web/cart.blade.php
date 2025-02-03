@@ -133,16 +133,17 @@
                                 Enter the last four digits of your Reference No.:
                             </label>
                             <input
-                                type="text"
-                                id="lastFourDigits"
-                                name="last_four_digits"
-                                x-model="lastFourDigits"
-                                maxlength="4"
-                                pattern="\d{4}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                placeholder="1234"
-                                :disabled="paymentMethod !== 'online'"
-                            />
+                            type="text"
+                          
+                            name="last_four_digits"
+                            x-model="lastFourDigits"
+                            maxlength="4"
+                            pattern="\d{4}"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            placeholder="Enter the last 4 digits"
+                            :disabled="paymentMethod !== 'online'"
+                        />
+
                         </div>
                         <p class="text-red-500 mt-2">*Make sure to come on time.</p>
                         <p class="text-red-500 mt-2">*Grace Period: 10 minutes</p>

@@ -1,83 +1,86 @@
 <x-dashboard>
-    <div class="p-4 sm:ml-64">
-        <div class="flex justify-between mx-5">
-            <h2 class="text-4xl font-bold text-salonPurple">Monthly Sales Report</h2>
-            <p><strong>Grand Total Sales:</strong> ₱{{ number_format($grandTotal, 2) }}</p>
+        <div class="p-4 sm:ml-64">
+            <div class="flex justify-between mx-5">
+                <h2 class="text-4xl font-bold text-salonPurple">Monthly Sales Report</h2>
+            </div>
+
+            <!-- Month Filter -->
+            <div class="py-4 ml-5">
+                <form method="GET" action="{{ route('monthly.report') }}">
+                    <label for="date">Select Month:</label>
+                    <input type="month" name="date" value="{{ $selectedMonth }}" class="border-gray-300 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500">
+
+                    <label for="branch">Select Branch:</label>
+                    <select name="branch_id" class="border-gray-300 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500">
+                        <option value="">All Branches</option>
+                        @foreach ($branches as $branch)
+                            <option value="{{ $branch->id }}" {{ $selectedBranch == $branch->id ? 'selected' : '' }}>
+                                {{ $branch->name }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2">Filter</button>
+                </form>
+            </div>
+
+            <!-- Data Table -->
+            <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md m-5">
+                <table class="w-full border-collapse bg-white text-lg text-gray-950 border border-gray-300">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-2 border border-gray-300 text-left">Month</th>
+                            <th class="px-4 py-2 border border-gray-300 text-left">Service Name</th>
+                            <th class="px-4 py-2 border border-gray-300 text-right">Sales</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+    @forelse ($reports as $report)
+        @php
+            $monthlyTotal = 0;
+        @endphp
+
+        <tr>
+        <td class="px-4 py-2 border border-gray-300 font-bold text-left align-top" rowspan="{{ $report->grouped_services->count() + 1 }}">
+                {{ \Carbon\Carbon::create()->month($report->month)->format('F') }}
+            </td>
+        </tr>
+
+        @foreach ($report->grouped_services as $serviceName => $group)
+            @php
+                $monthlyTotal += $group['total_price'];
+            @endphp
+            <tr>
+                <td class="px-4 py-2 border border-gray-300">{{ $serviceName }}</td>
+                <td class="px-4 py-2 border border-gray-300 text-right">₱{{ number_format($group['total_price'], 2) }}</td>
+            </tr>
+        @endforeach
+
+        <tr>
+            <td class="px-4 py-2 border border-gray-300 font-bold text-right" colspan="2">Total Sales:</td>
+            <td class="px-4 py-2 border border-gray-300 font-bold text-right">₱{{ number_format($monthlyTotal, 2) }}</td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="3" class="px-4 py-2 border border-gray-300 text-center">No sales data found for the selected month.</td>
+        </tr>
+    @endforelse
+</tbody>
+
+                </table>
+            </div>
+
+            <!-- Download Buttons -->
+            <div class="flex flex-col items-start space-y-4 mx-5">
+                <a href="{{ route('monthly.report.pdf') }}" 
+                    class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                    Download This Month's Sales Report
+                </a>
+                <a href="{{ route('all.monthly.report.pdf') }}" 
+                    class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                    Download All Monthly Reports
+                </a>
+            </div>
         </div>
 
-        <!-- Month Filter -->
-        <div class="py-4 ml-5">
-            <form action="{{ route('monthly.report') }}" method="GET" id="month-filter-form">
-                <label for="month" class="mr-2">Select Month:</label>
-                <input
-                    type="month"
-                    id="month"
-                    name="month"
-                    value="{{ $selectedMonth }}"
-                    class="border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
-                    onchange="document.getElementById('month-filter-form').submit();"
-                >
-            </form>
-        </div>
-
-        <!-- Data Table -->
-        <div class="overflow-auto rounded-lg border border-gray-200 shadow-md m-5">
-            <table class="w-full border-collapse bg-white text-center text-lg text-gray-950 overflow-x-scroll min-w-screen">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th>Month</th>
-                        <th>Total Sales</th>
-                        <th>Appointment Count</th>
-                        <th>Services</th>
-                        <th>Prices</th>
-                        <th>Employees</th>
-                        <th>Customers</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($reports as $report)
-                        <tr>
-                            <td>{{ $report->month_name }} {{ $report->year }}</td>
-                            <td>₱{{ number_format($report->total_sales, 2) }}</td>
-                            <td>{{ $report->appointment_count }}</td>
-                            <td>
-                                @foreach (explode(',', $report->services) as $service)
-                                    <p>{{ $service }}</p>
-                                @endforeach
-                            </td>
-                            <td>
-                                @foreach (explode(',', $report->prices) as $price)
-                                    <p>₱{{ number_format($price, 2) }}</p>
-                                @endforeach
-                            </td>
-                            <td>
-                                @foreach (explode(',', $report->employees) as $employee)
-                                    <p>{{ $employee }}</p>
-                                @endforeach
-                            </td>
-                            <td>
-                                @foreach (explode(',', $report->customers) as $customer)
-                                    <p>{{ $customer }}</p>
-                                @endforeach
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7">No sales data found for the selected month.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <div class="flex flex-col items-start space-y-4 mx-5">
-            <a href="{{route('monthly.report.pdf')}}" 
-            class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">
-            Download This Month Sales Report
-            </a>
-            <a href="{{route('all.monthly.report.pdf')}}" 
-            class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">
-            Download All
-            </a>
-        </div>
-    </div>
 </x-dashboard>

@@ -35,10 +35,10 @@ data-aos="fade-up"
         Purple Look's full-service Salon is prepared in every way to make you look amazingly beautiful.
          </p>
 
-    <div class="mt-8 flex flex-wrap gap-4 text-center">
+  <!--  <div class="mt-8 flex flex-wrap gap-4 text-center">
       <a href="{{route('services')}}" class="block w-full rounded bg-salonPurple px-12 py-3 text-lg font-medium text-white shadow hover:bg-secondary focus:outline-none focus:ring active:bg-purple-500 sm:w-auto">Book Now      </a>
 
-      <a href="{{route('services')}}" class="block w-full rounded bg-white px-12 py-3 text-lg font-medium text-salonPurple shadow hover:text-secondary focus:outline-none focus:ring-offset-purple-400 active:text-purple-500 sm:w-auto">Browse Services</a>
+   <a href="{{route('services')}}" class="block w-full rounded bg-white px-12 py-3 text-lg font-medium text-salonPurple shadow hover:text-secondary focus:outline-none focus:ring-offset-purple-400 active:text-purple-500 sm:w-auto">Browse Services</a>  -->
 
 
     </div>
@@ -63,7 +63,7 @@ data-aos="fade-up"
         @if ($category->image)
             <img class="relative w-52" src="{{ asset('storage/'.$category->image) }}" alt="{{ $category->name }}">
             @else
-            <img class="relative w-52"  src="{{ asset('images\nails.jpg') }}" alt="Category Image">
+            <img class="relative w-52"  src="{{ asset('images\category.png') }}" alt="Category Image">
             @endif
         </div>
         <div class="relative text-darkPurple px-4 pb-4 mt-4">
@@ -235,18 +235,47 @@ data-aos="fade-up"
                 <div data-aos="fade-left">
                     <div  class="max-w-full mx-auto rounded-lg overflow-hidden">
                         <div class="px-6 py-4">
-                            <h3 class="text-lg font-medium text-darkPurple">Our Address</h3>
+                            <h3 class="text-lg font-medium flex text-darkPurple">
+                            <svg class="w-8 h-8 test-darkPurple dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.8 13.938h-.011a7 7 0 1 0-11.464.144h-.016l.14.171c.1.127.2.251.3.371L12 21l5.13-6.248c.194-.209.374-.429.54-.659l.13-.155Z"/>
+                            </svg>
+                            Our Address
+                            </h3>
                             <p class="mt-1 text-gray-600">Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite</p>
                         </div>
                         <div class="border-t border-darkPurple px-6 py-4">
-                            <h3 class="text-lg font-medium text-darkPurple">Hours</h3>
+                            <h3 class="text-lg font-medium flex text-darkPurple">
+                            <svg class="w-8 h-8 text-darkPurple dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                            </svg>
+
+                                Hours
+                            </h3>
                             <p class="mt-1 text-gray-600">Monday - Sunday: 8am - 8pm</p>
-                            <p class="mt-1 text-gray-600">Holidays: Closed</p>
                         </div>
                         <div class="border-t border-darkPurple px-6 py-4">
-                            <h3 class="text-lg font-medium text-darkPurple">Contact</h3>
-                            <p class="mt-1 text-gray-600">Email: 00purplelookhairsalonandspa00@gmail.com</p>
-                            <p class="mt-1 text-gray-600">Phone: +63 968 3228 344</p>
+                            <h3 class="text-lg font-medium flex text-darkPurple">
+                            <svg class="w-8 h-8 text-darkPurple dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                            <path fill-rule="evenodd" d="M13.135 6H15V3h-1.865a4.147 4.147 0 0 0-4.142 4.142V9H7v3h2v9.938h3V12h2.021l.592-3H12V6.591A.6.6 0 0 1 12.592 6h.543Z" clip-rule="evenodd"/>
+                            </svg>
+                            Facebook
+                            </h3>
+                            <p class="mt-1 text-gray-600">Anne Ogaitnas</p>
+                        </div>
+                        <div class="border-t border-darkPurple px-6 py-4">
+                            <h3 class="text-lg flex font-medium text-darkPurple">
+                            <svg class="w-8 h-8 text-darkPurple dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.427 14.768 17.2 13.542a1.733 1.733 0 0 0-2.45 0l-.613.613a1.732 1.732 0 0 1-2.45 0l-1.838-1.84a1.735 1.735 0 0 1 0-2.452l.612-.613a1.735 1.735 0 0 0 0-2.452L9.237 5.572a1.6 1.6 0 0 0-2.45 0c-3.223 3.2-1.702 6.896 1.519 10.117 3.22 3.221 6.914 4.745 10.12 1.535a1.601 1.601 0 0 0 0-2.456Z"/>
+                            </svg>
+                            Contact
+                            </h3>
+                            <p class="mt-1 text-gray-600">Phone: 0916-504-8592 (Globe)</p>
+                            <p class="mt-1 text-gray-600">Phone: 0968-322-8344 (Smart)</p>
+                            <br>
+                            <p class="mt-1 text-gray-600">Telephone: (046) 471-3897 (Main Branch)</p>
+                            <p class="mt-1 text-gray-600">Telephone: (046) 450-1531 (Molino Branch)</p>
+                            
                         </div>
                     </div>
                 </div>
@@ -359,7 +388,7 @@ data-aos="fade-up"
         <span class="text-sm text-white sm:text-center dark:text-gray-400">© 2024 <a href="{{route('home')}}" class="hover:underline">Purple Look Hair Salon and Spa</a>. All Rights Reserved.
         </span>
         <div class="flex mt-4 space-x-6 sm:justify-center sm:mt-0">
-            <a href="https://www.facebook.com/profile.php?id=61569971274984" class="text-white hover:text-gray-900 dark:hover:text-white">
+            <a href="https://www.facebook.com/ariane.santiago.50552" class="text-white hover:text-gray-900 dark:hover:text-white">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" /></svg>
             </a>
             <a href="#" class="text-white hover:text-gray-900 dark:hover:text-white">

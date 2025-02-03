@@ -24,6 +24,7 @@ class Service extends Model
         'is_hidden',
         'employee_id',
         'job_category_id',
+        'branch_id',
         'status',
     ];
 
@@ -75,6 +76,8 @@ class Service extends Model
     {
         return $this->belongsTo(JobCategory::class);
     }
+
+   
 
 
     protected static function booted()

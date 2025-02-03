@@ -21,6 +21,7 @@ class Supply extends Model
         'status',
         'expiration_date',
         'online_supplier_id',
+        'branch_id',
     ];
 
     protected $casts = [
@@ -35,5 +36,10 @@ class Supply extends Model
     public function online_supplier()
     {
         return $this->belongsTo(OnlineSupplier::class);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
     }
 }

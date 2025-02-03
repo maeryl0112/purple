@@ -43,6 +43,15 @@
                 <option value="active">Active</option>
                 <option value="archived">Archived</option>
             </select>
+
+            @if(Auth::user()->role_id == 1 )
+            <select id="branchFilter" wire:model="branchFilter" class="border text-gray-900 px-5 pt-2.5 me-2 border-gray-300 focus:ring-purple-500 focus:border-purple-500   rounded-lg">
+                <option value="">All Branch</option>
+                @foreach ($branches as $branch)
+                <option value="{{$branch->id}}">{{$branch->name}}</option>
+                @endforeach
+              </select>
+              @endif
             </div>
 
             </div>
@@ -54,13 +63,13 @@
               <th scope="col" class="pl-6 py-4 font-large text-gray-900">Id</th>
               <th scope="col" class="px-6 py-4 font-large text-gray-900">Image</th>
               <th scope="col" class="px-4 py-4 font-large text-gray-900">Name</th>
-              <th scope="col" class="px-4 py-4 font-large text-gray-900">Description</th>
               <th scope="col" class="px-6 py-4 font-large text-gray-900">Color Code</th>
               <th scope="col" class="px-6 py-4 font-large text-gray-900">Color Shade</th>
               <th scope="col" class="px-6 py-4 font-large text-gray-900">Category</th>
               <th scope="col" class="px-6 py-4 font-large text-gray-900">Quantity</th>
               <th scope="col" class="px-6 py-4 font-large text-gray-900">Size</th>
               <th scope="col" class="px-6 py-4 font-large text-gray-900">Expiration Date</th>
+              <th scope="col" class="px-6 py-4 font-large text-gray-900">Branch</th>
               <th scope="col" class="px-6 py-4 font-large text-gray-900">Status</th>
               <th scope="col" class="px-6 py-4 font-large text-gray-900">Actions</th>
             </tr>
@@ -82,9 +91,7 @@
                     <div class="font-medium text-gray-900">{{ $supply->name}}</div>
                 </td>
 
-                <td class="px-6 py-4  max-w-0">
-                    <div class="font-medium text-gray-900">{{ $supply->description}}</div>
-                </td>
+             
 
                 <td class="px-6 py-4  max-w-0">
                     <div class="font-medium text-gray-900">{{ $supply->color_code}}</div>
@@ -112,8 +119,18 @@
                     <div class="font-medium text-gray-700">{{ $supply->size}}</div>
                 </td>
 
-                <td class="px-6 py-4 {{ \Carbon\Carbon::parse($supply->expiration_date)->diffInDays(now()) <= 7 ? 'text-red-600' : 'text-gray-700' }}">
+                <td class="px-6 py-4 
+                    @if(\Carbon\Carbon::parse($supply->expiration_date)->isPast()) 
+                        text-red-500 font-bold 
+                    @elseif(\Carbon\Carbon::parse($supply->expiration_date)->diffInDays(now()) <= 7) 
+                        text-red-600 
+                    @else 
+                        text-gray-700 
+                    @endif">
                     {{ $supply->expiration_date }}
+                </td>
+                <td class="px-6 py-4 max-w-0">
+                    <div class="'font-medium text-gray-900" >{{ $supply->branch ? $supply->branch->name : 'No Branch Assigned' }}</div>
                 </td>
 
                 <td class="px-6 py-4">

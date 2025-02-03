@@ -15,6 +15,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\SalesReportController;
 use App\Models\Payment;
 use App\Services\TwilioService;
+use Illuminate\Support\Facades\DB;
+
 
 
 
@@ -47,6 +49,7 @@ Route::middleware([
 
 Route::prefix('dashboard')->group(function () {
     Route::get('/', [App\Http\Controllers\DashboardHomeController::class, 'index'])->name('dashboard');
+
 });
 
 
@@ -87,7 +90,8 @@ Route::get('/services/{slug}', [App\Http\Controllers\DisplayService::class, 'sho
 
         // middlleware to give access only for admin and employee
         Route::middleware([
-            'validateRole:Admin,Employee'
+            'validateRole:Admin,Employee', 
+            'branch.access' // Apply branch restriction middleware
         ])->group(function () {
 
             Route::post('/notifications/mark-as-read/{id}', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
@@ -189,6 +193,10 @@ Route::get('/services/{slug}', [App\Http\Controllers\DisplayService::class, 'sho
                 Route::get('payments', function(){
                     return view('dashboard.manage-payments.index');
                 })->name('managepayments');
+
+                Route::get('branches', function(){
+                    return view('dashboard.manage-branches.index');
+                })->name('managebranches');
             });
 
         });

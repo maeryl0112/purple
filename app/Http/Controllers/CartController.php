@@ -125,9 +125,7 @@ class CartController extends Controller
         // Dispatch confirmation emails
         $appointments = Appointment::where('cart_id', $cart->id)->get();
         $customer = auth()->user();
-        foreach ($appointments as $appointment) {
-            SendAppointmentConfirmationMailJob::dispatch($customer, $appointment);
-        }
+       
     
         // Notify admins
         $admins = User::whereHas('role', function ($query) {

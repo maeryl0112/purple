@@ -4,95 +4,85 @@
             <h2 class="text-4xl font-bold text-salonPurple">Quarterly Sales Report</h2>
         </div>
 
-        <!-- Filters -->
+        <!-- Quarter Filter -->
         <div class="py-4 ml-5">
-            <form action="{{ route('quarterly.report') }}" method="GET" class="flex items-center space-x-4">
-                <div>
-                    <label for="year" class="block text-gray-700 font-medium">Select Year:</label>
-                    <select id="year" name="year" class="border-gray-300 rounded-md shadow-sm" onchange="this.form.submit()">
-                        @foreach (range(date('Y'), date('Y') - 5) as $year)
-                            <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label for="quarter" class="block text-gray-700 font-medium">Select Quarter:</label>
-                    <select id="quarter" name="quarter" class="border-gray-300 rounded-md shadow-sm" onchange="this.form.submit()">
-                        @foreach ([1, 2, 3, 4] as $quarter)
-                            <option value="{{ $quarter }}" {{ $selectedQuarter == $quarter ? 'selected' : '' }}>Q{{ $quarter }}</option>
-                        @endforeach
-                    </select>
-                </div>
+            <form method="GET" action="{{ route('quarterly.report') }}">
+                <label for="quarter">Select Quarter:</label>
+                <select name="quarter" class="border-gray-300 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500">
+                    <option value="Q1" {{ $selectedQuarter == 'Q1' ? 'selected' : '' }}>Q1 (Jan-Mar)</option>
+                    <option value="Q2" {{ $selectedQuarter == 'Q2' ? 'selected' : '' }}>Q2 (Apr-Jun)</option>
+                    <option value="Q3" {{ $selectedQuarter == 'Q3' ? 'selected' : '' }}>Q3 (Jul-Sep)</option>
+                    <option value="Q4" {{ $selectedQuarter == 'Q4' ? 'selected' : '' }}>Q4 (Oct-Dec)</option>
+                </select>
+
+                <label for="branch">Select Branch:</label>
+                <select name="branch_id" class="border-gray-300 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500">
+                    <option value="">All Branches</option>
+                    @foreach ($branches as $branch)
+                        <option value="{{ $branch->id }}" {{ $selectedBranch == $branch->id ? 'selected' : '' }}>
+                            {{ $branch->name }}
+                        </option>
+                    @endforeach
+                </select>
+
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2">Filter</button>
             </form>
         </div>
 
         <!-- Data Table -->
-        <div class="overflow-auto rounded-lg border border-gray-200 shadow-md m-5">
-            <table class="w-full border-collapse bg-white text-center text-sm text-gray-950">
+        <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md m-5">
+            <table class="w-full border-collapse bg-white text-lg text-gray-950 border border-gray-300">
                 <thead class="bg-gray-100">
                     <tr>
-                        <th class="px-4 py-2">Quarter</th>
-                        <th class="px-4 py-2">Total Sales</th>
-                        <th class="px-4 py-2">Appointment Count</th>
-                        <th class="px-4 py-2">Service Count</th>
-                        <th class="px-4 py-2">Services</th>
-                        <th class="px-4 py-2">Prices</th>
-                        <th class="px-4 py-2">Employees</th>
-                        <th class="px-4 py-2">Customers</th>
+                        <th class="px-4 py-2 border border-gray-300 text-left">Quarter</th>
+                        <th class="px-4 py-2 border border-gray-300 text-left">Service Name</th>
+                        <th class="px-4 py-2 border border-gray-300 text-right">Sales</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 bg-white">
+                <tbody>
                     @forelse ($reports as $report)
-                        <tr class="even:bg-gray-100">
-                            <td rowspan="{{ $report->maxRows }}" class="align-top px-4 py-2">
-                                {{ $report->quarter_label }}
+                        @php
+                            $quarterlyTotal = 0;
+                        @endphp
+
+                        <tr>
+                            <td class="px-4 py-2 border border-gray-300 font-bold text-left align-top" rowspan="{{ $report->grouped_services->count() + 1 }}">
+                                {{ $report->quarter }}
                             </td>
-                            <td rowspan="{{ $report->maxRows }}" class="align-top px-4 py-2 {{ $report->total_sales > 100000 ? 'text-green-500 font-bold' : '' }}">
-                                ₱ {{ number_format($report->total_sales, 2) }}
-                            </td>
-                            <td rowspan="{{ $report->maxRows }}" class="align-top px-4 py-2">
-                                {{ $report->appointment_count }}
-                            </td>
-                            <td rowspan="{{ $report->maxRows }}" class="align-top px-4 py-2">
-                                {{ $report->service_count }}
-                            </td>
-                            @php
-                                $services = explode(',', $report->services);
-                                $prices = explode(',', $report->prices);
-                                $employees = explode(',', $report->employees);
-                                $customers = explode(',', $report->customers);
-                            @endphp
-                            <td class="px-4 py-2">{{ $services[0] ?? 'N/A' }}</td>
-                            <td class="px-4 py-2">₱ {{ $prices[0] ?? 'N/A' }}</td>
-                            <td class="px-4 py-2">{{ $employees[0] ?? 'N/A' }}</td>
-                            <td class="px-4 py-2">{{ $customers[0] ?? 'N/A' }}</td>
                         </tr>
-                        @for ($i = 1; $i < $report->maxRows; $i++)
-                            <tr class="even:bg-gray-100">
-                                <td class="px-4 py-2">{{ $services[$i] ?? 'N/A' }}</td>
-                                <td class="px-4 py-2">₱ {{ $prices[$i] ?? 'N/A' }}</td>
-                                <td class="px-4 py-2">{{ $employees[$i] ?? 'N/A' }}</td>
-                                <td class="px-4 py-2">{{ $customers[$i] ?? 'N/A' }}</td>
+
+                        @foreach ($report->grouped_services as $serviceName => $group)
+                            @php
+                                $quarterlyTotal += $group['total_price'];
+                            @endphp
+                            <tr>
+                                <td class="px-4 py-2 border border-gray-300">{{ $serviceName }}</td>
+                                <td class="px-4 py-2 border border-gray-300 text-right">₱{{ number_format($group['total_price'], 2) }}</td>
                             </tr>
-                        @endfor
+                        @endforeach
+
+                        <tr>
+                            <td class="px-4 py-2 border border-gray-300 font-bold text-right" colspan="2">Total Sales:</td>
+                            <td class="px-4 py-2 border border-gray-300 font-bold text-right">₱{{ number_format($quarterlyTotal, 2) }}</td>
+                        </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-4 py-2 text-center">
-                                No data found for the year {{ $selectedYear }} and Q{{ $selectedQuarter }}.
-                            </td>
+                            <td colspan="3" class="px-4 py-2 border border-gray-300 text-center">No sales data found for the selected quarter.</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+
+        <!-- Download Buttons -->
         <div class="flex flex-col items-start space-y-4 mx-5">
-            <a href="{{route('quarterly.report.pdf')}}" 
-            class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">
-            Download This Quarter's Sales Report
+            <a href="{{ route('quarterly.report.pdf') }}" 
+                class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                Download This Quarter's Sales Report
             </a>
-            <a href="{{route('all.quarterly.report.pdf')}}" 
-            class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">
-            Download All
+            <a href="{{ route('all.quarterly.report.pdf') }}" 
+                class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                Download All Quarterly Reports
             </a>
         </div>
     </div>

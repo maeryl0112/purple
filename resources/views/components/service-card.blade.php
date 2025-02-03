@@ -5,11 +5,16 @@
 
 
 <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 transition-transform duration-300 hover:scale-105 hover:shadow-lg">
-    <div class="h-56 w-full">
-              <a href="{{route('view-service', ['slug' => $service->slug])}}">
-        <img class="mx-auto h-full dark:hidden" src="{{ asset('storage/'. $service->image)}}" alt="" />
-      </a>
-    </div>
+<div class="h-56 w-full">
+    <a href="{{ route('view-service', ['slug' => $service->slug]) }}">
+        @if ($service->image)
+            <img class="mx-auto h-full dark:hidden" src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name }}">
+        @else
+            <img class="mx-auto h-full dark:hidden" src="{{ asset('images\service.png') }}" alt="Default Service Image">
+        @endif
+    </a>
+</div>
+
     <div class="pt-6">
 
 

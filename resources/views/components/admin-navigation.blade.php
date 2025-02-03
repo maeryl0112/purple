@@ -68,14 +68,14 @@
                             <div class="py-2">
                                 <p class="text-gray-700 px-4 py-2 font-semibold">Appointment Notifications</p>
                                 <hr class="my-2">
-                                @forelse(auth()->user()->unreadNotifications as $notification)
-                            <a href="{{ route('notifications.redirectToAppointment', $notification->id) }}"
-                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ $notification->read_at ? '' : 'bg-blue-100' }}">
-                                {{ $notification->data['message'] }}
-                            </a>
-                        @empty
-                            <p class="block px-4 py-2 text-sm text-gray-700">No New Appointment Notifications</p>
-                        @endforelse
+                                @forelse(auth()->user()->unreadNotifications->where('type', 'App\Notifications\AppointmentNotification') as $notification)
+                                    <a href="{{ route('notifications.redirectToAppointment', $notification->id) }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ $notification->read_at ? '' : 'bg-blue-100' }}">
+                                        {{ $notification->data['message'] }}
+                                    </a>
+                                @empty
+                                    <p class="block px-4 py-2 text-sm text-gray-700">No New Appointment Notifications</p>
+                                @endforelse
                             </div>
                         </div>
                     </div>

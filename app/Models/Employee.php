@@ -17,6 +17,7 @@ class Employee extends Model
         'address',
         'date_started',
         'job_category_id',
+        'branch_id',
         'status',
         'is_hidden',
         'working_days',
@@ -54,6 +55,10 @@ class Employee extends Model
         return $this->belongsToMany(Service::class);
     }
 
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
 
 
 }

@@ -50,7 +50,7 @@
             </label>
         @endfor
     </div>
-</div>
+</div>  
 
  
       <!-- Employee Selection -->
@@ -74,10 +74,11 @@
                                    class="sr-only"
                                    x-on:change="selectedEmployee = {{ $employee->id }}"
                                    aria-labelledby="employee-choice-{{ $employee->id }}-label">
-                            <span id="employee-choice-{{ $employee->id }}-label">
+                            <span class="text-center" id="employee-choice-{{ $employee->id }}-label">
                                 {{ $employee->first_name }}
                                 <br>
                                 <span>{{ $employee->jobCategory?->name }}</span>
+                                <span>{{ $employee->branch?->name }}</span>
                             </span>
                         </label>
                     @else

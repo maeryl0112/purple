@@ -6,9 +6,12 @@ use App\Enums\UserRolesEnum;
 use App\Models\Appointment;
 use App\Models\Service;
 use App\Models\Employee;
+use App\Models\Branch;
 use App\Models\User;
 use Carbon\Carbon;
 use Livewire\Component;
+use App\Jobs\SendAppointmentConfirmationMailJob;
+use App\Notifications\AppointmentConfirmationNotification;
 
 class ManageAppointments extends Component
 {
@@ -38,6 +41,7 @@ class ManageAppointments extends Component
     private $userId;
     public  $employeeId;
     public $serviceId;
+    public $branchId;
 
     public $showRescheduleModal = false;
     public $newDate;
@@ -148,13 +152,13 @@ public function rescheduleAppointment()
     }
 }
 
-    public function openPaymentModal($id)
-    {
-        $this->showPaymentModal = true;
-        $this->appointmentId = $id;
-        $this->paymentType = null;
-        $this->errorMessage = null;
-    }
+public function openPaymentModal($id)
+{
+    $this->showPaymentModal = true;
+    $this->appointmentId = $id; // This ensures the ID is set
+    $this->paymentType = null;
+    $this->errorMessage = null;
+}
     public function closePaymentModal()
     {
         $this->reset(['showPaymentModal', 'paymentType', 'appointmentId', 'errorMessage']);
@@ -175,8 +179,16 @@ public function rescheduleAppointment()
     }
 
     public function render()
-    {
-        $query = Appointment::with( 'user', 'service', 'employee');
+{
+    $query = Appointment::with('user', 'service', 'employee');
+
+    // Restrict employees to only their assigned branch
+    if (auth()->user()->role_id === 2) {
+        $query->whereHas('employee', function ($employeeQuery) {
+            $employeeQuery->where('branch_id', auth()->user()->branch_id);
+        });
+    }
+    
         if ($this->search) {
             $query->where(function ($subQuery) {
                 $subQuery
@@ -204,6 +216,7 @@ public function rescheduleAppointment()
         if ($this->filterDate) {
             $query->whereDate('date', '=', $this->filterDate);
         }
+        
         if ($this->paymentFilter) {
             $query->where('payment', $this->paymentFilter); // Filter by payment type
         }
@@ -223,33 +236,29 @@ public function rescheduleAppointment()
         if ($this->serviceId) { // Add service filter
             $query->where('service_id', $this->serviceId);
         }
-        
-
-//        dd($this->selectFilter);
-        if ($this->selectFilter === 'previous') {
-            $query->whereDate('date', '<', Carbon::today())->where('status', 1);
-
-        } else if ($this->selectFilter === 'upcoming') {
-            $query->whereDate('date', '>=', Carbon::today())->where('status', 1);
-
-        } else if ($this->selectFilter === 'cancelled') {
-            $query->where('status', 0);
-        } else if ($this->selectFilter === 'completed') {
-            $query->where('status',2);
+        if ($this->branchId) { // Add service filter
+            $query->where('branch_id', $this->branchId);
         }
 
-
-
-        // Get the appointments
-        $this->appointments = $query->orderBy('created_at')->paginate(20);
-//        dd($this->appointments);
-
-        return view('livewire.manage-appointments', [
-            'appointments' => $this->appointments,
-            'employees' => Employee::all(),
-            'services' => Service::all(),
-        ]);
+    if ($this->selectFilter === 'previous') {
+        $query->whereDate('date', '<', Carbon::today())->where('status', 1);
+    } else if ($this->selectFilter === 'upcoming') {
+        $query->whereDate('date', '>=', Carbon::today())->where('status', 1);
+    } else if ($this->selectFilter === 'cancelled') {
+        $query->where('status', 0);
+    } else if ($this->selectFilter === 'completed') {
+        $query->where('status', 2);
     }
+
+    $this->appointments = $query->orderBy('created_at')->paginate(20);
+
+    return view('livewire.manage-appointments', [
+        'appointments' => $this->appointments,
+        'employees' => Employee::where('branch_id', auth()->user()->branch_id)->get(),
+        'services' => Service::all(),
+        'branches' => Branch::all(),
+    ]);
+}
 
     public function markAsRead($notificationId)
     {
@@ -260,22 +269,29 @@ public function rescheduleAppointment()
         }
     }
 
-    public function completeAppointment()
-    {
+    public function completeAppointment($appointmentId)
+{
+     $appointment = Appointment::find($this->appointmentId);
 
-        $appointment = Appointment::find($this->appointmentId);
+    if ($appointment) {
+        $appointment->status = 1;
+        $appointment->save();
 
-        if ($appointment) {
-            $appointment->status = 2;
-            $appointment->save();
+        // Get the specific customer
+        $customer = User::find($appointment->user_id);
 
-            $this->reset(['showPaymentModal', 'appointmentId', 'errorMessage']);
-
-            $this->emit('appointmentCompleted');
-        } else {
-            $this->emit('appointmentError');
+        if ($customer) {
+            // Send the notification
+            $customer->notify(new AppointmentConfirmationNotification($appointment));
         }
+
+        $this->reset(['showPaymentModal', 'appointmentId', 'errorMessage']);
+        $this->emit('appointmentCompleted');
+    } else {
+        $this->emit('appointmentError');
     }
+}
+
 
 
 }

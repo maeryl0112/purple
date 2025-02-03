@@ -3,6 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Models\Employee;
+use App\Models\Branch;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -25,7 +26,7 @@ class ManageEmployees extends Component
     public $allDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     public $newEmployee = [];
     public $image;
-
+    public $branchFilter = '';
     public $birthday;
     public $age;
 
@@ -97,6 +98,7 @@ class ManageEmployees extends Component
             'age' => null,
             'phone_number' => '',
             'job_category_id' => '',
+            'branch_id' => '',
             'birthday' => null,
             'date_started' => '',
             'address' => '',
@@ -121,6 +123,7 @@ class ManageEmployees extends Component
         'newEmployee.email' => 'required|email|unique:employees,email,' . $this->selectedEmployeeId,
         'newEmployee.phone_number' => 'required|string|max:15',
         'newEmployee.job_category_id' => 'nullable|exists:job_categories,id',
+        'newEmployee.branch_id' => 'nullable|exists:branches,id',
         'newEmployee.birthday' => 'required|date',
         'newEmployee.date_started' => 'required|date',
         'newEmployee.address' => 'nullable|string',
@@ -163,6 +166,7 @@ class ManageEmployees extends Component
     public function render()
     {
         $job_categories = \App\Models\JobCategory::all();
+        $branches = \App\Models\Branch::all();
 
         $employees = Employee::when($this->statusFilter == 'active', function($query) {
                         return $query->where('status', 1);
@@ -172,6 +176,9 @@ class ManageEmployees extends Component
                     })
                     ->when($this->jobCategoryFilter, function ($query) {
                         $query->where('job_category_id', $this->jobCategoryFilter); // Filter by category
+                    })
+                    ->when($this->branchFilter, function ($query) {
+                        $query->where('branch_id', $this->branchFilter); // Filter by category
                     })
                     ->when($this->search, function ($query) {
                         $query->where(function ($query) {
@@ -187,6 +194,7 @@ class ManageEmployees extends Component
         return view('livewire.manage-employees', [
             'employees' => $employees,
             'job_categories' => $job_categories,
+            'branches' => $branches,
         ]);
     }
 }

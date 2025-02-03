@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Enums\UserRolesEnum;
 use App\Models\Appointment;
+use App\Models\Branch;
+
 use Illuminate\Http\Request;
 use App\Models\User;
 use Exception;
@@ -19,13 +21,19 @@ class UserController extends Controller
 {
     $request->validate([
         'search' => 'nullable|string|max:255',
-        'role' => 'nullable|string|in:employee,customer,admin', // Validate role filter
+        'role' => 'nullable|string|in:employee,customer,admin', 
     ]);
 
     $search = $request->input('search');
     $role = $request->input('role');
+    $user = auth()->user(); // Get logged-in user
 
-    $query = User::query();
+    $query = User::with('branch', 'role'); // Eager load relationships
+
+    // Restrict employees to see only users from their assigned branch
+    if ($user->role_id == UserRolesEnum::Employee) {
+        $query->where('branch_id', $user->branch_id);
+    }
 
     if ($search) {
         $query->where(function ($q) use ($search) {
@@ -53,12 +61,15 @@ class UserController extends Controller
     return view('dashboard.manage-users.index', compact('users', 'search', 'role'));
 }
 
+    
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        return view('dashboard.manage-users.create-user');
+        $branches = Branch::all();
+
+          return view('dashboard.manage-users.create-user', compact('branches'));
     }
 
     /**
@@ -81,6 +92,7 @@ class UserController extends Controller
             'password_confirmation' => 'required|string|min:8|max:255|same:password',
            'phone_number' => 'required', 'string', 'regex:/^\+[1-9]{1}[0-9]{3,14}$/', 'unique:users',
             'role' => 'required|string|in:employee,customer',
+            'branch_id' => 'required|exists:branches,id', 
         ]);
 
         if ($validator->fails()) {
@@ -106,6 +118,7 @@ class UserController extends Controller
                 'password' => Hash::make($request['password']),
                 'phone_number' => $request['phone_number'],
                 'role_id' => $role_id,
+                'branch_id' => $request['branch_id'], // Store branch_id
             ]);
         } catch (Exception $e) {
             return redirect()->route('manageusers')->with('errormsg', 'User creation failed.');

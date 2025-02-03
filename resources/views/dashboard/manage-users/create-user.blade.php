@@ -9,6 +9,18 @@
     <div>
         <form action="{{ route('manageusers.store')}}" method="post" class="w-1/2 mx-auto bg-white rounded-lg p-5">
             @csrf
+              <!-- Name -->
+              <div class="col-span-6 sm:col-span-4 my-2">
+              <x-label for="branch" value="{{ __('Branch') }}" />
+              <select name="branch_id" id="branch_id" class="border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-md shadow-sm">
+                <option value="">Select a branch</option>
+                @foreach($branches as $branch)
+                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                @endforeach
+            </select>
+            <x-input-error for="branch_id" class="mt-2" />
+             
+            </div>
             <!-- Name -->
             <div class="col-span-6 sm:col-span-4 my-2">
                 <x-label for="name" value="{{ __('Name') }}" />

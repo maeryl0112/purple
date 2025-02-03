@@ -1,4 +1,4 @@
-    <div class="p-4 border-2 border-gray-200 mt-2">
+    <div class="p-4 mt-2">
         <div class="flex justify-between mx-7">
             <h2 class="text-2xl font-bold text-salonPurple">
                 @if ($selectFilter == 'upcoming')

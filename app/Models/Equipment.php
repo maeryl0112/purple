@@ -20,6 +20,7 @@ class Equipment extends Model
         'next_maintenance',
         'purchased_date',
         'employee_id',
+        'branch_id',
     ];
 
     protected $casts = [
@@ -34,6 +35,11 @@ class Equipment extends Model
     public function employee()
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
     }
 
 }

@@ -40,7 +40,8 @@ class ConsumablesNotification extends Notification
     {
         $message = (new MailMessage)
             ->subject('Consumables Notification: ' . ($this->type === 'low_quantity' ? 'Low Quantity' : 'Near Expiration'))
-            ->line('Consumables: ' . $this->supply->name);
+            ->line('Consumables: ' . $this->supply->name)
+            ->line('Branch: ' . $this->supply->branch->name);
 
         if ($this->type === 'low_quantity') {
             $message->line('Quantity is low: ' . $this->supply->quantity);
@@ -59,8 +60,9 @@ class ConsumablesNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-           'supply_id' => $this->supply->id,
+            'supply_id' => $this->supply->id,
             'supply_name' => $this->supply->name,
+            'supply_branch' => $this->supply->branch->name, // Null check
             'type' => $this->type,
             'message' => $this->type === 'low_quantity' 
                 ? 'Quantity is low: ' . $this->supply->quantity
