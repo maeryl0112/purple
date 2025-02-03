@@ -34,7 +34,7 @@
         public $branches;
         public $branchFilter = '';
         public $online_suppliers;
-        public $categoryFilter = null;
+        public $categoryFilter = '';
         public $selectFilter = 'all';  // Default to 'all' filter
         public $statusFilter = 'active';
         protected $notifiedSupplies = [];
@@ -114,10 +114,24 @@
 
         public function showEditSuppliesModal($supplyId)
         {
-            $this->newSupplies = Supply::findOrFail($supplyId)->toArray();
-            $this->selectedSupplyId = $supplyId; // Track editing
-            $this->confirmingSuppliesView = false;  // Close view modal
+            $supply = Supply::findOrFail($supplyId);
+            $this->newSupplies = [
+                'name' => $supply->name,
+                'description' => $supply->description,
+                'quantity' => $supply->quantity,
+                'category_id' => $supply->category_id,
+                'color_code' => $supply->color_code,
+                'color_shade' => $supply->color_shade,
+                'size' => $supply->size,
+                'expiration_date' => $supply->expiration_date,
+                'online_supplier_id' => $supply->online_supplier_id,
+                'branch_id' => $supply->branch_id,
+            ];
+            
+            $this->selectedSupplyId = $supplyId;
+            $this->confirmingSuppliesView = false;  
             $this->showEditSuppliesModal = true;
+            
         }
 
         public function viewSupplies($supplyId)
@@ -165,7 +179,7 @@
             'newSupplies.quantity' => 'required|integer|min:0',
             'newSupplies.category_id' => 'required|exists:categories,id',
             'newSupplies.online_supplier_id' => 'nullable|exists:online_suppliers,id',
-            'newSupplies.color_code' => 'nullable|string|unique:supplies,color_code,' . $this->selectedSupplyId,
+            'newSupplies.color_code' => 'nullable|string|max:255',
             'newSupplies.color_shade' => 'nullable|string|max:255',
             'newSupplies.size' => 'nullable|string|max:255',
             'newSupplies.expiration_date' => 'nullable|date',
@@ -189,10 +203,21 @@
 
         // Save or update the supply record
         Supply::updateOrCreate(
-            ['id' => $this->selectedSupplyId], // Ensure ID is passed for update
-            $this->newSupplies
+            ['id' => $this->selectedSupplyId ?: null], // Ensure update happens when ID exists
+            [
+                'name' => $this->newSupplies['name'],
+                'description' => $this->newSupplies['description'],
+                'quantity' => $this->newSupplies['quantity'],
+                'category_id' => $this->newSupplies['category_id'],
+                'color_code' => $this->newSupplies['color_code'],
+                'color_shade' => $this->newSupplies['color_shade'],
+                'size' => $this->newSupplies['size'],
+                'expiration_date' => $this->newSupplies['expiration_date'],
+                'online_supplier_id' => $this->newSupplies['online_supplier_id'],
+                'branch_id' => $this->newSupplies['branch_id'],
+            ]
         );
-
+        
         session()->flash('message', $this->selectedSupplyId ? 'Supply Updated Successfully!' : 'Supply Added Successfully');
         $this->closeModals();
 
