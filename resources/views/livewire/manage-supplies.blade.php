@@ -119,14 +119,7 @@
                     <div class="font-medium text-gray-700">{{ $supply->size}}</div>
                 </td>
 
-                <td class="px-6 py-4 
-                    @if(\Carbon\Carbon::parse($supply->expiration_date)->isPast()) 
-                        text-red-500 font-bold 
-                    @elseif(\Carbon\Carbon::parse($supply->expiration_date)->diffInDays(now()) <= 7) 
-                        text-red-600 
-                    @else 
-                        text-gray-700 
-                    @endif">
+                <td class="px-6 py-4 {{ \Carbon\Carbon::parse($supply->expiration_date)->diffInDays(now()) <= 7 ? 'text-red-600' : 'text-gray-700' }}">
                     {{ $supply->expiration_date }}
                 </td>
                 <td class="px-6 py-4 max-w-0">

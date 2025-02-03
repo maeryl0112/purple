@@ -15,6 +15,8 @@
     use Barryvdh\DomPDF\Facade\Pdf;
     use Carbon\Carbon;
     use Storage;
+    use Illuminate\Support\Facades\Auth;
+
 
     class ManageSupplies extends Component
     {
@@ -238,9 +240,10 @@
                 ->when($this->categoryFilter, function ($query) {
                     $query->where('category_id', $this->categoryFilter);
                 })
-                ->when($this->branchFilter, function ($query) {
+                ->when(Auth::user()->role_id == 1 && $this->branchFilter, function ($query) {
                     $query->where('branch_id', $this->branchFilter);
                 })
+                
                 ->when($this->search, function ($query) {
                     $query->where(function ($q) {
                         $q->where('name', 'like', '%' . $this->search . '%')
