@@ -35,12 +35,7 @@
             </div>
 
             <div class="pt-2.5">
-                <select id="categoryFilter" wire:model="categoryFilter"  class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
-                    <option value="" selected>All Categories</option>
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->id }}">{{ $category->name }}</option>
-                    @endforeach
-                </select>
+                
 
                 <select id="categoryFilter" wire:model="categoryFilter"  class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
                     <option value="" selected>All Categories</option>
