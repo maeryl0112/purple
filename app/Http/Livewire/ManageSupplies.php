@@ -263,27 +263,7 @@
             // Get paginated supplies
             $supplies = $query->paginate($this->paginate ?: 10);
 
-            foreach ($supplies as $supply) {
-                $nearExpiration = Carbon::parse($supply->expiration_date);
-                $lowQuantity = $supply->quantity < 10;
             
-                // Notify for low quantity
-                if ($lowQuantity && !in_array($supply->id, $this->notifiedSupplies)) {
-                    $this->notifyAdminAndEmployees($supply, 'low_quantity');
-                    $this->notifiedSupplies[] = $supply->id;
-                }
-            
-                // Notify for near expiration (1 week before the expiration date)
-                if (
-                    $nearExpiration->diffInDays(Carbon::today()) <= 7 &&
-                    !$nearExpiration->isPast() &&
-                    !in_array($supply->id . 'near_expiration', $this->notifiedSupplies)
-                ) {
-                    $this->notifyAdminAndEmployees($supply, 'expiration_date');
-                    $this->notifiedSupplies[] = $supply->id . 'expiration_date';
-                }
-            }
-
             return view('livewire.manage-supplies', [
                 'supplies' => $supplies,
                 'categories' => $this->categories,
