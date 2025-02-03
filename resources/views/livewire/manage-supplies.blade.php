@@ -1,7 +1,7 @@
 <div class="p-4 sm:ml-64">
     <div class="flex justify-between mx-7">
         <h2 class="text-2xl font-bold text-salonPurple">
-            MANAGE  CONSUMABLES</h2>
+            MANAGE  Cure</h2>
     </div>
 
 
