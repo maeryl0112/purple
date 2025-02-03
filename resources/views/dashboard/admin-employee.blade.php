@@ -6,7 +6,7 @@
 
 
 
-        <div class="fixed top-5 right-4 z-50 space-y-4">
+        <!--         <div class="fixed top-5 right-4 z-50 space-y-4">
             @foreach ($nearExpirationSupplies as $supply)
                 <div x-data="{ show: true }" x-show="show" x-transition
                     id="alert-expiration-{{ $supply->id }}"
@@ -69,7 +69,7 @@
                 </div>
             </div>
         @endforeach
-        </div>
+        </div> -->
 
         <script>
             function updateDateTime() {
