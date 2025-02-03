@@ -179,7 +179,7 @@
             'newSupplies.quantity' => 'required|integer|min:0',
             'newSupplies.category_id' => 'required|exists:categories,id',
             'newSupplies.online_supplier_id' => 'nullable|exists:online_suppliers,id',
-            'newSupplies.color_code' => 'nullable|string|max:255',
+            'newSupplies.color_code' =>  'nullable|string|unique:supplies,color_code,' . $this->selectedSupplyId,
             'newSupplies.color_shade' => 'nullable|string|max:255',
             'newSupplies.size' => 'nullable|string|max:255',
             'newSupplies.expiration_date' => 'nullable|date',
