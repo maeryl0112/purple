@@ -130,7 +130,7 @@
                     {{ $supply->expiration_date }}
                 </td>
                 <td class="px-6 py-4 max-w-0">
-                    <div class="'font-medium text-gray-900" >{{ $supply->branch ? $supply->branch->name : 'No Branch Assigned' }}</div>
+                    <div class="'font-medium text-gray-900" >{{ $supply->branch->name }}</div>
                 </td>
 
                 <td class="px-6 py-4">
