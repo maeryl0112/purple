@@ -37,21 +37,22 @@ class ConsumablesNotification extends Notification
      * Get the mail representation of the notification.
      */
     public function toMail(object $notifiable): MailMessage
-    {
-        $message = (new MailMessage)
-            ->subject('Consumables Notification: ' . ($this->type === 'low_quantity' ? 'Low Quantity' : 'Near Expiration'))
-            ->line('Consumables: ' . $this->supply->name)
-            ->line('Branch: ' . $this->supply->branch->name);
+{
+    $branchName = $this->supply->branch->name ?? 'Unknown Branch';
 
-        if ($this->type === 'low_quantity') {
-            $message->line('Quantity is low: ' . $this->supply->quantity);
-        } elseif ($this->type === 'expiration_date') {
-            $message->line('Expiration is near on: '. $this->supply->expiration_date);
-        }
+    $message = (new MailMessage)
+        ->subject('Consumables Notification: ' . ($this->type === 'low_quantity' ? 'Low Quantity' : 'Near Expiration'))
+        ->line('Consumables: ' . $this->supply->name)
+        ->line('Branch: ' . $branchName);
 
-        return $message;
+    if ($this->type === 'low_quantity') {
+        $message->line('Quantity is low: ' . $this->supply->quantity);
+    } elseif ($this->type === 'expiration_date') {
+        $message->line('Expiration is near on: '. $this->supply->expiration_date);
     }
 
+    return $message;
+}
     /**
      * Get the array representation of the notification.
      *
@@ -62,7 +63,7 @@ class ConsumablesNotification extends Notification
         return [
             'supply_id' => $this->supply->id,
             'supply_name' => $this->supply->name,
-            'supply_branch' => $this->supply->branch->name, // Null check
+            'supply_branch' => $this->supply->branch->name ?? 'Unknown Branch', // Avoids null error
             'type' => $this->type,
             'message' => $this->type === 'low_quantity' 
                 ? 'Quantity is low: ' . $this->supply->quantity

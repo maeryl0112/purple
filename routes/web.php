@@ -129,6 +129,8 @@ Route::get('/services/{slug}', [App\Http\Controllers\DisplayService::class, 'sho
             Route::get('/generate-service-category-revenue-report', [AdminDashboardHomeController::class, 'generateReport'])->name('category.pdf');
             Route::get('/generate-top-customers-with-services-report', [AdminDashboardHomeController::class, 'generateAllCustomersReport'])->name('top.customer.pdf');
 
+            
+
 
             Route::prefix('manage')->group( function () {
                 Route::resource('users', UserController::class)->names([

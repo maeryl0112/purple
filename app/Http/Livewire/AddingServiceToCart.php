@@ -22,6 +22,7 @@ class AddingServiceToCart extends Component
     protected $listeners = ['employeeAvailabilityUpdated' => '$refresh'];
 
 
+    
     public function mount(Service $service)
 {
     $this->service = $service;
@@ -43,7 +44,6 @@ class AddingServiceToCart extends Component
         $employee->available = true; // Mark as available initially
     });
 }
-
 
     public function render()
     {

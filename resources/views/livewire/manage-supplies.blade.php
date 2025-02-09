@@ -1,10 +1,65 @@
+
+
+
 <div class="p-4 sm:ml-64">
     <div class="flex justify-between mx-7">
         <h2 class="text-2xl font-bold text-salonPurple">
             MANAGE  CONSUMABLES</h2>
     </div>
 
-
+    <div class="fixed top-10 right-4 z-50 space-y-4">
+            @foreach ($nearExpirationSupplies as $supply)
+                <div x-data="{ show: true }" x-show="show" x-transition
+                    id="alert-expiration-{{ $supply->id }}"
+                    class="p-4 mb-4 text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800 shadow-lg"
+                    role="alert">
+                <div class="flex items-center">
+                    <svg class="flex-shrink-0 w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                    </svg>
+                    <span class="sr-only">Info</span>
+                    <h3 class="text-lg font-medium">Warning: Expiring Soon</h3>
+                </div>
+                <div class="mt-2 mb-4 text-sm">
+                    Consumable item <strong>{{ $supply->name }}</strong> is nearing its expiration date on <strong>{{ $supply->expiration_date }}</strong>.<br> Please review and reorder if necessary.
+                </div>
+                <div class="flex">
+               
+                    <button @click="show = false"
+                            type="button"
+                            class="text-red-800 bg-transparent border border-red-800 hover:bg-red-900 hover:text-white focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-1.5 text-center dark:hover:bg-red-600 dark:border-red-600 dark:text-red-500 dark:hover:text-white dark:focus:ring-red-800"
+                            aria-label="Close">
+                    Dismiss
+                    </button>
+                </div>
+                </div>
+            @endforeach
+            @foreach ($lowQuantitySupplies as $supply)
+            <div x-data="{ show: true }" x-show="show" x-transition
+                id="alert-low-quantity-{{ $supply->id }}"
+                class="p-4 mb-4 text-yellow-800 border border-yellow-300 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-400 dark:border-yellow-800 shadow-lg"
+                role="alert">
+                <div class="flex items-center">
+                    <svg class="flex-shrink-0 w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 0C4.612 0 0 5.336 0 7c0 1.742 3.546 7 10 7 6.454 0 10-5.258 10-7 0-1.664-4.612-7-10-7Zm0 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/>
+                    </svg>
+                    <span class="sr-only">Info</span>
+                    <h3 class="text-lg font-medium">Warning: Low Quantity</h3>
+                </div>
+                <div class="mt-2 mb-4 text-sm">
+                    Consumable item <strong>{{ $supply->name }}</strong> has low quantity: <strong>{{ $supply->quantity }}</strong>. <br>Please review and reorder if necessary.
+                </div>
+                <div class="flex">
+                    <button @click="show = false"
+                            type="button"
+                            class="text-yellow-800 bg-transparent border border-yellow-800 hover:bg-yellow-900 hover:text-white focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-xs px-3 py-1.5 text-center dark:hover:bg-yellow-600 dark:border-yellow-600 dark:text-yellow-500 dark:hover:text-white dark:focus:ring-yellow-800"
+                            aria-label="Close">
+                        Dismiss
+                    </button>
+                </div>
+            </div>
+        @endforeach
+        </div> 
 
     <div class="overflow-auto rounded-lg border border-gray-200 shadow-md m-5">
 
@@ -12,7 +67,9 @@
             <div class="w-1/2 mx-2">
 
                 <button  wire:click="openAddSuppliesModal" type="button" class="focus:outline-none text-white bg-salonPurple   hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">ADD</button>
-                <button type="button" wire:click="exportToPdf"  class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">Download to PDF</button>
+                @if(Auth::user()->role_id == 1 )
+                <button  wire:click="exportToPdf"  class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">Download to PDF</button>
+                @endif
             <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only ">Search</label>
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -272,14 +329,17 @@
         </script>
     @endif
 
-        <script>
-            window.addEventListener('downloadFile', event => {
-                const link = document.createElement('a');
-                link.href = event.detail.url;
-                link.download = 'supplies-report.pdf';
-                link.click();
-            });
-        </script>
+    <script>
+    window.addEventListener('downloadFile', event => {
+        const link = document.createElement('a');
+        link.href = event.detail.url;
+        link.setAttribute('download', 'supplies-report.pdf'); // Ensures the filename is set
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link); // Cleanup after download
+    });
+</script>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

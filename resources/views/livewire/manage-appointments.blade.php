@@ -74,12 +74,11 @@
                 <select wire:model="selectFilter" class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
                     <option value="upcoming">Upcoming</option>
                     <option value="previous">Previous</option>
-                    <option value="completed">Completed</option>
                     <option value="cancelled">Cancelled</option>
                 </select>
   
 
-            <select wire:model="employeeId" id="employeeFilter" class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+            <select wire:model="employeeId" wire:model="employeeId" class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
             <option value="">All Employees</option>
             @foreach($employees as $employee)
                 <option value="{{ $employee->id }}">{{ $employee->first_name }}</option>
@@ -124,7 +123,7 @@
                 <tr>
                     <th scope="col" class="pl-6 py-4 font-bold text-gray-900">Number</th>
                     <th scope="col" class="px-6 py-4 font-bold text-gray-900">Service</th>
-                    <th scope="col" class="px-6 py-4 font-bold text-gray-900">Date</th>
+                    <th scope="col" class="px-6 py-4 font-bold text-gray-900">Appointed Date</th>
                     <th scope="col" class="px-6 py-4 font-bold text-gray-900">Time</th>
                     <th scope="col" class="px-6 py-4 font-bold text-gray-900">Staff Assigned</th>
 
@@ -139,6 +138,7 @@
                     @if ($selectFilter == 'cancelled')
                     <th scope="col" class="px-6 py-4 font-bold text-gray-900">Reason</th>
                     @endif
+                    <th scope="col" class="px-6 py-4 font-bold text-gray-900">Created Date</th>
                     <th scope="col" class="px-6 py-4 font-bold text-gray-900">Action</th>
 
 
@@ -156,7 +156,10 @@
                         <td class="pl-6 py-4  max-w-0">{{ $appointment->id }}</td>
 
                         <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->service->name}}</td>
-                        <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->date}}</td>
+                        <td class="px-6 py-4 max-w-xs font-medium text-gray-700">
+    {{ \Carbon\Carbon::parse($appointment->date)->format('F j') }}
+</td>
+
                         <td class="px-6 py-4 max-w-xs font-medium text-gray-700">
                             {{ \Carbon\Carbon::createFromFormat('H:i:s', $appointment->time)->format('h:i A') }}
                         </td>
@@ -170,13 +173,15 @@
 
                             <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->user->phone_number}}</td>
                             <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->payment }} @if ($appointment->payment === 'online' && $appointment->last_four_digits)
-                                <p>Proof of Payment: Last Four Digits - {{ $appointment->last_four_digits }}</p>
+                                <p>Reference Last 4 Digits - {{ $appointment->last_four_digits }}</p>
                             @endif</td>
                             @if ($selectFilter == 'cancelled')
                             <td class="px-6 py-4 max-w-xs font-medium text-gray-700">{{ $appointment->cancellation_reason}}</td>
                             @endif
                             @endif
-
+                            <td class="px-6 py-4 max-w-xs font-medium text-gray-700">
+    {{ $appointment->created_at->format('F j, Y g:i A') }}
+</td>
 
                             <td class="px-6 py-4 gap-2">
 
@@ -184,9 +189,8 @@
                                 @if ($selectFilter == 'upcoming' || $selectFilter == 'previous')
 
                                 <button wire:click="openPaymentModal('{{ $appointment->id }}')" 
-                                        wire:loading.attr="disabled"
-                                        wire:loading.class="opacity-50 cursor-not-allowed"
-                                        class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 rounded-lg text-xs px-4 py-2 inline-flex items-center me-1 mb-2">
+                                       
+                                        class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 rounded-lg text-xs px-7 py-2 inline-flex items-center me-1 mb-2 w-24">
                                     Confirm
                                 </button>
 
@@ -196,7 +200,7 @@
 
                                 Reschedule
                             </button>
-                            <button wire:click="setAppointmentIdToCancel({{ $appointment->id }})" wire:loading.attr="disabled" class="px-4 py-2 mt-2 flex items-center bg-red-600 text-white rounded-lg text-xs hover:bg-red-700 focus:ring-2 focus:ring-red-400">
+                            <button wire:click="setAppointmentIdToCancel({{ $appointment->id }})" wire:loading.attr="disabled" class="px-8 py-2 mt-2 flex items-center bg-red-600 text-white rounded-lg text-xs hover:bg-red-700 focus:ring-2 focus:ring-red-400 w-24">
                                                 {{ __('Cancel') }}
                                             </button>
 
@@ -227,11 +231,10 @@
 
             <x-slot name="footer">
                 <div class="flex gap-3">
-                @if($appointmentId)
-    <button wire:click="completeAppointment({{ $appointmentId }})" class="bg-purple-500 text-white px-4 py-2 rounded">
+        <button wire:click="completeAppointment({{ $appointmentId }})" class="bg-purple-500 text-white px-4 py-2 rounded">
         Confirm
     </button>
-@endif
+
 
 
                     <x-danger-button wire:click="closePaymentModal" wire:loading.attr="disabled">

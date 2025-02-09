@@ -60,6 +60,24 @@
         <span class="text-danger">{{ $message }}</span>
     @enderror
 </div>
+<div class="form-group">
+    <label for="branches">Assign Branches</label>
+    <div class="grid grid-cols-2 gap-4">
+        @foreach ($branches as $branch)
+            <div class="flex items-center">
+                <input type="checkbox"
+                       wire:model="branchIds"
+                       value="{{ $branch->id }}"
+                       id="branch_{{ $branch->id }}"
+                       class="form-checkbox h-5 w-5 text-blue-600">
+                <label for="branch_{{ $branch->id }}" class="ml-2 text-sm">{{ $branch->name }}</label>
+            </div>
+        @endforeach
+    </div>
+    @error('branchIds')
+        <span class="text-danger">{{ $message }}</span>
+    @enderror
+</div>
 </div>
 
 

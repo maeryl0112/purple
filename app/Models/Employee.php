@@ -4,9 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
+
+
 
 class Employee extends Model
 {
+    use Notifiable; 
+
     protected $fillable = [
         'first_name',
         'last_name',
@@ -59,6 +64,16 @@ class Employee extends Model
     {
         return $this->belongsTo(Branch::class);
     }
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'email', 'email');
+    }
+
+    public function routeNotificationForMail($notification)
+{
+    return $this->email; // Ensure Employee has an email column
+}
 
 
 }

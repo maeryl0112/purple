@@ -38,6 +38,7 @@
 
         <!-- Styles -->
         @livewireStyles
+        
     </head>
     <body class="font-sans antialiased">
         <x-banner />
@@ -67,6 +68,7 @@
         @stack('modals')
 
         @livewireScripts
+        
         <script>
             AOS.init({
               duration: 1000, // Animation duration in milliseconds

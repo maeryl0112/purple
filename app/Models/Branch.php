@@ -20,8 +20,9 @@ class Branch extends Model
 
     public function services()
     {
-        return $this->hasMany(Service::class);
+        return $this->belongsToMany(Service::class, 'branch_service');
     }
+    
 
     public function equipments()
     {

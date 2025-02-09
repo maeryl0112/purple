@@ -62,6 +62,7 @@
           <th scope="col" class="px-6 py-4 font-medium text-gray-900">Description</th>
           <th scope="col" class="px-6 py-4 font-medium text-gray-900">Price</th>
           <th scope="col" class="px-6 py-4 font-medium text-gray-900">Category</th>
+
           <th scope="col" class="px-6 py-4 font-medium text-gray-900">Status</th>
           <th scope="col" class="px-6 py-4 font-medium text-gray-900">Actions</th>
           <th scope="col" class="px-4 py-2 font-medium text-gray-900"></th>

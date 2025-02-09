@@ -6,7 +6,7 @@
 
 
 
-        <!--         <div class="fixed top-5 right-4 z-50 space-y-4">
+              <div class="fixed top-5 right-4 z-50 space-y-4">
             @foreach ($nearExpirationSupplies as $supply)
                 <div x-data="{ show: true }" x-show="show" x-transition
                     id="alert-expiration-{{ $supply->id }}"
@@ -20,7 +20,7 @@
                     <h3 class="text-lg font-medium">Warning: Expiring Soon</h3>
                 </div>
                 <div class="mt-2 mb-4 text-sm">
-                    Supply item <strong>{{ $supply->name }}</strong> from supplier is nearing its expiration date on <strong>{{ $supply->expiration_date }}</strong>. Please review and reorder if necessary.
+                    Supply item <strong>{{ $supply->name }}</strong> from supplier is nearing its expiration date on <strong>{{ $supply->expiration_date }}</strong>. <br>Please review and reorder if necessary.
                 </div>
                 <div class="flex">
                     <a href="{{ route('managesupplies') }}?search={{ $supply->name }}" class="text-white bg-red-800 hover:bg-red-900 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-1.5 me-2 text-center inline-flex items-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
@@ -51,7 +51,7 @@
                     <h3 class="text-lg font-medium">Warning: Low Quantity</h3>
                 </div>
                 <div class="mt-2 mb-4 text-sm">
-                    Supply item <strong>{{ $supply->name }}</strong> has low quantity: <strong>{{ $supply->quantity }}</strong>. Please review and reorder if necessary.
+                    Supply item <strong>{{ $supply->name }}</strong> has low quantity: <strong>{{ $supply->quantity }}</strong>.<br> Please review and reorder if necessary.
                 </div>
                 <div class="flex">
                     <a href="{{ route('managesupplies') }}?search={{ $supply->name }}" class="text-white bg-yellow-800 hover:bg-yellow-900 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-xs px-3 py-1.5 me-2 text-center inline-flex items-center dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800">
@@ -69,7 +69,7 @@
                 </div>
             </div>
         @endforeach
-        </div> -->
+        </div> 
 
         <script>
             function updateDateTime() {
@@ -99,15 +99,7 @@
         <div class="p-4 rounded-lg dark:border-gray-700">
 
         <div class="grid grid-cols-3 gap-4 mb-4">
-            <div class="bg-salonPurple  shadow-lg rounded-md flex items-center justify-between p-3 border-b-4 border-purple-400  text-white font-medium group">
-                <div class="flex justify-center items-center w-14 h-14 bg-white rounded-full transition-all duration-300 transform group-hover:rotate-12">
-                <svg width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="stroke-current text-purple-800  transform transition-transform duration-500 ease-in-out"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                </div>
-                <div class="text-right">
-                <p class="text-2xl">{{ $totalCustomers }}</p>
-                <p>Customers</p>
-                </div>
-            </div>
+        
             <div class="bg-salonPurple  shadow-lg rounded-md flex items-center justify-between p-3 border-b-4 border-purple-400  text-white font-medium group">
                 <div class="flex justify-center items-center w-14 h-14 bg-white rounded-full transition-all duration-300 transform group-hover:rotate-12">
                 <svg width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="stroke-current text-purple-800  transform transition-transform duration-500 ease-in-out"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
@@ -119,6 +111,39 @@
             </div>
             <div class="bg-salonPurple  shadow-lg rounded-md flex items-center justify-between p-3 border-b-4 border-purple-400  text-white font-medium group">
                 <div class="flex justify-center items-center w-14 h-14 bg-white rounded-full transition-all duration-300 transform group-hover:rotate-12">
+                <svg width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="stroke-current text-purple-800  transform transition-transform duration-500 ease-in-out"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                </div>
+                <div class="text-right">
+                @if(Auth::user()->role_id == 1)
+                            <p class="text-2xl">{{ $totalCustomers }}</p>
+                            <p>Customers</p>
+                        @elseif(Auth::user()->role_id == 2)
+                            <p class="text-2xl">{{ $totalCustomers }}</p>
+                            <p>Equipments</p>
+                        @endif
+                </div>
+            </div>
+           
+            <div class="bg-salonPurple  shadow-lg rounded-md flex items-center justify-between p-3 border-b-4 border-purple-400  text-white font-medium group">
+                    <div class="flex justify-center items-center w-14 h-14 bg-white rounded-full transition-all duration-300 transform group-hover:rotate-12">
+                    <svg width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="stroke-current text-purple-800  transform transition-transform duration-500 ease-in-out"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    </div>
+                    <div class="text-right">
+                        @if(Auth::user()->role_id == 1)
+                            <p class="text-2xl">{{ $totalServicesActive }}</p>
+                            <p>Active Services</p>
+                        @elseif(Auth::user()->role_id == 2)
+                            <p class="text-2xl">{{ $totalServicesActive }}</p>
+                            <p>Consumables</p>
+                        @endif
+                        
+                    </div>
+                </div>  
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 mb-4">
+        <div class="bg-salonPurple  shadow-lg rounded-md flex items-center justify-between p-3 border-b-4 border-purple-400  text-white font-medium group">
+                <div class="flex justify-center items-center w-14 h-14 bg-white rounded-full transition-all duration-300 transform group-hover:rotate-12">
                 <svg width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="stroke-current text-purple-800  transform transition-transform duration-500 ease-in-out"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                 </div>
                 <div class="text-right">
@@ -126,19 +151,7 @@
                 <p>Services</p>
                 </div>
             </div>
-
-        </div>
-
-        <div class="grid grid-cols-3 gap-4 mb-4">
-                <div class="bg-salonPurple  shadow-lg rounded-md flex items-center justify-between p-3 border-b-4 border-purple-400  text-white font-medium group">
-                    <div class="flex justify-center items-center w-14 h-14 bg-white rounded-full transition-all duration-300 transform group-hover:rotate-12">
-                    <svg width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="stroke-current text-purple-800  transform transition-transform duration-500 ease-in-out"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                    </div>
-                    <div class="text-right">
-                    <p class="text-2xl">{{ $totalServicesActive }}</p>
-                    <p>Active Services</p>
-                    </div>
-                </div>
+               
                 <div class="bg-salonPurple  shadow-lg rounded-md flex items-center justify-between p-3 border-b-4 border-purple-400  text-white font-medium group">
                     <div class="flex justify-center items-center w-14 h-14 bg-white rounded-full transition-all duration-300 transform group-hover:rotate-12">
                         <svg width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="stroke-current text-purple-800  transform transition-transform duration-500 ease-in-out"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
@@ -154,7 +167,7 @@
                 </div>
                 <div class="text-right">
                     <p class="text-2xl">{{ $totalCompletedAppointments }}</p>
-                    <p>Completed Appointments</p>
+                    <p>Cancelled Appointments</p>
                 </div>
                 </div>
         </div>
@@ -162,38 +175,143 @@
 
         </div>
 
+        <div class="py-4 grid grid-cols-2 gap-4">
+        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+            <h3 class="flex items-center mb-4 text-lg font-semibold text-gray-900 dark:text-white">Today's Schedule ({{ \Carbon\Carbon::today()->format('F j, Y') }})
+        </h3>
+            <div id="fullWidthTabContent" class="border-t border-gray-200 dark:border-gray-600">
+                <table class="w-full text-m text-left rtl:text-right text-gray-900 dark:text-gray-400">
+                    <thead class="text-m text-gray-900 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                   <tr>
+                       <th>Employee</th>
+                       <th>Time</th>
+                       <th>Service</th>
+                       <th>Customer Name</th>
+                       <th>Phone</th>
+                   </tr>
+                </thead>
+                <tbody>
+                   @forelse ($todaysSchedule as $appointment)
+                       <tr>
+                           <td>{{ $appointment->employee_name ?? 'N/A' }}</td>
+                           <td>{{ $appointment->time ?? 'N/A' }}</td>
+                           <td>{{ $appointment->service_name ?? 'N/A' }}</td>
+                           <td>{{ $appointment->customer_name ?? 'N/A' }}</td>
+                           <td>{{ $appointment->customer_phone ?? 'N/A' }}</td>
+                       </tr>
+                   @empty
+                       <tr>
+                           <td colspan="6">No appointments scheduled for today.</td>
+                       </tr>
+                   @endforelse
+                </tbody>
+                </table>
+
+            </div>
+            </div>
+            <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+                <h3 class="flex items-center mb-4 text-lg font-semibold text-gray-900 dark:text-white">Tomorrow's Schedule ({{ \Carbon\Carbon::today()->addDay()->format('F j, Y') }})
+            </h3>
+                    <table class="w-full text-m text-left rtl:text-right text-gray-900 dark:text-gray-400">
+                        <thead class="text-m text-gray-900 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th>Employee</th>
+                                <th>Time</th>
+                                <th>Service</th>
+                                <th>Customer Name</th>
+                                <th>Phone</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($tomorrowsSchedule as $appointment)
+                                <tr>
+                                    <td>{{ $appointment->employee_name ?? 'N/A' }}</td>
+                                    <td>{{ $appointment->time ?? 'N/A' }}</td>
+                                    <td>{{ $appointment->service_name ?? 'N/A' }}</td>
+                                    <td>{{ $appointment->customer_name ?? 'N/A' }}</td>
+                                    <td>{{ $appointment->customer_phone ?? 'N/A' }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6">No appointments scheduled for tomorrow.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+
+                </div>
+    </div>
             
        
     <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
-        <div id="serviceCategoryRevenueChart"></div>
-        <a href="{{ route('category.pdf') }}" class="focus:outline-none text-white bg-salonPurple hover:bg-secondary focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-salonPurple dark:hover:bg-purple-700 dark:focus:ring-purple-900">Download PDF</a>
+    <div id="serviceCategoryRevenueChart"></div>
 
+    <a href="{{ route('category.pdf') }}" 
+        class="focus:outline-none text-white bg-salonPurple hover:bg-secondary focus:ring-4 focus:ring-purple-300 
+               font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-salonPurple dark:hover:bg-purple-700 dark:focus:ring-purple-900">
+        Download PDF
+    </a>
 
-        <script>
-            // Data from Laravel
-            const serviceCategoryRevenue = @json($serviceCategoryRevenue);
+    <script>
+        // Ensure Laravel data is available
+        const serviceCategoryRevenue = @json($structuredData) || {};
 
-            // Prepare data for the chart
-            const categories = serviceCategoryRevenue.map(item => item.category_name);
-            const revenues = serviceCategoryRevenue.map(item => parseFloat(item.total_revenue));
+        // If data is empty, display a message
+        if (Object.keys(serviceCategoryRevenue).length === 0) {
+            document.getElementById("serviceCategoryRevenueChart").innerHTML = "<p class='text-center text-gray-500'>No data available</p>";
+        } else {
+            // Prepare chart data
+            const categories = Object.keys(serviceCategoryRevenue);
+            const revenues = categories.map(category =>
+                serviceCategoryRevenue[category].reduce((sum, service) => sum + parseFloat(service.total_revenue), 0)
+            );
 
-            // Configure and render the chart
+            // ApexCharts Configuration
             const options = {
-                chart: { type: 'bar', height: 350 },
+                chart: { 
+                    type: 'bar', 
+                    height: 350, 
+                    toolbar: { show: false } 
+                },
                 series: [{ name: 'Sales', data: revenues }],
                 xaxis: { categories },
                 yaxis: { title: { text: 'Sales (₱)' } },
                 title: { text: 'Sales by Service Category', align: 'center' },
-                colors: ['#6a2695'], // Customize bar color
-                tooltip: { y: { formatter: value => `₱${value.toFixed(2)}` } }
+                colors: ['#6a2695'], // Custom color for bars
+                
+                plotOptions: {
+                    bar: {
+                        columnWidth: '60%', // Adjust width for better spacing
+                        distributed: true
+                    }
+                },
+
+                tooltip: {
+                    y: {
+                        formatter: function (value, { dataPointIndex }) {
+                            const category = categories[dataPointIndex];
+                            const services = serviceCategoryRevenue[category] || [];
+
+                            if (services.length === 0) return `<strong>${category}</strong><br/>No services`;
+
+                            let tooltipContent = `<strong>${category}</strong><br/>`;
+                            services.forEach(service => {
+                                tooltipContent += `${service.service_name}: ₱${parseFloat(service.total_revenue).toLocaleString()}<br/>`;
+                            });
+
+                            return tooltipContent;
+                        }
+                    }
+                }
             };
 
+            // Render the chart
             const chart = new ApexCharts(document.querySelector("#serviceCategoryRevenueChart"), options);
             chart.render();
-        </script>
+        }
+    </script>
+</div>
 
-
-    </div>
        <div class="pt-4 grid grid-cols-2 gap-4">
         <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
             <div class="flex items-center justify-between mb-4">

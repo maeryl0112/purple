@@ -72,8 +72,15 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Cart::class);
     }
 
-    function branch() {
+     function branches()
+    {
+        return $this->belongsToMany(Branch::class, 'user_branch', 'user_id', 'branch_id');
+    }
+
+    function branch()
+    {
         return $this->belongsTo(Branch::class);
     }
+    
 }
 

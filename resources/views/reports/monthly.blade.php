@@ -30,6 +30,7 @@
                     <thead class="bg-gray-100">
                         <tr>
                             <th class="px-4 py-2 border border-gray-300 text-left">Month</th>
+                            <th class="px-4 py-2 border border-gray-300 text-left">Branch</th>
                             <th class="px-4 py-2 border border-gray-300 text-left">Service Name</th>
                             <th class="px-4 py-2 border border-gray-300 text-right">Sales</th>
                         </tr>
@@ -44,6 +45,9 @@
         <td class="px-4 py-2 border border-gray-300 font-bold text-left align-top" rowspan="{{ $report->grouped_services->count() + 1 }}">
                 {{ \Carbon\Carbon::create()->month($report->month)->format('F') }}
             </td>
+            <td class="px-4 py-2 border border-gray-300 font-bold text-left align-top" rowspan="{{ $report->grouped_services->count() + 1 }}">
+                            {{ $selectedBranch ? $branches->firstWhere('id', $selectedBranch)->name : 'All Branches' }}
+            </td>
         </tr>
 
         @foreach ($report->grouped_services as $serviceName => $group)
@@ -57,7 +61,7 @@
         @endforeach
 
         <tr>
-            <td class="px-4 py-2 border border-gray-300 font-bold text-right" colspan="2">Total Sales:</td>
+            <td class="px-4 py-2 border border-gray-300 font-bold text-right" colspan="3    ">Total Sales:</td>
             <td class="px-4 py-2 border border-gray-300 font-bold text-right">₱{{ number_format($monthlyTotal, 2) }}</td>
         </tr>
     @empty

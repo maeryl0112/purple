@@ -58,10 +58,16 @@
     </style>
 </head>
 <body>
-    <div class="header">
+<div class="header">
         <div class="logo">
            <img src="{{ $image }}" width="300px" alt="Salon Logo">
-           <p>Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite </br> purplelookhairsalonandspa@gmail.com </br> 09********</p>
+           <p>Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite </br> 
+           purplelookhairsalonandspa@gmail.com<br>
+               0916-504-8592 (Globe) <br>
+               0968-322-8344 (Smart) <br>
+               (046) 450-1531 (Molino Branch) <br>
+               (046) 471-3897 (Main Branch) <br> 
+    </p>
         </div>
     </div>
         <div class="report-info">
@@ -70,34 +76,36 @@
         </div>
 
     <h2 class="report-title">
-        Quarterly Sales Report</h2>
+    Quarterly Sales Report - Q{{ $reports->first()->quarter ?? '' }} {{ $reports->first()->year ?? '' }}</h2>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Quarter</th>
-                    <th>Total Sales</th>
-                    <th>Appointment Count</th>
-                    <th>Service Count</th>
-                    <th>Services</th>
-                    <th>Employees</th>
-                    <th>Customers</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($reports as $report)
+    <table>
+        <thead>
+            <tr>
+                <th>Branch</th>
+                <th>Service Name</th>
+                <th>Total Sales</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php $grandTotal = 0; @endphp
+            @foreach ($reports as $report)
+                @foreach ($report->grouped_services as $serviceName => $serviceData)
                     <tr>
-                        <td>{{ $report->quarter_label }}</td>
-                        <td>{{ number_format($report->total_sales, 2) }}</td>
-                        <td>{{ $report->appointment_count }}</td>
-                        <td>{{ $report->service_count }}</td>
-                        <td>{{ $report->services }}</td>
-                        <td>{{ $report->employees }}</td>
-                        <td>{{ $report->customers }}</td>
+                        <td>{{ $report->branch_name ?? 'N/A' }}</td>
+                        <td>{{ $serviceName }}</td>
+                        <td>{{ number_format($serviceData['total_price'], 2) }}</td>
                     </tr>
+                    @php $grandTotal += $serviceData['total_price']; @endphp
                 @endforeach
-            </tbody>
-        </table>
+            @endforeach
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="2">Total Sales</td>
+                <td>{{ number_format($grandTotal, 2) }}</td>
+            </tr>
+        </tfoot>
+    </table>
 
 
 </body>

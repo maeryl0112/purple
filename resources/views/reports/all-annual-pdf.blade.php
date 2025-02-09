@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Annual Sales Report</title>
     <style>
-         body {
+        body {
             font-family: Arial, sans-serif;
             font-size: 14px;
             margin: 20px;
@@ -59,15 +59,22 @@
 <body>
     <div class="header">
         <div class="logo">
-           <img src="{{ $image }}" width="300px" alt="Salon Logo">
-           <p>Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite </br> purplelookhairsalonandspa@gmail.com </br> 09********</p>
+            <img src="{{ $image }}" width="300px" alt="Salon Logo">
+            <p>
+                Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite <br> 
+                purplelookhairsalonandspa@gmail.com<br>
+                0916-504-8592 (Globe) <br>
+                0968-322-8344 (Smart) <br>
+                (046) 450-1531 (Molino Branch) <br>
+                (046) 471-3897 (Main Branch) <br> 
+            </p>
         </div>
-   
     </div>
     <div class="report-info">
-            <p><strong>Prepared By:</strong> {{ $preparedBy }}</p>
-            <p><strong>Report Date & Time:</strong> {{ $currentDateTime }}</p>
-        </div>
+        <p><strong>Prepared By:</strong> {{ $preparedBy }}</p>
+        <p><strong>Report Date & Time:</strong> {{ $currentDateTime }}</p>
+        <p><strong>Branch:</strong> {{ $selectedBranch }}</p>
+    </div>
     <h2 class="report-title">
         Annual Sales Report
     </h2>
@@ -75,47 +82,38 @@
     <table>
         <thead>
             <tr>
-                <th class="px-4 py-2">Year</th>
-                <th class="px-4 py-2">Total Sales</th>
-                <th class="px-4 py-2">Appointment Count</th>
-                <th class="px-4 py-2">Services Count</th>
-                <th class="px-4 py-2">Services</th>
-                <th class="px-4 py-2">Prices</th>
-                <th class="px-4 py-2">Employees</th>
-                <th class="px-4 py-2">Customers</th>
+                <th>Year</th>
+                <th>Branches</th>
+                <th>Total Sales</th>
+                <th>Service Name</th>
+                <th>Sales</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($reports as $report)
                 <tr>
-                    <td class="px-4 py-2">{{ $report->year }}</td>
-                    <td class="px-4 py-2">₱{{ number_format($report->total_sales, 2) }}</td>
-                    <td class="px-4 py-2">{{ $report->appointment_count }}</td>
-                    <td class="px-4 py-2">{{ $report->services_count }}</td>
-                    <td class="px-4 py-2">
-                        @foreach (explode(',', $report->services) as $service)
-                            <p>{{ $service }}</p>
-                        @endforeach
-                    </td>
-                    <td class="px-4 py-2">
-                        @foreach (explode(',', $report->prices) as $price)
-                            <p>{{ number_format($price, 2) }}</p>
-                        @endforeach
-                    </td>
-                    <td class="px-4 py-2">
-                        @foreach (explode(',', $report->employees) as $employee)
-                            <p>{{ $employee }}</p>
-                        @endforeach
-                    </td>
-                    <td class="px-4 py-2">
-                        @foreach (explode(',', $report->customers) as $customer)
-                            <p>{{ $customer }}</p>
-                        @endforeach
-                    </td>
+                    <td>{{ $report->year }}</td>
+                    <td>{{ $selectedBranch }}</td>
+                    <td>{{ number_format($report->total_sales, 2) }}</td>
+                    <td colspan="2"></td>
                 </tr>
+                @foreach ($report->grouped_services as $serviceName => $serviceData)
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>{{ $serviceName }}</td>
+                        <td>{{ number_format($serviceData['total_price'], 2) }}</td>
+                    </tr>
+                @endforeach
             @endforeach
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2">Grand Total</td>
+                <td colspan="3">{{ number_format($grandTotal, 2) }}</td>
+            </tr>
+        </tfoot>
     </table>
-
 </body>
 </html>

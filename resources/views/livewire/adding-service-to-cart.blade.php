@@ -92,10 +92,11 @@
                             <input type="radio" name="employee-choice"
                                    value="{{ $employee->id }}" disabled class="sr-only"
                                    aria-labelledby="employee-choice-{{ $employee->id }}-label">
-                            <span id="employee-choice-{{ $employee->id }}-label">
+                            <span class="text-center"  id="employee-choice-{{ $employee->id }}-label">
                                 {{ $employee->first_name }}
                                 <br>
                                 <span>{{ $employee->jobCategory?->name }}</span>
+                                <span>{{ $employee->branch?->name }}</span>
                                 <br>
                                 @if($employee->reason === 'taken')
                                     <span class="text-xs italic">(Taken)</span>

@@ -229,9 +229,7 @@ public function openPaymentModal($id)
             $query->where('user_id', $this->userId);
         }
 
-        if ($this->employeeId) { // Add employee filter
-            $query->where('employee_id', $this->employeeId);
-        }
+       
         
         if ($this->serviceId) { // Add service filter
             $query->where('service_id', $this->serviceId);
@@ -250,7 +248,7 @@ public function openPaymentModal($id)
         $query->where('status', 2);
     }
 
-    $this->appointments = $query->orderBy('created_at')->paginate(20);
+    $this->appointments = $query->orderBy('id','desc')->paginate(20);
 
     return view('livewire.manage-appointments', [
         'appointments' => $this->appointments,

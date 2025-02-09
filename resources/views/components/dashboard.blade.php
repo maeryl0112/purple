@@ -75,7 +75,7 @@
                               <span class="ml-2 text-sm tracking-wide truncate">Manage Services</span>
                             </a>
                           </li>
-
+                          @if(Auth::user()->role_id == 1 )
                           <li>
                             <a href="{{ route('managecategories') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-darkPurple pr-6
                     {{ request()->routeIs('managecategories') ? 'bg-purple-300 border-purple-500 rounded-lg text-gray-900 font-semibold' : '' }}
@@ -87,7 +87,7 @@
                             </a>
                         </li>
 
-                            @if(Auth::user()->role_id == 1 )
+                            
 
                             <li>
                                 <a href="{{ route('manageemployees') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-darkPurple pr-6
@@ -174,7 +174,7 @@
                             </a>
                           </li>
                           @endif
-                          <li>
+                        <!--  <li>
                             <a href="{{ route('inventory.notification') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-darkPurple pr-6
                            {{ request()->routeIs('inventory.notification') ? 'bg-purple-300 border-purple-500 rounded-lg text-gray-900 font-semibold' : '' }}
                             ">
@@ -187,7 +187,7 @@
                             </span>
                             <span class="ml-2 text-sm tracking-wide truncate">Inventory Notice History  </span>
                             </a>
-                          </li>
+                          </li> -->
                           @if(Auth::user()->role_id == 1 )
                           <li class="px-5">
                             <div class="flex flex-row items-center h-8">

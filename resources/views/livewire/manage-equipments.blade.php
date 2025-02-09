@@ -21,7 +21,9 @@
         <div class="w-1/2 mx-2">
 
             <button  wire:click="showAddEquipmentModal"  type="button" class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">ADD</button>
-            <button type="button" wire:click="exportToPdf" class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">Download to PDF</button>
+            @if(Auth::user()->role_id == 1 )
+            <button wire:click="exportToPdf" class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">Download to PDF</button>
+            @endif
 
             <label for="default-search" class="my-2 text-sm font-medium text-gray-900 sr-only ">Search</label>
             <div class="relative">
@@ -290,10 +292,9 @@
 
 
 
-
-
         <script>
-            window.addEventListener('downloadFile', event => {
+   
+   window.addEventListener('downloadFile', event => {
                 const link = document.createElement('a');
                 link.href = event.detail.url;
                 link.download = 'equipment-report.pdf'; // Optional: Customize the filename
@@ -301,7 +302,8 @@
                 link.click();
                 link.remove();
             });
-        </script>
+</script>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -346,8 +348,13 @@
              }
          });
      });
+  
+
+       
  });
  </script>
+
+
     </div>
 </div>
 

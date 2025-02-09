@@ -9,6 +9,9 @@ use App\Models\Service;
 use App\Models\TimeSlot;
 use App\Models\User;
 use App\Models\Supply;
+use App\Models\Equipment;
+use App\Models\Branch;
+
 use Carbon\Carbon;
 use App\Models\Employee;
 use Illuminate\Support\Facades\DB;
@@ -20,200 +23,206 @@ use Illuminate\Http\Request;
 class AdminDashboardHomeController extends Controller
 {
     public function index(Request $request)
-    {
-        $todayDate = Carbon::today()->toDateString();
+{
+    $todayDate = Carbon::today()->toDateString();
+    $tomorrowDate = Carbon::tomorrow()->toDateString();
+    $currentYear = Carbon::now()->year;
 
-        $totalCustomers = User::where('role_id', UserRolesEnum::Customer)->count();
-        $totalEmployees = Employee::count();
-        $totalServicesActive = Service::where('is_hidden', 0)->count();
-        $totalServices = Service::count();
+        $loggedInUser = auth()->user();
+    
+        if ($loggedInUser->role_id === 1) {
+            // Admin can see all appointments
+            $lowQuantitySupplies = Supply::where('quantity', '<=', 5)->get();
 
-        $totalUpcomingAppointments = Appointment::where('status', 1)->count();
+            $expirationThreshold = 7; // days
+            $nearExpirationSupplies = Supply::where('expiration_date', '<=', Carbon::today()->addDays($expirationThreshold))
+                ->where('expiration_date', '>', Carbon::today())
+                ->with('online_supplier')
+                ->get();
+            $totalUpcomingAppointments = Appointment::where('status', 1)->count();
+            $totalCompletedAppointments = Appointment::where('status', 0)->count();
+            $totalEmployees = Employee::count();
+            $totalServices = Service::count();
+            $totalCustomers = User::where('role_id', UserRolesEnum::Customer)->count();
+            $totalServicesActive = Service::where('status', 1)->count();
+        } else {
+           
+            // Employee can only see data for their branch
+            $branchId = $loggedInUser->branch_id;
 
-
-        $totalCompletedAppointments = Appointment::where('status', 2)->count();
-
-        $bookingRevenueThisMonth = Appointment::where('created_at', '>', Carbon::today()->subMonth()->toDateTimeString())
-            ->where('status', '!=', 0)
-            ->sum('total');
-        $bookingRevenueLastMonth = Appointment::where('created_at', '>', Carbon::today()->subMonths(2)->toDateTimeString())
-            ->where('created_at', '<', Carbon::today()->subMonth()->toDateTimeString())
-            ->where('status', '!=', 0)
-            ->sum('total');
-
-        $percentageRevenueChangeLastMonth = $bookingRevenueLastMonth != 0
-            ? ($bookingRevenueThisMonth - $bookingRevenueLastMonth) / $bookingRevenueLastMonth * 100
-            : 100;
-
-
-
-      //  $timeSlots = TimeSlot::all(); //
-        // Monthly revenue data for the chart
-        $currentYear = Carbon::now()->year;
-
-        $revenueData = DB::table('appointments')
-        ->selectRaw('MONTH(date) as month, SUM(total) as total')
-        ->whereYear('date', $currentYear)
-        ->where('status', 1) // Only completed appointments
-        ->groupBy('month')
-        ->orderBy('month')
-        ->get();
-
-        // Convert month numbers to full month names
-        $months = $revenueData->pluck('month')->map(function ($month) {
-            return Carbon::create()->month($month)->format('F'); // e.g., "December"
-        });
-
-        $totals = $revenueData->pluck('total');
-
-        $selectedYear = request()->input('year', Carbon::now()->year);
-
-        // Fetch the top 3 grossing services for the selected year
-        $topGrossingServices = DB::table('appointments')
-            ->select('services.name as service_name', DB::raw('SUM(appointments.total) as total_earnings'))
-            ->join('services', 'appointments.service_id', '=', 'services.id') // Join with services table
-            ->whereYear('appointments.date', $selectedYear) // Filter by selected year
-            ->groupBy('services.name') // Group by service name
-            ->orderByDesc('total_earnings') // Sort by earnings in descending order
-            ->limit(3) // Limit to top 3
+            $lowQuantitySupplies = Supply::where('quantity', '<=', 5)
+            ->where('branch_id', $loggedInUser->branch_id)
             ->get();
-
-
-            $paymentBreakdown = DB::table('appointments')
-            ->select('payment', DB::raw('COUNT(*) as payment_count'))
-            ->where('status', 1) // Only include completed appointments
-            ->groupBy('payment') // Group by payment method (Cash, Online)
-            ->get();
-
-        // Format the result as an associative array for easier use in the frontend
-        $paymentData = $paymentBreakdown->pluck('payment_count', 'payment')->toArray();
-
-
-        $lowQuantitySupplies = Supply::where('quantity', '<=', 5)->get();
-
-
-        $expirationThreshold = 30; // days
-        $nearExpirationSupplies = Supply::where('expiration_date', '<=', Carbon::today()->addDays($expirationThreshold))
-            ->where('expiration_date', '>', $todayDate)
-            ->with('online_supplier')
-            ->get();
-
-        $serviceCategoryRevenue = DB::table('appointments')
-            ->select('categories.name as category_name', DB::raw('SUM(appointments.total) as total_revenue'))
-            ->join('services', 'appointments.service_id', '=', 'services.id') // Join with services
-            ->join('categories', 'services.category_id', '=', 'categories.id') // Join with categories
-            ->where('appointments.status', 1) // Filter only completed appointments
-            ->groupBy('categories.name') // Group by category name
-            ->orderByDesc('total_revenue') // Sort by total revenue
-            ->get();
-
-        // Top Customers based on Appointment Revenue
+    
+            $expirationThreshold = 7; // days
+            $nearExpirationSupplies = Supply::where('expiration_date', '<=', Carbon::today()->addDays($expirationThreshold))
+                ->where('expiration_date', '>', Carbon::today())
+                ->where('branch_id', $loggedInUser->branch_id)
+                ->with('online_supplier')
+                ->get();
+    
+            $totalUpcomingAppointments = Appointment::where('status', 1)
+                ->whereHas('employee', function ($query) use ($branchId) {
+                    $query->where('branch_id', $branchId);
+                })
+                ->count();
+    
+            $totalCompletedAppointments = Appointment::where('status', 0)
+                ->whereHas('employee', function ($query) use ($branchId) {
+                    $query->where('branch_id', $branchId);
+                })
+                ->count();
+    
+            $totalEmployees = Employee::where('branch_id', $branchId)->count();
+    
+            // Get total services linked to this branch
+            $totalServices = DB::table('branch_service')
+                ->where('branch_id', $branchId)
+                ->count();
+    
+            // Get total active services (instead of supplies)
+            $totalServicesActive = Service::where('status', 1)
+                ->whereExists(function ($query) use ($branchId) {
+                    $query->select(DB::raw(1))
+                        ->from('branch_service')
+                        ->whereColumn('branch_service.service_id', 'services.id')
+                        ->where('branch_service.branch_id', $branchId);
+                })
+                ->count();
+    
+            // Count customers in this branch (fixing previous mistake)
+            $totalCustomers = Equipment::where('branch_id', $branchId)->count();
+                
+        }
+    
         $topCustomers = DB::table('appointments')
         ->select(
+            'users.id',
             'users.name',
             'users.email',
             DB::raw('SUM(appointments.total) as total_revenue')
         )
         ->join('users', 'appointments.user_id', '=', 'users.id') // Join with users table
-        ->where('appointments.status', '!=', 0) // Exclude canceled appointments
-        ->groupBy('users.id', 'users.name', 'users.email') // Group by user fields
-        ->orderByDesc('total_revenue') // Sort by total revenue
-        ->limit(5) // Limit to the top 5 customers
-        ->get();
+        ->join('employees', 'appointments.employee_id', '=', 'employees.id') // Join with employees table
+        ->whereIn('appointments.status', [1]); 
 
-        $todayDate = Carbon::today()->toDateString();
-        $tomorrowDate = Carbon::today()->addDay()->toDateString();
+        // Initialize the service revenue query before applying branch filters
+           
 
-        // Fetch today's schedule
-        $todaysSchedule = Appointment::select(
-            'appointments.*',
-            'employees.first_name as employee_name',
-            'services.name as service_name',
-            'users.name as customer_name',
-            'users.email as customer_email',
-            'users.phone_number as customer_phone'
-        )
-            ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
-            ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
-            ->leftJoin('users', 'appointments.user_id', '=', 'users.id')
-            ->where('appointments.date', $todayDate)
-            ->where('appointments.status', 1) // Only upcoming appointments
-            ->get();
-
-        // Fetch tomorrow's schedule
-        $tomorrowsSchedule = Appointment::select(
-            'appointments.*',
-            'employees.first_name as employee_name',
-            'services.name as service_name',
-            'users.name as customer_name',
-            'users.email as customer_email',
-            'users.phone_number as customer_phone'
-        )
-            ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
-            ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
-            ->leftJoin('users', 'appointments.user_id', '=', 'users.id')
-            ->where('appointments.date', $tomorrowDate)
-            ->where('appointments.status', 1) // Only upcoming appointments
-            ->get();
-
-        // Fetch upcoming schedule
-        $upcomingSchedule = Appointment::select(
-            'appointments.*',
-            'employees.first_name as employee_name',
-            'services.name as service_name',
-            'users.name as customer_name',
-            'users.email as customer_email',
-            'users.phone_number as customer_phone'
-        )
-            ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
-            ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
-            ->leftJoin('users', 'appointments.user_id', '=', 'users.id')
-            ->where('appointments.date', '>', $tomorrowDate)
-            ->where('appointments.status', 1) // Only upcoming appointments
-            ->orderBy('appointments.date')
-            ->get();
-
-
-            $selectedDate = $request->input('date', Carbon::today()->toDateString());
-            // Query data for the selected date
-            $reports = Appointment::selectRaw('
-                    date,
-                    SUM(total) as total_sales,
-                    COUNT(appointments.id) as appointment_count,
-                    GROUP_CONCAT(CONCAT(services.name, ":", services.price, ":", employees.first_name, ":", users.name)) as services_with_details
-                ')
+            $todaysSchedule = Appointment::select(
+                'appointments.*',
+                'employees.first_name as employee_name',
+                'services.name as service_name',
+                'users.name as customer_name',
+                'users.email as customer_email',
+                'users.phone_number as customer_phone'
+            )
                 ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
                 ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
-                ->leftJoin('users', 'appointments.user_id', '=', 'users.id') // Join users/customers table
-                ->where('appointments.status', 2) // Assuming 2 means completed
-                ->groupBy('date')
-                ->get();
-        
-            // Process services_with_details into structured data
-            $reports->transform(function ($report) {
-                $services = explode(',', $report->services_with_details);
-        
-                // Group services by name and calculate totals
-                $groupedServices = collect($services)->map(function ($service) {
-                    [$name, $price, $employee, $customer] = explode(':', $service);
-                    return [
-                        'name' => $name,
-                        'price' => (float) $price,
-                        'employee' => $employee,
-                        'customer' => $customer,
-                    ];
-                })->groupBy('name')->map(function ($group) {
-                    return [
-                        'total_price' => $group->sum('price'),
-                        'details' => $group,
-                    ];
-                });
-        
-                $report->grouped_services = $groupedServices; // Attach grouped data to the report
-                return $report;
-            });
-        
-            $grandTotal = $reports->sum('total_sales'); // Calculate grand total
+                ->leftJoin('users', 'appointments.user_id', '=', 'users.id')
+                ->where('appointments.date', $todayDate)
+                ->where('appointments.status', 1); // Only upcoming appointments
+            
+            // Fetch tomorrow's schedule
+            $tomorrowsSchedule = Appointment::select(
+                'appointments.*',
+                'employees.first_name as employee_name',
+                'services.name as service_name',
+                'users.name as customer_name',
+                'users.email as customer_email',
+                'users.phone_number as customer_phone'
+            )
+                ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
+                ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
+                ->leftJoin('users', 'appointments.user_id', '=', 'users.id')
+                ->where('appointments.date', $tomorrowDate)
+                ->where('appointments.status', 1);
+
+            $revenueQuery = DB::table('appointments')
+                ->selectRaw('MONTH(date) as month, SUM(total) as total')
+                ->whereYear('date', $currentYear)
+                ->where('appointments.status', 1 ) // Only completed appointments
+                ->groupBy('month')
+                ->orderBy('month');
+
+                
+                $serviceCategoryRevenueQuery = DB::table('appointments')
+                ->select(
+                    'categories.name as category_name',
+                    'services.name as service_name',
+                    DB::raw('SUM(appointments.total) as total_revenue')
+                )
+                ->join('services', 'appointments.service_id', '=', 'services.id')
+                ->join('categories', 'services.category_id', '=', 'categories.id')
+                ->join('employees', 'appointments.employee_id', '=', 'employees.id') // Ensure employee linkage
+                ->where('appointments.status', 1)
+                ->groupBy('categories.name', 'services.name')
+                ->orderByDesc('total_revenue');
+
+        if ($loggedInUser->role_id === 2) {
+            $serviceCategoryRevenueQuery->where('employees.branch_id', $loggedInUser->branch_id);
+            $topCustomers->where('employees.branch_id', $loggedInUser->branch_id);
+            $todaysSchedule->where('employees.branch_id', $loggedInUser->branch_id);
+            $tomorrowsSchedule->where('employees.branch_id', $loggedInUser->branch_id);
+            $revenueQuery->join('employees', 'appointments.employee_id', '=', 'employees.id')
+            ->where('employees.branch_id', $loggedInUser->branch_id);
+        }
+
+       // ✅ Execute query first
+            $serviceCategoryRevenue = $serviceCategoryRevenueQuery->get();
+
+            $structuredData = []; // Initialize array
+
+            foreach ($serviceCategoryRevenue as $item) { // ✅ Now it's a collection, safe to loop
+                // ✅ Ensure `category_name` is always a string (even if null)
+                $categoryKey = isset($item->category_name) && is_string($item->category_name)
+                    ? $item->category_name
+                    : 'No data'; // Default if category is missing
+
+                // ✅ Store data properly
+                $structuredData[$categoryKey][] = [
+                    'service_name' => $item->service_name ?? 'Unknown Service',
+                    'total_revenue' => $item->total_revenue ?? 0,
+                ];
+            }
+
+            $topCustomers = $topCustomers
+            ->groupBy('users.id', 'users.name', 'users.email') // Group by user fields
+            ->orderByDesc('total_revenue') // Sort by total revenue
+            ->limit(5) // Limit to the top 5 customers
+            ->get();
+
+            
+            // Get the final results
+// Ensure it's a collection before processing
+        $todaysSchedule = $todaysSchedule->get();
+       
+        $tomorrowsSchedule = $tomorrowsSchedule->get();
+
+        $revenueData = $revenueQuery->get();
+
+        // Convert month numbers to full month names
+        $months = $revenueData->pluck('month')->map(function ($month) {
+            return Carbon::createFromDate(2000, $month, 1)->format('F'); // e.g., "January"
+        });
+
+        $totals = $revenueData->pluck('total');
+     
+
+      
+        $selectedYear = request()->input('year', Carbon::now()->year);
+
+
+
+      
+
+     
+
+
+      
+
+
+            
 
         return view('dashboard.admin-employee', [
             'totalCustomers' => $totalCustomers,
@@ -222,137 +231,131 @@ class AdminDashboardHomeController extends Controller
             'totalServices' => $totalServices,
             'totalUpcomingAppointments' => $totalUpcomingAppointments,
             'totalCompletedAppointments' => $totalCompletedAppointments,
-            'bookingRevenueThisMonth' => $bookingRevenueThisMonth,
-            'bookingRevenueLastMonth' => $bookingRevenueLastMonth,
-            'percentageRevenueChangeLastMonth' => $percentageRevenueChangeLastMonth,
+           
                  'totals' => $totals,
+                 
             'months' => $months,
             'revenueData' => $revenueData,
             'lowQuantitySupplies' => $lowQuantitySupplies,
             'nearExpirationSupplies' => $nearExpirationSupplies,
-            'topGrossingServices' => $topGrossingServices,
              'selectedYear' => $selectedYear,
              'serviceCategoryRevenue' => $serviceCategoryRevenue,
              'topCustomers' => $topCustomers,
-             'paymentData' => $paymentData,
              'todaysSchedule' => $todaysSchedule,
         'tomorrowsSchedule' => $tomorrowsSchedule,
-        'upcomingSchedule' => $upcomingSchedule,
-        'grandTotal' => $grandTotal,
-        'reports' => $reports,
-        'selectedDate' => $selectedDate,
-        
-            // Supplies nearing expiration
+        'structuredData' => $structuredData,
+
 
         ]);
     }
+
     public function generateReport()
-    {
-        $serviceCategoryRevenue = DB::table('appointments')
-            ->select(
-                'categories.name as category_name',
-                'services.name as service_name',
-                DB::raw('SUM(appointments.total) as service_revenue'),
-                DB::raw('COUNT(appointments.id) as service_count'), // Count of appointments
-                'services.price as service_price'
-            )
-            ->join('services', 'appointments.service_id', '=', 'services.id')
-            ->join('categories', 'services.category_id', '=', 'categories.id')
-            ->where('appointments.status', 1)
-            ->groupBy('categories.name', 'services.name', 'services.price')
-            ->orderBy('categories.name')
-            ->orderByDesc('service_revenue')
-            ->get()
-            ->groupBy('category_name');
+{
+    $loggedInUser = auth()->user();
 
-            $image = public_path('images/banner-purple.png');
-            $preparedBy = auth()->user()->name ?? 'System Admin';
-            $currentDateTime = now()->format('Y-m-d H:i:s');
-        $pdf = PDF::loadView('reports.service_category_with_services', compact('serviceCategoryRevenue','currentDateTime','preparedBy','image'));
-
-        return $pdf->download('service_category_with_services_report.pdf');
+    // Get branch name for employees (if not admin)
+    $assignedBranch = 'All Branches';
+    if ($loggedInUser->role_id !== 1) {
+        $assignedBranch = Branch::where('id', $loggedInUser->branch_id)->value('name');
     }
 
-    public function generateAllCustomersReport()
-    {
-        $customers = DB::table('appointments')
-            ->select(
-                'users.id as user_id',
-                'users.name',
-                'users.email',
-                'services.name as service_name',
-                'appointments.total as service_price',
-                DB::raw('SUM(appointments.total) OVER (PARTITION BY users.id) as total_revenue')
-            )
-            ->join('users', 'appointments.user_id', '=', 'users.id')
-            ->join('services', 'appointments.service_id', '=', 'services.id')
-            ->where('appointments.status', '!=', 0)
-            ->orderByDesc('total_revenue')
-            ->get()
-            ->groupBy('user_id');
+    $serviceCategoryRevenue = DB::table('appointments')
+        ->select(
+            'categories.name as category_name',
+            'services.name as service_name',
+            'branches.name as branch_name',
+            DB::raw('SUM(appointments.total) as service_revenue'),
+            DB::raw('COUNT(appointments.id) as service_count'),
+            'services.price as service_price'
+        )
+        ->join('services', 'appointments.service_id', '=', 'services.id')
+        ->join('categories', 'services.category_id', '=', 'categories.id')
+        ->join('employees', 'appointments.employee_id', '=', 'employees.id')
+        ->join('branches', 'employees.branch_id', '=', 'branches.id');
 
-            $image = public_path('images/banner-purple.png');
-            $preparedBy = auth()->user()->name ?? 'System Admin';
-            $currentDateTime = now()->format('Y-m-d H:i:s');
-
-        // Load the PDF view
-        $pdf = PDF::loadView('reports.all_customers_with_services', compact('customers','currentDateTime','preparedBy','image'));
-
-        // Return the PDF download
-        return $pdf->download('all_customers_with_services_report.pdf');
+    // Apply branch filter for employees (not admins)
+    if ($loggedInUser->role_id !== 1) {
+        $serviceCategoryRevenue->where('employees.branch_id', $loggedInUser->branch_id);
     }
 
-    public function dailyReport(Request $request)
-    {
-        // Get the date from the request, default to today
-        $selectedDate = $request->get('date', now()->format('Y-m-d'));
+    $serviceCategoryRevenue = $serviceCategoryRevenue
+        ->where('appointments.status', 1)
+        ->groupBy('categories.name', 'services.name', 'services.price', 'branches.name')
+        ->orderBy('categories.name')
+        ->orderByDesc('service_revenue')
+        ->get()
+        ->groupBy('category_name');
+
+    $image = public_path('images/banner-purple.png');
+    $preparedBy = $loggedInUser->name ?? 'System Admin';
+    $currentDateTime = now()->format('Y-m-d H:i:s');
+
+    $pdf = PDF::loadView('reports.service_category_with_services', compact(
+        'serviceCategoryRevenue',
+        'currentDateTime',
+        'preparedBy',
+        'image',
+        'assignedBranch'
+    ));
+
+    return $pdf->download('service_category_with_services_report.pdf');
+}
+
     
-        // Query data for the selected date
-        $reports = Appointment::selectRaw('
-                date,
-                SUM(total) as total_sales,
-                COUNT(appointments.id) as appointment_count,
-                GROUP_CONCAT(CONCAT(services.name, ":", services.price, ":", employees.first_name, ":", users.name)) as services_with_details
-            ')
-            ->leftJoin('employees', 'appointments.employee_id', '=', 'employees.id')
-            ->leftJoin('services', 'appointments.service_id', '=', 'services.id')
-            ->leftJoin('users', 'appointments.user_id', '=', 'users.id') // Join users/customers table
-            ->where('appointments.status', 1) // Assuming 2 means completed
-            ->whereDate('date', $selectedDate) // Filter by the selected date
-            ->groupBy('date')
-            ->get();
     
-        // Process services_with_details into structured data
-        $reports->transform(function ($report) {
-            $services = explode(',', $report->services_with_details);
+
+public function generateAllCustomersReport()
+{
+    $loggedInUser = auth()->user();
+
+    // Default: Admin sees all branches
+    $assignedBranch = 'All Branches';
     
-            // Group services by name and calculate totals
-            $groupedServices = collect($services)->map(function ($service) {
-                [$name, $price, $employee, $customer] = explode(':', $service);
-                return [
-                    'name' => $name,
-                    'price' => (float) $price,
-                    'employee' => $employee,
-                    'customer' => $customer,
-                ];
-            })->groupBy('name')->map(function ($group) {
-                return [
-                    'total_price' => $group->sum('price'),
-                    'details' => $group,
-                ];
-            });
-    
-            $report->grouped_services = $groupedServices; // Attach grouped data to the report
-            return $report;
-        });
-    
-        $grandTotal = $reports->sum('total_sales'); // Calculate grand total
-    
-        return view('dashboard.admin-employee', compact(
-            'reports',
-            'grandTotal',
-            'selectedDate'));
+    // Employees see only their branch
+    if ($loggedInUser->role_id !== 1) {
+        $assignedBranch = Branch::where('id', $loggedInUser->branch_id)->value('name');
     }
-    
+
+    $customers = DB::table('appointments')
+        ->select(
+            'users.id as user_id',
+            'users.name',
+            'users.email',
+            'services.name as service_name',
+            'appointments.total as service_price',
+            DB::raw('SUM(appointments.total) as total_revenue'),
+            'branches.name as branch_name' // Include branch name
+        )
+        ->join('users', 'appointments.user_id', '=', 'users.id')
+        ->join('services', 'appointments.service_id', '=', 'services.id')
+        ->join('employees', 'appointments.employee_id', '=', 'employees.id')
+        ->join('branches', 'employees.branch_id', '=', 'branches.id')
+        ->where('appointments.status', 1);
+
+    // Apply branch filter for employees
+    if ($loggedInUser->role_id !== 1) {
+        $customers->where('employees.branch_id', $loggedInUser->branch_id);
+    }
+
+    $customers = $customers
+        ->groupBy('users.id', 'users.name', 'users.email', 'services.name', 'appointments.total', 'branches.name')
+        ->orderByDesc('total_revenue')
+        ->get()
+        ->groupBy('user_id');
+
+    $image = public_path('images/banner-purple.png');
+    $preparedBy = $loggedInUser->name ?? 'System Admin';
+    $currentDateTime = now()->format('Y-m-d H:i:s');
+
+    $pdf = PDF::loadView('reports.all_customers_with_services', compact(
+        'customers', 
+        'currentDateTime',
+        'preparedBy',
+        'image',
+        'assignedBranch'
+    ));
+
+    return $pdf->download('all_customers_with_services.pdf');
+}
 
 }

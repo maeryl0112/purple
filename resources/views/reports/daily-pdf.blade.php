@@ -37,6 +37,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 20px;
         }
         table th, table td {
             border: 1px solid #ccc;
@@ -55,13 +56,23 @@
             font-size: smaller;
             color: #62a;
         }
+        .total-row td {
+            font-weight: bold;
+            background-color: #f9f9f9;
+        }
     </style>
 </head>
 <body>
-    <div class="header">
+<div class="header">
         <div class="logo">
            <img src="{{ $image }}" width="300px" alt="Salon Logo">
-           <p>Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite </br> purplelookhairsalonandspa@gmail.com </br> 09********</p>
+           <p>Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite </br> 
+           purplelookhairsalonandspa@gmail.com<br>
+               0916-504-8592 (Globe) <br>
+               0968-322-8344 (Smart) <br>
+               (046) 450-1531 (Molino Branch) <br>
+               (046) 471-3897 (Main Branch) <br> 
+    </p>
         </div>
     </div>
 
@@ -69,17 +80,16 @@
         <p><strong>Prepared By:</strong> {{ $preparedBy }}</p>
         <p><strong>Report Date & Time:</strong> {{ $currentDateTime }}</p>
         <p><strong>Report for Date:</strong> {{ \Carbon\Carbon::parse($selectedDate)->format('F d, Y') }}</p>
-        @if(isset($selectedBranch) && $selectedBranch)
-            <p><strong>Branch:</strong> {{ $selectedBranch }}</p>
-        @endif
+        <p><strong>Branch:</strong> {{ $branchAssigned }}</p>
     </div>
 
     <h2 class="report-title">Daily Sales Report</h2>
 
-    <table class="table-container">
+    <table>
         <thead>
             <tr>
                 <th>Service Name</th>
+                <th>Branch</th>
                 <th>Sales</th>
             </tr>
         </thead>
@@ -88,15 +98,19 @@
                 @foreach ($report->grouped_services as $serviceName => $serviceData)
                     <tr>
                         <td>{{ $serviceName }}</td>
+                        <td>{{ $report->branch_name ?? 'N/A' }}</td> <!-- Add branch name -->
                         <td>{{ number_format($serviceData['total_price'], 2) }}</td>
+                        
                     </tr>
                 @endforeach
             @endforeach
+        </tbody>
+        <tfoot>
             <tr class="total-row">
-                <td><strong>Total Sales:</strong></td>
+                <td colspan="2" style="text-align: right;"><strong>Total Sales:</strong></td>
                 <td><strong>{{ number_format($grandTotal, 2) }}</strong></td>
             </tr>
-        </tbody>
+        </tfoot>
     </table>
 </body>
 </html>

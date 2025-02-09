@@ -196,88 +196,78 @@ class ManageEquipments extends Component
     }
 
     public function render()
-{
-    $user = auth()->user();
-
-    $query = Equipment::with(['employee', 'category'])
-        ->when($user->role_id != 1, function ($query) use ($user) { // Employees only see their branch
-            $query->where('branch_id', $user->branch_id);
-        })
-        ->when($this->categoryFilter, function ($query) {
-            $query->where('category_id', $this->categoryFilter);
-        })
-        ->when($this->branchFilter, function ($query) {
-            $query->where('branch_id', $this->branchFilter);
-        })
-        ->when($this->search, function ($query) {
-            $query->where(function ($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('brand_name', 'like', '%' . $this->search . '%');
-            });
-        })
-        ->when($this->statusFilter == 'active', function ($query) {
-            $query->where('status', 1);
-        })
-        ->when($this->statusFilter == 'archived', function ($query) {
-            $query->where('status', 0);
-        });
-
-    $equipments = $query->paginate($this->paginate);
-
-    return view('livewire.manage-equipments', [
-        'equipments' => $equipments,
-        'categories' => $this->categories,
-        'branches' => $this->branches,
-    ]);
-}
-
-
-    protected function notifyAdminAndEmployees($equipment, $type)
     {
-        // Get the admin and all employees
-        $admin = User::where('role_id', 1)->first(); // Assuming there's a role column
-        $employees = User::where('role_id', 2)->get(); // Assuming employees have the role 'employee'
+        $user = auth()->user();
     
-        // Notify the admin
-        if ($admin) {
-            $admin->notify(new EquipmentNotification($equipment, $type));
-        }
-    
-        // Notify all employees
-        foreach ($employees as $employee) {
-            $employee->notify(new EquipmentNotification($equipment, $type));
-        }
-    }
-
-public function exportToPdf()
-{
-    $equipments = Equipment::with(['employee', 'category'])
-        ->when($this->categoryFilter, function ($query) {
-            $query->where('category_id', $this->categoryFilter);
-        })
-        ->when($this->search, function ($query) {
-            $query->where(function ($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('brand_name', 'like', '%' . $this->search . '%');
+        $query = Equipment::with(['employee', 'category'])
+            ->when($user->role_id != 1, function ($query) use ($user) { 
+                // Employees can only see their own branch
+                $query->where('branch_id', $user->branch_id);
+            })
+            ->when($user->role_id == 1 && $this->branchFilter, function ($query) { 
+                // Only admins can filter by branch
+                $query->where('branch_id', $this->branchFilter);
+            })
+            ->when($this->categoryFilter, function ($query) {
+                $query->where('category_id', $this->categoryFilter);
+            })
+            ->when($this->search, function ($query) {
+                $query->where(function ($q) {
+                    $q->where('name', 'like', '%' . $this->search . '%')
+                      ->orWhere('brand_name', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->when($this->statusFilter == 'active', function ($query) {
+                $query->where('status', 1);
+            })
+            ->when($this->statusFilter == 'archived', function ($query) {
+                $query->where('status', 0);
             });
-        })
-        ->get();
-
-    if ($equipments->isEmpty()) {
-        session()->flash('message', 'No equipment found for export.');
-        return;
+    
+        $equipments = $query->paginate($this->paginate);
+    
+        return view('livewire.manage-equipments', [
+            'equipments' => $equipments,
+            'categories' => $this->categories,
+            'branches' => $this->branches,
+        ]);
     }
+    
 
-    $image = public_path('images/banner-purple.png');
-    $preparedBy = auth()->user()->name ?? 'System Admin';
-    $currentDateTime = now()->format('Y-m-d H:i:s');
 
-    $pdf = Pdf::loadView('equipment-report', compact('equipments', 'image', 'preparedBy', 'currentDateTime'));
-
-    $pdfPath = 'pdf/equipment-report-' . time() . '.pdf';
-    Storage::disk('public')->put($pdfPath, $pdf->output());
-
-    // Dispatch the download event
-    $this->dispatchBrowserEvent('downloadFile', ['url' => Storage::url($pdfPath)]);
-}
+   
+    
+    public function exportToPdf()
+    {
+        $equipments = Equipment::with(['employee', 'category'])
+            ->when($this->categoryFilter, function ($query) {
+                $query->where('category_id', $this->categoryFilter);
+            })
+            ->when($this->search, function ($query) {
+                $query->where(function ($q) {
+                    $q->where('name', 'like', '%' . $this->search . '%')
+                      ->orWhere('brand_name', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->get();
+    
+        if ($equipments->isEmpty()) {
+            session()->flash('message', 'No equipment found for export.');
+            return;
+        }
+    
+        $image = public_path('images/banner-purple.png');
+        $preparedBy = auth()->user()->name ?? 'System Admin';
+        $currentDateTime = now()->format('Y-m-d H:i:s');
+    
+        $pdf = Pdf::loadView('equipment-report', compact('equipments', 'image', 'preparedBy', 'currentDateTime'));
+    
+        $pdfPath = 'pdf/equipment-report-' . time() . '.pdf';
+        Storage::disk('public')->put($pdfPath, $pdf->output());
+    
+        // Dispatch the download event
+        $this->dispatchBrowserEvent('downloadFile', ['url' => Storage::url($pdfPath)]);
+    }
+    
+    
 }

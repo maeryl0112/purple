@@ -4,6 +4,9 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\Service;
+use App\Models\Branch;
+use App\Models\Employee;
+use App\Models\User;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 
@@ -17,7 +20,8 @@ class ManageServices extends Component
 
     public $showEditServiceModal = false; // Modal for editing services
      // For Edit Modal
-    public $selectedEmployeeId = null; // Tracks the employee being edited
+    public $selectedEmployeeId = null;
+    public $selectedBranchId = null; 
     public $image;
 
     public $search;
@@ -25,6 +29,7 @@ class ManageServices extends Component
     public $categoryFilter = ''; // Default: show all categories
 
     public $employeeIds = [];
+    public $branchIds = [];
 
 
     
@@ -106,6 +111,8 @@ class ManageServices extends Component
             $this->image = null;
             $this->selectedServiceId = null;
             $this->employeeIds = [];
+            $this->selectedBranchId = null;
+            $this->branchIds = [];
         }
 
 
@@ -144,6 +151,11 @@ class ManageServices extends Component
         if (isset($this->employeeIds)) {
             $service->employees()->sync($this->employeeIds);
         }
+        
+        // Sync branches if applicable
+        if (isset($this->branchIds)) {
+            $service->branches()->sync($this->branchIds);
+        }
 
         // Reset Form and Emit Success
         session()->flash('message', $this->selectedServiceId ? 'Service updated successfully!' : 'Service added successfully!');
@@ -166,33 +178,53 @@ class ManageServices extends Component
 }
 
 public function render()
-    {
-        $categories = \App\Models\Category::all();
-        $employees = \App\Models\Employee::all();
+{
+    $user = auth()->user();
+    $branches = Branch::all();
+    $categories = \App\Models\Category::all();
 
-        $services = Service::when($this->statusFilter == 'active', function ($query) {
-                    $query->where('is_hidden', 0); // Filter by active services
-                })
-                ->when($this->statusFilter == 'archived', function ($query) {
-                    $query->where('is_hidden', 1); // Filter by archived services
-                })
-                ->when($this->categoryFilter, function ($query) {
-                    $query->where('category_id', $this->categoryFilter); // Filter by category
-                })
-                ->when($this->search, function ($query) {
-                    $query->where('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('description', 'like', '%' . $this->search . '%')
-                        ->orWhereHas('category', function ($query) {
-                            $query->where('name', 'like', '%' . $this->search . '%');
-                        });
-                })
-                ->orderBy('created_at', 'desc') // Order by created date
-                ->paginate(10);
-
-       // Fetch all employees
-
-        return view('livewire.manage-services', compact('services', 'categories', 'employees'));
+    // Default branch selection for non-admin users
+    if ($user->role_id !== 1) {
+        $this->selectedBranchId = $user->branch_id; 
     }
+
+    $services = Service::when($this->statusFilter == 'active', function ($query) {
+            $query->where('is_hidden', 0); // Active services
+        })
+        ->when($this->statusFilter == 'archived', function ($query) {
+            $query->where('is_hidden', 1); // Archived services
+        })
+        ->when($this->categoryFilter, function ($query) {
+            $query->where('category_id', $this->categoryFilter); // Category filter
+        })
+        ->when($this->search, function ($query) {
+            $query->where('name', 'like', '%' . $this->search . '%')
+                ->orWhere('description', 'like', '%' . $this->search . '%')
+                ->orWhereHas('category', function ($query) {
+                    $query->where('name', 'like', '%' . $this->search . '%');
+                });
+        })
+        ->when($user->role_id !== 1, function ($query) use ($user) {
+            $query->whereHas('branches', function ($branchQuery) use ($user) {
+                $branchQuery->where('branch_id', $user->branch_id);
+            });
+        })
+        ->orderBy('created_at', 'desc') 
+        ->paginate(10);
+
+        $employees = Employee::when($user->role_id !== 1, function ($query) use ($user) {
+            $query->where('branch_id', $user->branch_id);
+        })->get();
+        
+
+    // Fetch employees only from the logged-in user's branch
+  
+
+    return view('livewire.manage-services', compact('services', 'categories', 'employees', 'branches'));
+}
+
+
+
 
 
 

@@ -57,10 +57,16 @@
     </style>
 </head>
 <body>
-    <div class="header">
+<div class="header">
         <div class="logo">
            <img src="{{ $image }}" width="300px" alt="Salon Logo">
-           <p>Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite </br> purplelookhairsalonandspa@gmail.com </br> 09********</p>
+           <p>Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite </br> 
+           purplelookhairsalonandspa@gmail.com<br>
+               0916-504-8592 (Globe) <br>
+               0968-322-8344 (Smart) <br>
+               (046) 450-1531 (Molino Branch) <br>
+               (046) 471-3897 (Main Branch) <br> 
+    </p>
         </div>
     </div>
         <div class="report-info">

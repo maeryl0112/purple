@@ -27,6 +27,7 @@
                     </form>
 
                     <!-- Role Filter -->
+                    @if(Auth::user()->role_id == 1 )
                     <form method="GET" action="{{ route('manageusers') }}" class="flex items-center gap-4">
                         <select name="role" class="border rounded px-4 py-2 text-sm">
                             <option value="">All Roles</option>
@@ -38,6 +39,7 @@
                             Filter
                         </button>
                     </form>
+                    @endif
                 </div>
 
                 <!-- Table -->

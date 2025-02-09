@@ -57,17 +57,18 @@
     </style>
 </head>
 <body>
-    <div class="header">
+<div class="header">
         <div class="logo">
            <img src="{{ $image }}" width="300px" alt="Salon Logo">
-           <p>Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite </br> purplelookhairsalonandspa@gmail.com </br> 09********</p>
-        </div>
-        <div class="report-info">
-            <p><strong>Prepared By:</strong> {{ $preparedBy }}</p>
-            <p><strong>Report Date & Time:</strong> {{ $currentDateTime }}</p>
+           <p>Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite </br> 
+           purplelookhairsalonandspa@gmail.com<br>
+               0916-504-8592 (Globe) <br>
+               0968-322-8344 (Smart) <br>
+               (046) 450-1531 (Molino Branch) <br>
+               (046) 471-3897 (Main Branch) <br> 
+    </p>
         </div>
     </div>
-
     <h2 class="report-title">Weekly Sales Report</h2>
 
     <table>
@@ -76,12 +77,10 @@
                 <th>Week</th>
                 <th>Week Start</th>
                 <th>Week End</th>
-                <th>Total Sales</th>
-                <th>Appointment Count</th>
-                <th>Services</th>
-                <th>Prices</th>
-                <th>Employees</th>
-                <th>Customers</th>
+                <th>Service Name</th>
+                <th>Branch</th>
+                <th>Sales</th>
+             
             </tr>
         </thead>
         <tbody>
@@ -97,21 +96,14 @@
                             <p>{{ $service }}</p>
                         @endforeach
                     </td>
+                    <td>{{ $report->branch_name ?? 'N/A' }}</td>
                     <td>
                         @foreach (explode(',', $report->prices) as $price)
                             <p>{{ number_format($price, 2) }}</p>
                         @endforeach
                     </td>
-                    <td>
-                        @foreach (explode(',', $report->employees) as $employee)
-                            <p>{{ $employee }}</p>
-                        @endforeach
-                    </td>
-                    <td>
-                        @foreach (explode(',', $report->customers) as $customer)
-                            <p>{{ $customer }}</p>
-                        @endforeach
-                    </td>
+               
+                    
                 </tr>
             @endforeach
         </tbody>

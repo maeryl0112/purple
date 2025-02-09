@@ -60,17 +60,24 @@
     <div class="header">
         <div class="logo">
            <img src="{{ $image }}" width="300px" alt="Salon Logo">
-           <p>Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite </br> purplelookhairsalonandspa@gmail.com </br> 09********</p>
+           <p>Stall 2 & 19, 678 Terminal Bayanan Bacoor Cavite </br> 
+           purplelookhairsalonandspa@gmail.com<br>
+               0916-504-8592 (Globe) <br>
+               0968-322-8344 (Smart) <br>
+               (046) 450-1531 (Molino Branch) <br>
+               (046) 471-3897 (Main Branch) <br> 
+    </p>
         </div>
     </div>
 
     <div class="report-info">
-        <p><strong>Prepared By:</strong> {{ $preparedBy }}</p>
-        <p><strong>Report Date & Time:</strong> {{ $currentDateTime }}</p>
-        @if(isset($selectedBranch) && $selectedBranch)
-            <p><strong>Branch:</strong> {{ $selectedBranch }}</p>
-        @endif
-    </div>
+    <p><strong>Prepared By:</strong> {{ $preparedBy }}</p>
+    <p><strong>Report Date & Time:</strong> {{ $currentDateTime }}</p>
+    <p><strong>Report for Date:</strong> {{ \Carbon\Carbon::parse($selectedDate)->format('F d, Y') }}</p>
+    <p><strong>Branch:</strong> {{ $branchAssigned }}</p>
+    
+</div>
+
 
     <h2 class="report-title">All Daily Sales Report</h2>
 
@@ -78,6 +85,7 @@
         <thead>
             <tr>
                 <th>Date</th>
+                <th>Branches</th>
                 <th>Total Sales</th>
                 <th>Service Name</th>
                 <th>Sales</th>
@@ -90,6 +98,7 @@
                     <!-- First row with date and total sales -->
                     <tr>
                         <td rowspan="{{ $rowspan }}">{{ \Carbon\Carbon::parse($report->date)->format('F d, Y') }}</td>
+                        <td rowspan="{{$rowspan}}">{{ $report->branch_name ?? 'N/A' }}</td> <!-- Add branch name -->
                         <td rowspan="{{ $rowspan }}">{{ number_format($report->total_sales, 2) }}</td>
                         @php $firstService = true; @endphp
                         @foreach($report->grouped_services as $serviceName => $serviceData)
