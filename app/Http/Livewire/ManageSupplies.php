@@ -42,6 +42,10 @@
         protected $notifiedSupplies = [];
         public $paginate = 10;
 
+        protected $notifiedLowQuantitySupplies = [];
+        protected $notifiedNearExpirationSupplies = [];
+
+
         protected $listeners = [
             'confirmArchiveSupplies' => 'confirmArchiveSupplies',
             'confirmUnarchiveSupplies' => 'confirmUnarchiveSupplies',
@@ -301,21 +305,28 @@
                 $lowQuantity = $supply->quantity < 10;
             
                 // Notify for low quantity
-                if ($lowQuantity && !in_array($supply->id, $this->notifiedSupplies)) {
+                if ($lowQuantity && !in_array($supply->id, $this->notifiedLowQuantitySupplies)) {
                     $this->notifyAdminAndEmployees($supply, 'low_quantity');
-                    $this->notifiedSupplies[] = $supply->id;
+                    $this->notifiedLowQuantitySupplies[] = $supply->id;
                 }
             
                 // Notify for near expiration (1 week before the expiration date)
                 if (
-                    $nearExpiration->diffInDays(Carbon::today()) <= 7 &&
                     !$nearExpiration->isPast() &&
-                    !in_array($supply->id . 'near_expiration', $this->notifiedSupplies)
+                    $nearExpiration->diffInDays(Carbon::today()) <= 7 &&
+                    !in_array($supply->id, $this->notifiedNearExpirationSupplies)
                 ) {
                     $this->notifyAdminAndEmployees($supply, 'expiration_date');
-                    $this->notifiedSupplies[] = $supply->id . 'expiration_date';
+                    $this->notifiedNearExpirationSupplies[] = $supply->id;
                 }
             }
+            
+            // Define supplies for the view
+            $lowQuantitySupplies = $supplies->filter(fn($supply) => $supply->quantity < 10);
+            $nearExpirationSupplies = $supplies->filter(fn($supply) => 
+                Carbon::parse($supply->expiration_date)->diffInDays(Carbon::today()) <= 7 &&
+                !Carbon::parse($supply->expiration_date)->isPast()
+            );
 
 
             
@@ -342,7 +353,6 @@
             foreach ($employees as $employee) {
                 $employee->notify(new ConsumablesNotification($supply, $type));
             }
-
         }
 
       
