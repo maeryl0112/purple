@@ -31,10 +31,7 @@ class NewAppointmentNotification extends Notification
 
     public function toDatabase($notifiable)
     {
-        $paymentMethod = $this->appointment->payment ?? 'N/A';
-        $paymentDetails = ($paymentMethod === 'online' && $this->appointment->last_four_digits)
-            ? ' (Reference no. ending in ' . $this->appointment->last_four_digits . ')'
-            : '';
+     
     
         return [
             'appointment_id' => $this->appointment->id,
@@ -42,13 +39,13 @@ class NewAppointmentNotification extends Notification
             'payment_method' => $paymentMethod,
             'employee_name' => $this->appointment->first_name ?? 'Unassigned Employee', // 👈 Add assigned employee
             'branch_id' => $this->appointment->employee->branch_id ?? 'Unknown Branch', // 👈 Add employee's branch
-            'message' => 'A new appointment has been booked by ' 
+            'message' => 'A new Appointment has been booked by ' 
                 . ($this->appointment->user->name ?? 'Unknown User') 
                 . ' with Payment Method: ' 
                 . $paymentMethod
                 . $paymentDetails
                 . ' - Assigned to: ' . ($this->appointment->first_name ?? 'Unassigned Employee')
-                . ' at Branch ID: ' . ($this->appointment->employee->branch->name ?? 'Unknown Branch'),
+                . ' at Branch: ' . ($this->appointment->employee->branch->name ?? 'Unknown Branch'),
         ];
     }
     

@@ -97,6 +97,9 @@ Route::get('/services/{slug}', [App\Http\Controllers\DisplayService::class, 'sho
             Route::post('/notifications/mark-as-read/{id}', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
 
             Route::get('/notifications/redirect/{id}', [App\Http\Controllers\NotificationController::class, 'redirectToAppointment'])->name('notifications.redirectToAppointment');
+            
+
+
 
 
 

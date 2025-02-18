@@ -63,11 +63,11 @@ class ConsumablesNotification extends Notification
         return [
             'supply_id' => $this->supply->id,
             'supply_name' => $this->supply->name,
-            'supply_branch' => $this->supply->branch->name ?? 'Unknown Branch', // Avoids null error
+            'branch_id' => $this->supply->branch_id  ?? 'Unknown Branch', // Avoids null error
             'type' => $this->type,
             'message' => $this->type === 'low_quantity' 
-                ? 'Quantity is low: ' . $this->supply->quantity
-                : 'Expiration is near on: ' . $this->supply->expiration_date,
+                ? 'Consumable: ' . $this->supply->name . ' Quantity is low: ' . $this->supply->quantity . ' in ' . $this->supply->branch->name
+                : 'Consumable: ' . $this->supply->name . ' Expiration is near on: ' . $this->supply->expiration_date . ' in ' . $this->supply->branch->name
         ];
     }
 }

@@ -190,7 +190,7 @@
 
                                 <button wire:click="openPaymentModal('{{ $appointment->id }}')" 
                                        
-                                        class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 rounded-lg text-xs px-7 py-2 inline-flex items-center me-1 mb-2 w-24">
+                                        class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 rounded-lg text-xs px-6 py-2 inline-flex items-center me-1 mb-2 w-24">
                                     Confirm
                                 </button>
 

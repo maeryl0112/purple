@@ -59,11 +59,11 @@ class EquipmentNotification extends Notification
         return [
             'equipment_id' => $this->equipment->id,
             'equipment_name' => $this->equipment->name,
-            'equipment_branch' => $this->equipment->branch->name,
+            'branch_id' => $this->equipment->branch->name,
             'type' => $this->type,
             'message' => $this->type === 'low_quantity' 
-                ? 'Quantity is low: ' . $this->equipment->quantity
-                : 'Next maintenance due on: ' . $this->equipment->next_maintenance,
+                ? 'Equipment: ' .$this->equipment->name . ' Quantity is low: ' . $this->equipment->quantity . ' in ' . $this->equipment->branch->name
+                : 'Equipment: ' . $this->equipment->name . ' Next maintenance due on: ' . $this->equipment->next_maintenance . ' in ' . $this->equipment->branch->name,
         ];
     }
 }

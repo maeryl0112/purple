@@ -234,166 +234,141 @@
         }
 
         public function render()
-        {
+{
+    $user = auth()->user();
 
-            $user = auth()->user();
+    // Build the supply query
+    $query = Supply::with(['category', 'online_supplier'])
+        ->when($user->role_id != 1, function ($query) use ($user) {
+            $query->where('branch_id', $user->branch_id);
+        })
+        ->when($this->categoryFilter, function ($query) {
+            $query->where('category_id', $this->categoryFilter);
+        })
+        ->when($user->role_id == 1 && $this->branchFilter, function ($query) {
+            $query->where('branch_id', $this->branchFilter);
+        })
+        ->when($this->search, function ($query) {
+            $query->where(function ($q) {
+                $q->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('description', 'like', '%' . $this->search . '%');
+            });
+        })
+        ->when($this->statusFilter == 'active', function ($query) {
+            $query->where('status', 1);
+        })
+        ->when($this->statusFilter == 'archived', function ($query) {
+            $query->where('status', 0);
+        });
 
-            
+    // Apply additional filters
+    if ($this->selectFilter === 'expired') {
+        $query->whereDate('expiration_date', '<', now());
+    } elseif ($this->selectFilter === 'low_quantity') {
+        $query->where('quantity', '<', 10);
+    }
 
-            $query = Supply::with(['category', 'online_supplier'])
-            ->when($user->role_id !=1, function ($query) use ($user) {
-                $query->where('branch_id', $user->branch_id);
-            })
-                ->when($this->categoryFilter, function ($query) {
-                    $query->where('category_id', $this->categoryFilter);
-                })
-                ->when(Auth::user()->role_id == 1 && $this->branchFilter, function ($query) {
-                    $query->where('branch_id', $this->branchFilter);
-                })
-                
-                ->when($this->search, function ($query) {
-                    $query->where(function ($q) {
-                        $q->where('name', 'like', '%' . $this->search . '%')
-                            ->orWhere('description', 'like', '%' . $this->search . '%');
-                    });
-                })
-                ->when($this->statusFilter == 'active', function ($query) {
-                    $query->where('status', 1);
-                })
-                ->when($this->statusFilter == 'archived', function ($query) {
-                    $query->where('status', 0);
-                });
+    // Get paginated supplies
+    $supplies = $query->paginate($this->paginate ?: 10);
 
-            // Apply filters based on the selected filter
-            if ($this->selectFilter === 'expired') {
-                $query->whereDate('expiration_date', '<', now());
-            } elseif ($this->selectFilter === 'low_quantity') {
-                $query->where('quantity', '<', 10);  // Low quantity threshold, adjust as needed
-            }
+    // Filter supplies for notifications
+    $lowQuantitySupplies = collect();
+    $nearExpirationSupplies = collect();
+    
+    foreach ($supplies as $supply) {
+        $nearExpiration = Carbon::parse($supply->expiration_date);
+        $lowQuantity = $supply->quantity < 10;
 
-            if ($user->role_id === 1) {
-                $lowQuantitySupplies = Supply::where('quantity', '<=', 5)->get();
+        if ($lowQuantity && !in_array($supply->id, $this->notifiedLowQuantitySupplies)) {
+            $this->notifyAdminAndEmployees($supply, 'low_quantity');
+            $this->notifiedLowQuantitySupplies[] = $supply->id;
+        }
 
-                $expirationThreshold = 7; // days
-                $nearExpirationSupplies = Supply::where('expiration_date', '<=', Carbon::today()->addDays($expirationThreshold))
-                    ->where('expiration_date', '>', Carbon::today())
-                    ->with('online_supplier')
-                    ->get();
-            }else {
-                $branchId = $user->branch_id;
+        if (!$nearExpiration->isPast() && $nearExpiration->diffInDays(Carbon::today()) <= 7 && 
+            !in_array($supply->id, $this->notifiedNearExpirationSupplies)) {
+            $this->notifyAdminAndEmployees($supply, 'expiration_date');
+            $this->notifiedNearExpirationSupplies[] = $supply->id;
+        }
 
-                $lowQuantitySupplies = Supply::where('quantity', '<=', 5)
-                ->where('branch_id', $user->branch_id)
-                ->get();
-        
-                $expirationThreshold = 7; // days
-                $nearExpirationSupplies = Supply::where('expiration_date', '<=', Carbon::today()->addDays($expirationThreshold))
-                    ->where('expiration_date', '>', Carbon::today())
-                    ->where('branch_id', $user->branch_id)
-                    ->with('online_supplier')
-                    ->get();
-        
-            }
+        // Store filtered supplies
+        if ($lowQuantity) {
+            $lowQuantitySupplies->push($supply);
+        }
+        if ($nearExpiration->diffInDays(Carbon::today()) <= 7 && !$nearExpiration->isPast()) {
+            $nearExpirationSupplies->push($supply);
+        }
+    }
 
-           
-            // Get paginated supplies
-            $supplies = $query->paginate($this->paginate ?: 10);
-       
+    return view('livewire.manage-supplies', [
+        'supplies' => $supplies,
+        'categories' => $this->categories,
+        'branches' => $this->branches,
+        'online_suppliers' => $this->online_suppliers,
+        'lowQuantitySupplies' => $lowQuantitySupplies,
+        'nearExpirationSupplies' => $nearExpirationSupplies,
+    ]);
+}
 
-            foreach ($supplies as $supply) {
-                $nearExpiration = Carbon::parse($supply->expiration_date);
-                $lowQuantity = $supply->quantity < 10;
-            
-                // Notify for low quantity
-                if ($lowQuantity && !in_array($supply->id, $this->notifiedLowQuantitySupplies)) {
-                    $this->notifyAdminAndEmployees($supply, 'low_quantity');
-                    $this->notifiedLowQuantitySupplies[] = $supply->id;
-                }
-            
-                // Notify for near expiration (1 week before the expiration date)
-                if (
-                    !$nearExpiration->isPast() &&
-                    $nearExpiration->diffInDays(Carbon::today()) <= 7 &&
-                    !in_array($supply->id, $this->notifiedNearExpirationSupplies)
-                ) {
-                    $this->notifyAdminAndEmployees($supply, 'expiration_date');
-                    $this->notifiedNearExpirationSupplies[] = $supply->id;
-                }
-            }
-            
-            // Define supplies for the view
-            $lowQuantitySupplies = $supplies->filter(fn($supply) => $supply->quantity < 10);
-            $nearExpirationSupplies = $supplies->filter(fn($supply) => 
-                Carbon::parse($supply->expiration_date)->diffInDays(Carbon::today()) <= 7 &&
-                !Carbon::parse($supply->expiration_date)->isPast()
-            );
-
-
-            
-            return view('livewire.manage-supplies', [
-                'supplies' => $supplies,
-                'categories' => $this->categories,
-                'branches' => $this->branches,
-                'online_suppliers' => $this->online_suppliers,
-                'lowQuantitySupplies' => $lowQuantitySupplies,
-                'nearExpirationSupplies' => $nearExpirationSupplies,
-             
-            ]);
-        }   
 
         public function notifyAdminAndEmployees($supply, $type)
         {
             $admin = User::where('role_id', 1)->first();
-            $employees = User::where('role_id', 2)->get();
-
+            $employees = User::where('role_id', 2)
+                ->where('branch_id', $supply->branch_id) // Notify employees of the same branch
+                ->get();
+        
             if ($admin) {
                 $admin->notify(new ConsumablesNotification($supply, $type));
             }
-
+        
             foreach ($employees as $employee) {
                 $employee->notify(new ConsumablesNotification($supply, $type));
             }
-        }
+        }       
 
       
 
         public function exportToPdf()
-        {
-            $user = auth()->user(); // Get the authenticated user
-        
-            // Check if user has an employee record
-            $employeeBranches = ($user->role_id === 2 && $user->employee)
-                ? $user->employee->branches->pluck('id')->toArray() // Corrected `branches`
-                : []; // If admin, show all branches
-        
-            $employeeBranchNames = ($user->role_id === 2 && $user->employee)
-                ? $user->employee->branches->pluck('name')->implode(', ')
-                : 'All Branches';
-        
-            // Get only supplies from the assigned branches
-            $supplies = Supply::with(['category'])
-                ->when(!empty($employeeBranches), function ($query) use ($employeeBranches) {
-                    $query->whereIn('branch_id', $employeeBranches);
-                })
-                ->get();
-        
-            // Check if supplies data is empty
-            if ($supplies->isEmpty()) {
-                $this->dispatchBrowserEvent('swal:error', ['message' => 'No supplies data available for export.']);
-                return;
-            }
-        
-            $image = public_path('images/banner-purple.png'); // Adjust the path to your image file
-            $preparedBy = $user->name ?? 'System Admin';
-            $currentDateTime = now()->format('Y-m-d H:i:s');
-        
-            $pdf = Pdf::loadView('supplies-report', compact('supplies', 'preparedBy', 'currentDateTime', 'employeeBranchNames', 'image'));
-        
-            $pdfPath = 'pdf/supplies-report-' . time() . '.pdf';
-            Storage::disk('public')->put($pdfPath, $pdf->output());
-        
-            $this->dispatchBrowserEvent('downloadFile', ['url' => Storage::url($pdfPath)]);
-        }
+{
+    $user = auth()->user(); // Get the authenticated user
+
+    // Get the branch details for employees
+    if ($user->role_id === 2) {
+        $employeeBranchId = $user->branch_id;
+        $employeeBranchName = $user->branch->name ?? 'Unknown Branch';
+    } else {
+        $employeeBranchId = null; // Admin can access all branches
+        $employeeBranchName = 'All Branches';
+    }
+
+    // Get only supplies from the assigned branch (for employees) or all supplies (for admins)
+    $supplies = Supply::with(['category'])
+        ->when($employeeBranchId, function ($query) use ($employeeBranchId) {
+            $query->where('branch_id', $employeeBranchId);
+        })
+        ->get();
+
+    // Check if supplies data is empty
+    if ($supplies->isEmpty()) {
+        $this->dispatchBrowserEvent('swal:error', ['message' => 'No supplies data available for export.']);
+        return;
+    }
+
+    $image = public_path('images/banner-purple.png'); // Ensure the image path is correct
+    $preparedBy = $user->name ?? 'System Admin';
+    $branchAssign = $user->branch->name ?? 'All Branches';
+    $currentDateTime = now()->format('Y-m-d H:i:s');
+
+    $pdf = Pdf::loadView('supplies-report', compact('supplies', 'preparedBy', 'currentDateTime', 'employeeBranchName', 'image'));
+
+    // Ensure the storage path exists before writing
+    $pdfPath = 'pdf/supplies-report-' . time() . '.pdf';
+    Storage::disk('public')->makeDirectory('pdf'); // Ensure 'pdf/' directory exists
+    Storage::disk('public')->put($pdfPath, $pdf->output());
+
+    $this->dispatchBrowserEvent('downloadFile', ['url' => Storage::url($pdfPath)]);
+}
+
         
 
 }

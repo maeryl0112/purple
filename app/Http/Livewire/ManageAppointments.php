@@ -234,9 +234,12 @@ public function openPaymentModal($id)
         if ($this->serviceId) { // Add service filter
             $query->where('service_id', $this->serviceId);
         }
-        if ($this->branchId) { // Add service filter
-            $query->where('branch_id', $this->branchId);
+        if ($this->branchId) { 
+            $query->whereHas('employee', function ($employeeQuery) {
+                $employeeQuery->where('branch_id', $this->branchId);
+            });
         }
+        
 
     if ($this->selectFilter === 'previous') {
         $query->whereDate('date', '<', Carbon::today())->where('status', 1);

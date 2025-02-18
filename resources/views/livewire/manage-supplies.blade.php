@@ -67,9 +67,9 @@
             <div class="w-1/2 mx-2">
 
                 <button  wire:click="openAddSuppliesModal" type="button" class="focus:outline-none text-white bg-salonPurple   hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">ADD</button>
-                @if(Auth::user()->role_id == 1 )
+                
                 <button  wire:click="exportToPdf"  class="focus:outline-none text-white bg-salonPurple hover:bg-darkPurple focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">Download to PDF</button>
-                @endif
+                
             <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only ">Search</label>
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -102,13 +102,13 @@
             </select>
 
             @if(Auth::user()->role_id == 1 )
-            <select id="branchFilter" wire:model="branchFilter" class="border text-gray-900 px-5 pt-2.5 me-2 border-gray-300 focus:ring-purple-500 focus:border-purple-500   rounded-lg">
-                <option value="">All Branch</option>
-                @foreach ($branches as $branch)
-                <option value="{{$branch->id}}">{{$branch->name}}</option>
-                @endforeach
-              </select>
-              @endif
+            <select id="branchFilter" wire:model="branchFilter"  class="border text-gray-900 px-5 pt-2.5 me-2  border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                    <option value="" selected>All Branch<i class="fas fa-code-branch    "></i></option>
+                    @foreach ($branches as $branch)
+                        <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                    @endforeach
+                </select>
+                @endif
             </div>
 
             </div>

@@ -87,7 +87,7 @@
                                class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase cursor-not-allowed"
                                x-bind:class="{
                                    'bg-red-500 text-white': '{{ $employee->reason }}' === 'taken',
-                                   'bg-gray-200 text-gray-500': '{{ $employee->reason }}' === 'off_duty'
+                                   'bg-red-500 text-white': '{{ $employee->reason }}' === 'off_duty'
                                }">
                             <input type="radio" name="employee-choice"
                                    value="{{ $employee->id }}" disabled class="sr-only"
@@ -101,7 +101,7 @@
                                 @if($employee->reason === 'taken')
                                     <span class="text-xs italic">(Taken)</span>
                                 @elseif($employee->reason === 'off_duty')
-                                    <span class="text-xs italic">(Off Duty)</span>
+                                    <span class="text-xs italic">(Off)</span>
                                 @endif
                             </span>
                             <span aria-hidden="true"

@@ -52,13 +52,22 @@
                     </x-nav-link>
 
                     
-
                     @php
-    $notifications = auth()->user()->unreadNotifications()
-        ->where('type', 'App\Notifications\NewAppointmentNotification')
-        ->where('data->branch_id', auth()->user()->branch_id) // 👈 Ensure notifications belong to the employee's branch
-        ->get();
+    $notificationsQuery = auth()->user()->unreadNotifications()
+        ->whereIn('type', [
+            'App\Notifications\NewAppointmentNotification',
+            'App\Notifications\ConsumablesNotification',
+            'App\Notifications\EquipmentNotification'
+        ]);
+
+    // Apply branch filter only if the logged-in user is an employee (role_id = 2)
+    if (auth()->user()->role_id === 2) { 
+        $notificationsQuery->where('data->branch_id', auth()->user()->branch_id);
+    }
+
+    $notifications = $notificationsQuery->get();
 @endphp
+
 
 <div class="ml-3 relative" x-data="{ open: false }">
     <button @click="open = !open" @click.outside="open = false" type="button"
@@ -76,7 +85,7 @@
 
     <div x-show="open" x-transition class="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
         <div class="py-2">
-            <p class="text-gray-700 px-4 py-2 font-semibold">Appointment Notifications</p>
+            <p class="text-gray-700 px-4 py-2 font-semibold"> Notifications</p>
             <hr class="my-2">
             @forelse($notifications as $notification)
                 <a href="{{ route('notifications.redirectToAppointment', $notification->id) }}"
@@ -84,7 +93,7 @@
                     {{ $notification->data['message'] }}
                 </a>
             @empty
-                <p class="block px-4 py-2 text-sm text-gray-700">No New Appointment Notifications</p>
+                <p class="block px-4 py-2 text-sm text-gray-700">No New Notifications</p>
             @endforelse
         </div>
     </div>
