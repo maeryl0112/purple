@@ -95,30 +95,30 @@
     <table>
         <thead>
             <tr>
-                <th class="low-stock">Name</th>
-                <th class="low-stock">Category</th>
-                <th class="low-stock">Description</th>
+                <th >Name</th>
+                <th >Category</th>
+                <th >Description</th>
                 <th class="low-stock">Quantity</th>
-                <th class="low-stock">Color Code</th>
-                <th class="low-stock">Color Shade</th>
-                <th class="low-stock">Size</th>
-                <th class="low-stock">Expiration Date</th>
-                <th class="low-stock">Branch</th>
+                <th >Color Code</th>
+                <th >Color Shade</th>
+                <th>Size</th>
+                <th >Expiration Date</th>
+                <th >Branch</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($supplies as $supply)
                 @if ($supply->quantity < 10)
                     <tr>
-                        <td class="low-stock">{{ $supply->name }}</td>
-                        <td class="low-stock">{{ $supply->category->name ?? 'N/A' }}</td>
-                        <td class="low-stock">{{ $supply->description ?? 'N/A' }}</td>
+                        <td>{{ $supply->name }}</td>
+                        <td>{{ $supply->category->name ?? 'N/A' }}</td>
+                        <td>{{ $supply->description ?? 'N/A' }}</td>
                         <td class="low-stock">{{ $supply->quantity }}</td>
-                        <td class="low-stock">{{ $supply->color_code ?? 'N/A' }}</td>
-                        <td class="low-stock">{{ $supply->color_shade ?? 'N/A' }}</td>
-                        <td class="low-stock">{{ $supply->size ?? 'N/A' }}</td>
-                        <td class="low-stock">{{ $supply->expiration_date ? \Carbon\Carbon::parse($supply->expiration_date)->format('Y-m-d') : 'N/A' }}</td>
-                        <td class="low-stock">{{ $supply->branch->name ?? 'N/A' }}</td>
+                        <td>{{ $supply->color_code ?? 'N/A' }}</td>
+                        <td>{{ $supply->color_shade ?? 'N/A' }}</td>
+                        <td>{{ $supply->size ?? 'N/A' }}</td>
+                        <td>{{ $supply->expiration_date ? \Carbon\Carbon::parse($supply->expiration_date)->format('Y-m-d') : 'N/A' }}</td>
+                        <td>{{ $supply->branch->name ?? 'N/A' }}</td>
                     </tr>
                 @endif
             @endforeach
@@ -130,15 +130,15 @@
     <table>
         <thead>
             <tr>
-                <th class="low-stock">Name</th>
-                <th class="low-stock">Category</th>
-                <th class="low-stock">Description</th>
-                <th class="low-stock">Quantity</th>
-                <th class="low-stock">Color Code</th>
-                <th class="low-stock">Color Shade</th>
-                <th class="low-stock">Size</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Color Code</th>
+                <th>Color Shade</th>
+                <th>Size</th>
                 <th class="low-stock">Expiration Date</th>
-                <th class="low-stock">Branch</th>
+                <th>Branch</th>
             </tr>
         </thead>
         <tbody>
@@ -146,15 +146,15 @@
                 @if ($supply->expiration_date && \Carbon\Carbon::parse($supply->expiration_date)->diffInDays(now()) <= 7 
                     && !\Carbon\Carbon::parse($supply->expiration_date)->isPast())
                     <tr>
-                        <td class="low-stock">{{ $supply->name }}</td>
-                        <td class="low-stock">{{ $supply->category->name ?? 'N/A' }}</td>
-                        <td class="low-stock">{{ $supply->description ?? 'N/A' }}</td>
-                        <td class="low-stock">{{ $supply->quantity }}</td>
-                        <td class="low-stock">{{ $supply->color_code ?? 'N/A' }}</td>
-                        <td class="low-stock">{{ $supply->color_shade ?? 'N/A' }}</td>
-                        <td class="low-stock">{{ $supply->size ?? 'N/A' }}</td>
+                        <td>{{ $supply->name }}</td>
+                        <td>{{ $supply->category->name ?? 'N/A' }}</td>
+                        <td>{{ $supply->description ?? 'N/A' }}</td>
+                        <td>{{ $supply->quantity }}</td>
+                        <td>{{ $supply->color_code ?? 'N/A' }}</td>
+                        <td>{{ $supply->color_shade ?? 'N/A' }}</td>
+                        <td>{{ $supply->size ?? 'N/A' }}</td>
                         <td class="low-stock">{{ \Carbon\Carbon::parse($supply->expiration_date)->format('Y-m-d') }}</td>
-                        <td class="low-stock">{{ $supply->branch->name ?? 'N/A' }}</td>
+                        <td>{{ $supply->branch->name ?? 'N/A' }}</td>
                     </tr>
                 @endif  
             @endforeach
