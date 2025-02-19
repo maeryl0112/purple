@@ -32,6 +32,10 @@ class NewAppointmentNotification extends Notification
     public function toDatabase($notifiable)
     {
      
+        $paymentMethod = $this->appointment->payment ?? 'N/A';
+        $paymentDetails = $paymentMethod === 'online' && $this->appointment->last_four_digits
+            ? ' (Reference no. ending in ' . $this->appointment->last_four_digits . ')'
+            : '';
     
         return [
             'appointment_id' => $this->appointment->id,
